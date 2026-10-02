@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# NOTE: "pdfeditor" is a placeholder name. See src/pdfeditor/__init__.py (APP_NAME).
+name = "pdfeditor"
+version = "0.1.0"
+description = "A free and open-source PDF editor: vector object editing plus page management, Linux native and cross-platform."
+readme = "README.md"
+license = "AGPL-3.0-or-later"
+requires-python = ">=3.11"
+dependencies = [
+    "PySide6>=6.6",
+    "pymupdf>=1.24",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov"]
+
+[project.scripts]
+pdfeditor = "pdfeditor.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
