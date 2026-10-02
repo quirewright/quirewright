@@ -19,7 +19,10 @@ selectable directly on the rendered page:
 - rotate and set exact position/size from the Inspector
 - edit path nodes and bezier control handles (Node tool, or double-click a shape)
 - change fill / stroke colour, toggle fill or stroke, set stroke width
-- edit text in place (Text tool, double-click, F2 or Enter), change size and colour
+- edit text in place (Text tool, double-click, F2 or Enter): the whole visual
+  line is edited even when the PDF splits it into several runs; size and colour
+- draw new rectangles, ellipses, lines and polylines (Pen tool), add new text,
+  insert images; defaults for new objects live in the Inspector
 - delete objects
 - full undo/redo
 
@@ -35,6 +38,12 @@ context menu:
 - extract pages to a new file, split the document into chunks
 - crop pages by margins (non-destructive, resettable)
 - open encrypted PDFs, save / save as, recent files, drag-and-drop to open
+
+**Forms** – create AcroForm fields (text, checkbox, radio, dropdown, list box,
+push button) by dragging on the page; move, resize and delete them like any
+object; edit name, value, options, caption, font size, colours, border and
+flags (read-only, required, multiline) in the Inspector. Filling a form is just
+selecting a field and typing its value.
 
 **UI** – light and dark themes, consistent custom icons, Inspector panel with
 contextual properties, keyboard shortcuts for every tool and command.
@@ -134,7 +143,7 @@ are AGPL-licensed; Qt via PySide6 is LGPL.
 
 ## Roadmap
 
-- drawing new shapes, text boxes and images
+- multi-line text boxes with wrapping; bezier drawing in the Pen tool
 - grouping, z-order changes, alignment & distribution
 - editing inside form XObjects
 - annotations, forms, OCR, redaction
