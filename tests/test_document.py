@@ -143,3 +143,10 @@ def test_save_in_place(tmp_path):
     doc.rotate_pages([0], 90)
     doc.save()
     assert pymupdf.open(p)[0].rotation == 90
+
+
+def test_duplicate_last_page(tmp_path):
+    doc = Document(make_doc(tmp_path, 2))
+    doc.duplicate_pages([1])
+    assert doc.page_count == 3
+    assert doc.pdf[2].get_text().strip() == "Page 2"

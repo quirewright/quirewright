@@ -337,7 +337,8 @@ class Document:
 
         def action(doc: "Document") -> None:
             for i in reversed(idx):
-                doc.pdf.copy_page(i, i + 1)
+                n = doc.pdf.page_count
+                doc.pdf.copy_page(i, i + 1 if i + 1 < n else -1)
 
         self._structure_op("Duplicate page(s)", action)
 
