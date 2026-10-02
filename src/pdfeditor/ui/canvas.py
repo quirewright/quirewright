@@ -2,22 +2,20 @@
 
 The scene coordinate system is PyMuPDF's page space in points (origin at the
 top-left of the rotated, cropped page, y down). The rendered page bitmap is
-placed as a pixmap item scaled back to points; selectable objects get
-invisible hit-test items on top, plus a selection frame with scale handles,
-a node editor for paths, and an inline text editor.
+placed as a pixmap item scaled back to points; selectable objects and form
+fields get invisible hit-test items on top, plus a selection frame with scale
+handles, a node editor for paths, drawing previews, and an inline text editor.
 """
 
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Callable
 
-from PySide6.QtCore import QEvent, QLineF, QPointF, QRectF, QSizeF, Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, QPointF, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import (
     QBrush,
     QColor,
-    QCursor,
     QFont,
     QKeyEvent,
     QMouseEvent,
@@ -31,6 +29,7 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import (
     QGraphicsItem,
+    QGraphicsPathItem,
     QGraphicsPixmapItem,
     QGraphicsProxyWidget,
     QGraphicsRectItem,
@@ -41,9 +40,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from pdfeditor.core.content.model import GObject, PathObject, TextRun, XObjectRef
+from pdfeditor.core.content.model import Color, GObject, PathObject, TextRun, XObjectRef
 from pdfeditor.core.content.writer import ContentEditor
-from pdfeditor.core.document import Document
+from pdfeditor.core.document import Document, WidgetInfo
 from pdfeditor.core.geometry import Matrix, Rect
 from pdfeditor.ui import theme
 from pdfeditor.ui.render import RenderCache, render_page
@@ -52,10 +51,18 @@ TOOL_SELECT = "select"
 TOOL_NODE = "node"
 TOOL_TEXT = "text"
 TOOL_HAND = "hand"
+TOOL_RECT = "rect"
+TOOL_ELLIPSE = "ellipse"
+TOOL_LINE = "line"
+TOOL_PEN = "pen"
+TOOL_FIELD = "field"  # followed by ":<type>", e.g. "field:7"
+
+DRAW_TOOLS = (TOOL_RECT, TOOL_ELLIPSE, TOOL_LINE, TOOL_PEN)
 
 HANDLE_PX = 8.0
 MIN_ZOOM = 0.1
 MAX_ZOOM = 16.0
+KAPPA = 0.5522847498
 
 
 def qmatrix(m: Matrix) -> QTransform:
@@ -68,6 +75,22 @@ def from_qtransform(t: QTransform) -> Matrix:
 
 def rect_to_qrect(r: Rect) -> QRectF:
     return QRectF(r.x0, r.y0, r.x1 - r.x0, r.y1 - r.y0)
+
+
+def qrect_to_rect(r: QRectF) -> Rect:
+    return Rect.normalized(r.left(), r.top(), r.right(), r.bottom())
+
+
+@dataclass
+class DrawStyle:
+    """Defaults used when creating new objects."""
+
+    fill: Color | None = Color("DeviceRGB", (0.85, 0.9, 1.0))
+    stroke: Color | None = Color("DeviceRGB", (0.15, 0.35, 0.8))
+    line_width: float = 1.5
+    font: str = "helv"
+    font_size: float = 12.0
+    text_color: Color = Color("DeviceGray", (0.0,))
 
 
 # --- overlay items -----------------------------------------------------------
@@ -85,7 +108,6 @@ class ObjectItem(QGraphicsItem):
         self.selected_flag = False
         self.setAcceptHoverEvents(True)
         self.setZValue(10 + obj.sequence * 1e-6)
-        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemHasNoContents, False)
 
     def boundingRect(self) -> QRectF:
         return self._bounds
@@ -110,7 +132,7 @@ class ObjectItem(QGraphicsItem):
         if not (self.hovered or self.selected_flag):
             return
         t = theme.current()
-        if self.obj.kind == "text" and self.obj.invisible:  # type: ignore[attr-defined]
+        if isinstance(self.obj, TextRun) and self.obj.invisible:
             pen = QPen(QColor(t.text_muted), 0, Qt.PenStyle.DashLine)
         elif self.selected_flag:
             pen = QPen(QColor(t.selection), 0)
@@ -123,10 +145,58 @@ class ObjectItem(QGraphicsItem):
         painter.drawPath(self._path)
 
 
+class WidgetItem(QGraphicsItem):
+    """Hit-test and highlight proxy for a form field (widget annotation)."""
+
+    def __init__(self, info: WidgetInfo):
+        super().__init__()
+        self.info = info
+        self.rect = rect_to_qrect(info.rect)
+        self.hovered = False
+        self.selected_flag = False
+        self.show_tint = False
+        self.setAcceptHoverEvents(True)
+        self.setZValue(50)
+
+    def boundingRect(self) -> QRectF:
+        return self.rect.adjusted(-1, -1, 1, 1)
+
+    def shape(self) -> QPainterPath:
+        p = QPainterPath()
+        p.addRect(self.rect)
+        return p
+
+    def hoverEnterEvent(self, event) -> None:
+        self.hovered = True
+        self.update()
+
+    def hoverLeaveEvent(self, event) -> None:
+        self.hovered = False
+        self.update()
+
+    def set_selected(self, on: bool) -> None:
+        if self.selected_flag != on:
+            self.selected_flag = on
+            self.update()
+
+    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget | None = None) -> None:
+        t = theme.current()
+        if self.show_tint:
+            c = QColor(t.accent)
+            c.setAlpha(28)
+            painter.fillRect(self.rect, c)
+        if not (self.hovered or self.selected_flag or self.show_tint):
+            return
+        pen = QPen(QColor(t.selection if self.selected_flag else t.hover), 0, Qt.PenStyle.DashLine if not self.selected_flag else Qt.PenStyle.SolidLine)
+        pen.setCosmetic(True)
+        pen.setWidthF(1.2)
+        painter.setPen(pen)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawRect(self.rect)
+
+
 class SelectionFrame(QGraphicsItem):
     """Bounding box of the current selection with eight scale handles."""
-
-    HANDLES = ("nw", "n", "ne", "e", "se", "s", "sw", "w")
 
     def __init__(self):
         super().__init__()
@@ -194,12 +264,11 @@ class NodeOverlay(QGraphicsItem):
         self.u2s = user_to_scene
         self.s2u, _ = user_to_scene.inverted()
         self.zoom = zoom
-        self.active: tuple[int, int, int] | None = None  # (subpath, segment, point index)
+        self.active: tuple[int, int, int] | None = None
         self.hover: tuple[int, int, int] | None = None
         self.setZValue(2000)
         self.setAcceptHoverEvents(True)
 
-    # points: iterate (subpath idx, seg idx, point idx (0,1,2 for c; 0 for m/l), user x, y, is_anchor)
     def points(self):
         for si, sp in enumerate(self.subpaths):
             for gi, seg in enumerate(sp):
@@ -236,7 +305,6 @@ class NodeOverlay(QGraphicsItem):
         old_x, old_y = seg[1 + 2 * pi], seg[2 + 2 * pi]
         seg[1 + 2 * pi], seg[2 + 2 * pi] = u.x(), u.y()
         self.subpaths[si][gi] = tuple(seg)
-        # Moving an anchor drags the attached control handles along
         is_anchor = seg[0] != "c" or pi == 2
         if is_anchor:
             dx, dy = u.x() - old_x, u.y() - old_y
@@ -267,7 +335,6 @@ class NodeOverlay(QGraphicsItem):
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(self.painter_path())
         r = self.handle_radius()
-        # control handle lines
         thin = QPen(QColor(t.hover), 0, Qt.PenStyle.DashLine)
         thin.setCosmetic(True)
         for si, sp in enumerate(self.subpaths):
@@ -314,11 +381,42 @@ def subpaths_to_qpath(subpaths, transform: QTransform) -> QPainterPath:
     return path
 
 
+def ellipse_subpath(r: QRectF) -> list[tuple]:
+    """Four-bezier approximation of an ellipse inscribed in ``r`` (scene space)."""
+    cx, cy = r.center().x(), r.center().y()
+    rx, ry = r.width() / 2, r.height() / 2
+    kx, ky = rx * KAPPA, ry * KAPPA
+    return [
+        ("m", cx + rx, cy),
+        ("c", cx + rx, cy + ky, cx + kx, cy + ry, cx, cy + ry),
+        ("c", cx - kx, cy + ry, cx - rx, cy + ky, cx - rx, cy),
+        ("c", cx - rx, cy - ky, cx - kx, cy - ry, cx, cy - ry),
+        ("c", cx + kx, cy - ry, cx + rx, cy - ky, cx + rx, cy),
+        ("h",),
+    ]
+
+
+def transform_subpaths(subpaths, m: Matrix):
+    out = []
+    for sp in subpaths:
+        new = []
+        for seg in sp:
+            if seg[0] == "h":
+                new.append(seg)
+                continue
+            vals = [seg[0]]
+            for i in range(1, len(seg), 2):
+                vals.extend(m.apply(seg[i], seg[i + 1]))
+            new.append(tuple(vals))
+        out.append(new)
+    return out
+
+
 # --- drag state --------------------------------------------------------------
 
 @dataclass
 class DragState:
-    mode: str  # "move", "scale", "rubber", "pan", "node"
+    mode: str  # "move", "scale", "rubber", "pan", "node", "create"
     start: QPointF
     last: QPointF = field(default_factory=QPointF)
     handle: str | None = None
@@ -349,17 +447,25 @@ class PageCanvas(QGraphicsView):
         self.setScene(self._scene)
         self.page_item: QGraphicsPixmapItem | None = None
         self.items_by_id: dict[int, ObjectItem] = {}
+        self.widget_items: dict[int, WidgetItem] = {}
         self.selection: list[int] = []
+        self.widget_selection: list[int] = []
         self.frame = SelectionFrame()
         self._scene.addItem(self.frame)
         self.node_overlay: NodeOverlay | None = None
         self.text_proxy: QGraphicsProxyWidget | None = None
-        self.text_edit_id: int | None = None
+        self.text_edit_ids: list[int] = []
+        self.text_edit_new: QPointF | None = None
         self.rubber: QGraphicsRectItem | None = None
+        self.preview: QGraphicsItem | None = None
+        self.pen_points: list[QPointF] = []
+        self.pen_preview: QGraphicsPathItem | None = None
         self.drag: DragState | None = None
         self.pdf_to_scene = Matrix()
         self.page_rect = QRectF(0, 0, 612, 792)
         self.scale_stroke = True
+        self.draw_style = DrawStyle()
+        self._select_new_after_rebuild = False
 
         self._render_timer = QTimer(self)
         self._render_timer.setSingleShot(True)
@@ -389,6 +495,7 @@ class PageCanvas(QGraphicsView):
         self.cache.clear()
         self.page_index = 0
         self.selection = []
+        self.widget_selection = []
         if doc is not None:
             doc.add_listener(self._on_doc_event)
         self.rebuild()
@@ -402,7 +509,7 @@ class PageCanvas(QGraphicsView):
             self.cache.clear()
             if self.doc is not None and self.page_index >= self.doc.page_count:
                 self.page_index = max(0, self.doc.page_count - 1)
-            self.rebuild()
+            self.rebuild(keep_selection=True)
 
     def set_page(self, index: int) -> None:
         if self.doc is None:
@@ -412,6 +519,7 @@ class PageCanvas(QGraphicsView):
             return
         self.page_index = index
         self.selection = []
+        self.widget_selection = []
         self.rebuild()
         self.selectionChanged.emit([])
 
@@ -419,30 +527,61 @@ class PageCanvas(QGraphicsView):
         if tool == self.tool:
             return
         self._end_text_edit(commit=False)
+        self._cancel_pen()
         self.tool = tool
+        if tool in DRAW_TOOLS or tool == TOOL_TEXT or self.is_field_tool:
+            self.selection = []
+            self.widget_selection = []
+            self._update_selection_visuals()
+            self.selectionChanged.emit([])
         self._update_node_overlay()
         self._update_cursor()
+        self._update_widget_tint()
         self.toolChanged.emit(tool)
+
+    @property
+    def is_field_tool(self) -> bool:
+        return self.tool.startswith(TOOL_FIELD)
+
+    def field_tool_type(self) -> int:
+        try:
+            return int(self.tool.split(":", 1)[1])
+        except (IndexError, ValueError):
+            return 7
 
     def _update_cursor(self) -> None:
         if self.tool == TOOL_HAND:
             self.viewport().setCursor(Qt.CursorShape.OpenHandCursor)
         elif self.tool == TOOL_TEXT:
             self.viewport().setCursor(Qt.CursorShape.IBeamCursor)
+        elif self.tool in DRAW_TOOLS or self.is_field_tool:
+            self.viewport().setCursor(Qt.CursorShape.CrossCursor)
         else:
             self.viewport().setCursor(Qt.CursorShape.ArrowCursor)
+
+    def _update_widget_tint(self) -> None:
+        tint = self.is_field_tool
+        for it in self.widget_items.values():
+            if it.show_tint != tint:
+                it.show_tint = tint
+                it.update()
 
     # -- building the scene ---------------------------------------------
     def rebuild(self, keep_selection: bool = False) -> None:
         self._end_text_edit(commit=False)
+        self._cancel_pen()
         old_selection = list(self.selection) if keep_selection else []
+        old_widgets = list(self.widget_selection) if keep_selection else []
         self._scene.removeItem(self.frame)
         self._scene.clear()
         self.items_by_id = {}
+        self.widget_items = {}
         self.page_item = None
         self.node_overlay = None
         self.text_proxy = None
         self.rubber = None
+        self.preview = None
+        self.pen_preview = None
         self._scene.addItem(self.frame)
         self.frame.set_rect(QRectF(), self.zoom)
         if self.doc is None or self.doc.page_count == 0:
@@ -454,7 +593,6 @@ class PageCanvas(QGraphicsView):
         self.pdf_to_scene = self.doc.pdf_to_page_matrix(self.page_index)
         margin = 40 / max(self.zoom, 0.2)
         self._scene.setSceneRect(self.page_rect.adjusted(-margin, -margin, margin, margin))
-        # page shadow + bitmap
         shadow = QGraphicsRectItem(self.page_rect.translated(2, 3))
         shadow.setBrush(QBrush(QColor(0, 0, 0, 40)))
         shadow.setPen(Qt.PenStyle.NoPen)
@@ -466,9 +604,17 @@ class PageCanvas(QGraphicsView):
         self._scene.addItem(self.page_item)
         self._render_now()
         self._build_overlay()
-        self.selection = [i for i in old_selection if i in self.items_by_id]
+        self._build_widgets()
+        if self._select_new_after_rebuild and self.items_by_id:
+            self._select_new_after_rebuild = False
+            self.selection = [max(self.items_by_id)]
+            self.widget_selection = []
+        else:
+            self.selection = [i for i in old_selection if i in self.items_by_id]
+            self.widget_selection = [x for x in old_widgets if x in self.widget_items]
         self._update_selection_visuals()
         self._update_node_overlay()
+        self._update_widget_tint()
 
     def _build_overlay(self) -> None:
         assert self.doc is not None
@@ -489,6 +635,13 @@ class PageCanvas(QGraphicsView):
             self.items_by_id[obj.id] = item
         if content.warnings:
             self.statusMessage.emit(f"{len(content.warnings)} content warnings on this page")
+
+    def _build_widgets(self) -> None:
+        assert self.doc is not None
+        for info in self.doc.widgets(self.page_index):
+            item = WidgetItem(info)
+            self._scene.addItem(item)
+            self.widget_items[info.xref] = item
 
     def _object_geometry(self, obj: GObject, S: QTransform) -> tuple[QPainterPath | None, QPainterPath | None]:
         clip = obj.state.clip_bbox
@@ -552,7 +705,6 @@ class PageCanvas(QGraphicsView):
         return stroker.createStroke(path)
 
     def _quad_polygon(self, run: TextRun) -> QPolygonF:
-        """Tight rotated quad for a text run (text space box mapped through its matrices)."""
         font = run.font_info
         asc = font.ascent if font else 0.9
         dsc = font.descent if font else -0.2
@@ -586,7 +738,7 @@ class PageCanvas(QGraphicsView):
         self._render_timer.start()
 
     # -- zoom --------------------------------------------------------------
-    def set_zoom(self, zoom: float, anchor: QPointF | None = None) -> None:
+    def set_zoom(self, zoom: float) -> None:
         zoom = max(MIN_ZOOM, min(MAX_ZOOM, zoom))
         if abs(zoom - self.zoom) < 1e-6:
             return
@@ -627,9 +779,7 @@ class PageCanvas(QGraphicsView):
 
     def wheelEvent(self, event: QWheelEvent) -> None:
         if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            delta = event.angleDelta().y()
-            factor = 1.0015 ** delta
-            self.set_zoom(self.zoom * factor)
+            self.set_zoom(self.zoom * 1.0015 ** event.angleDelta().y())
             event.accept()
             return
         super().wheelEvent(event)
@@ -638,12 +788,28 @@ class PageCanvas(QGraphicsView):
     def selected_objects(self) -> list[GObject]:
         return [self.items_by_id[i].obj for i in self.selection if i in self.items_by_id]
 
+    def selected_widgets(self) -> list[WidgetInfo]:
+        return [self.widget_items[x].info for x in self.widget_selection if x in self.widget_items]
+
+    @property
+    def has_selection(self) -> bool:
+        return bool(self.selection or self.widget_selection)
+
     def select(self, ids: list[int], emit: bool = True) -> None:
         self.selection = [i for i in ids if i in self.items_by_id]
+        self.widget_selection = []
         self._update_selection_visuals()
         self._update_node_overlay()
         if emit:
             self.selectionChanged.emit(list(self.selection))
+
+    def select_widgets(self, xrefs: list[int], emit: bool = True) -> None:
+        self.widget_selection = [x for x in xrefs if x in self.widget_items]
+        self.selection = []
+        self._update_selection_visuals()
+        self._update_node_overlay()
+        if emit:
+            self.selectionChanged.emit([])
 
     def select_all(self) -> None:
         self.select(list(self.items_by_id.keys()))
@@ -655,14 +821,19 @@ class PageCanvas(QGraphicsView):
         sel = set(self.selection)
         for oid, item in self.items_by_id.items():
             item.set_selected(oid in sel)
+        wsel = set(self.widget_selection)
+        for x, item in self.widget_items.items():
+            item.set_selected(x in wsel)
         self.frame.set_rect(self._selection_rect(), self.zoom)
+
+    def _selected_items(self) -> list[QGraphicsItem]:
+        items: list[QGraphicsItem] = [self.items_by_id[i] for i in self.selection if i in self.items_by_id]
+        items += [self.widget_items[x] for x in self.widget_selection if x in self.widget_items]
+        return items
 
     def _selection_rect(self) -> QRectF:
         rect = QRectF()
-        for oid in self.selection:
-            item = self.items_by_id.get(oid)
-            if item is None:
-                continue
+        for item in self._selected_items():
             r = item.sceneTransform().mapRect(item.shape().boundingRect())
             rect = r if rect.isNull() else rect.united(r)
         return rect
@@ -687,21 +858,32 @@ class PageCanvas(QGraphicsView):
             return None
         return ContentEditor(self.doc.content(self.page_index))
 
-    def _commit(self, editor: ContentEditor, label: str) -> None:
+    def _commit(self, editor: ContentEditor, label: str, select_new: bool = False) -> None:
         assert self.doc is not None
         try:
             data = editor.build()
         except Exception as exc:
             self.statusMessage.emit(f"Edit failed: {exc}")
             return
+        self._select_new_after_rebuild = select_new
         self.doc.apply_content_edit(self.page_index, data, label)
+        self._select_new_after_rebuild = False
         self.pageEdited.emit(self.page_index)
+        if select_new:
+            self.selectionChanged.emit(list(self.selection))
 
     def scene_matrix_to_pdf(self, m: Matrix) -> Matrix:
         S = self.pdf_to_scene
         return S * m * S.inverted()
 
+    def scene_to_pdf(self) -> Matrix:
+        return self.pdf_to_scene.inverted()
+
     def transform_selection(self, m_scene: Matrix, label: str = "Transform") -> None:
+        if self.widget_selection and self.doc is not None:
+            self.doc.transform_widgets(self.page_index, list(self.widget_selection), m_scene)
+            self.pageEdited.emit(self.page_index)
+            return
         if not self.selection:
             return
         ed = self._editor()
@@ -714,6 +896,12 @@ class PageCanvas(QGraphicsView):
         self.transform_selection(Matrix.translation(dx, dy), "Nudge")
 
     def delete_selection(self) -> None:
+        if self.widget_selection and self.doc is not None:
+            xs = list(self.widget_selection)
+            self.widget_selection = []
+            self.doc.delete_widgets(self.page_index, xs)
+            self.selectionChanged.emit([])
+            return
         if not self.selection:
             return
         ed = self._editor()
@@ -749,93 +937,319 @@ class PageCanvas(QGraphicsView):
                 ed.set_text_size(oid, size)
         self._commit(ed, "Text size")
 
-    def set_text(self, oid: int, text: str) -> bool:
-        ed = self._editor()
-        if ed is None or self.doc is None:
-            return False
+    def _encode_text(self, ed: ContentEditor, oid: int, text: str) -> bool:
+        """Set a run's text, falling back to a built-in font when needed."""
+        assert self.doc is not None
         item = self.items_by_id.get(oid)
         if item is None or not isinstance(item.obj, TextRun):
             return False
-        if item.obj.text == text:
+        if ed.set_text(oid, text):
             return True
-        ok = ed.set_text(oid, text)
-        if not ok:
-            try:
-                sub = self.doc.ensure_substitute_font(self.page_index)
-            except Exception as exc:
-                self.statusMessage.emit(f"Could not add substitute font: {exc}")
-                return False
-            ok = ed.set_text(oid, text, substitute=sub)
-            if ok:
-                font = item.obj.font_info.display_name if item.obj.font_info else item.obj.font
-                self.statusMessage.emit(f"Some characters are not in the embedded font “{font}”; substituted Helvetica.")
-        if not ok:
-            self.statusMessage.emit("Text could not be encoded.")
+        name = self.doc.substitute_font_name(item.obj.font_info)
+        try:
+            sub = self.doc.ensure_substitute_font(self.page_index, name)
+        except Exception as exc:
+            self.statusMessage.emit(f"Could not add substitute font: {exc}")
             return False
+        if ed.set_text(oid, text, substitute=sub):
+            font = item.obj.font_info.display_name if item.obj.font_info else item.obj.font
+            self.statusMessage.emit(f"Some characters are not in the embedded font “{font}”; substituted a built-in font.")
+            return True
+        self.statusMessage.emit("Text could not be encoded.")
+        return False
+
+    def set_text(self, oid: int, text: str) -> bool:
+        return self.set_line_text([oid], text)
+
+    def set_line_text(self, ids: list[int], text: str) -> bool:
+        """Replace the text of a line made of several runs: first run gets the text, the rest are removed."""
+        ed = self._editor()
+        if ed is None or not ids:
+            return False
+        current = self._line_text(ids)
+        if current == text:
+            return True
+        if not self._encode_text(ed, ids[0], text):
+            return False
+        if len(ids) > 1:
+            ed.delete(ids[1:])
+        self.selection = [ids[0]]
         self._commit(ed, "Edit text")
         return True
+
+    # -- text lines ----------------------------------------------------------
+    def text_line_ids(self, oid: int) -> list[int]:
+        """Runs forming the visual line that contains ``oid`` (same block, same baseline)."""
+        item = self.items_by_id.get(oid)
+        if item is None or not isinstance(item.obj, TextRun):
+            return [oid]
+        run = item.obj
+        if run.block is None:
+            return [oid]
+        size = max(run.state.font_size, 1e-6)
+        candidates: list[TextRun] = []
+        for it in run.block.items:
+            if not isinstance(it, TextRun) or it.id not in self.items_by_id:
+                continue
+            if it.state.ctm != run.state.ctm or abs(it.state.font_size - size) > 0.05 * size:
+                continue
+            # same orientation and baseline
+            if abs(it.tm.b - run.tm.b) > 1e-6 or abs(it.tm.c - run.tm.c) > 1e-6 or abs(it.tm.d - run.tm.d) > 1e-6:
+                continue
+            if abs(it.tm.f - run.tm.f) > 0.1 * size:
+                continue
+            candidates.append(it)
+        candidates.sort(key=lambda r: r.tm.e)
+        # keep the contiguous group around the run (gaps < 2 em break the line)
+        idx = next(i for i, r in enumerate(candidates) if r.id == oid)
+        line = [candidates[idx]]
+        i = idx
+        while i > 0 and candidates[i].tm.e - candidates[i - 1].end_tm.e < 2 * size:
+            line.insert(0, candidates[i - 1])
+            i -= 1
+        i = idx
+        while i + 1 < len(candidates) and candidates[i + 1].tm.e - candidates[i].end_tm.e < 2 * size:
+            line.append(candidates[i + 1])
+            i += 1
+        return [r.id for r in line]
+
+    def _line_text(self, ids: list[int]) -> str:
+        runs = [self.items_by_id[i].obj for i in ids if i in self.items_by_id]
+        out = ""
+        prev: TextRun | None = None
+        for r in runs:
+            if prev is not None:
+                gap = r.tm.e - prev.end_tm.e
+                if gap > 0.15 * max(r.state.font_size, 1e-6) and not out.endswith(" ") and not r.text.startswith(" "):
+                    out += " "
+            out += r.text
+            prev = r
+        return out
 
     # -- inline text editing -----------------------------------------------
     def begin_text_edit(self, oid: int) -> None:
         item = self.items_by_id.get(oid)
         if item is None or not isinstance(item.obj, TextRun):
             return
+        ids = self.text_line_ids(oid)
+        run = self.items_by_id[ids[0]].obj
+        rect = QRectF()
+        for i in ids:
+            r = self.items_by_id[i].sceneBoundingRect()
+            rect = r if rect.isNull() else rect.united(r)
+        self.select(ids, emit=True)
+        self._open_text_editor(self._line_text(ids), rect, run.state.font_size * run.state.ctm.expansion() * self.pdf_to_scene.expansion(), ids=ids)
+
+    def begin_new_text(self, pos: QPointF) -> None:
+        size = self.draw_style.font_size
+        rect = QRectF(pos.x(), pos.y() - size, 120, size * 1.2)
+        self._open_text_editor("", rect, size, new_at=pos)
+
+    def _open_text_editor(self, text: str, rect: QRectF, size_pt: float, ids: list[int] | None = None, new_at: QPointF | None = None) -> None:
         self._end_text_edit(commit=False)
-        run = item.obj
-        rect = item.sceneBoundingRect()
-        edit = QLineEdit(run.text)
+        edit = QLineEdit(text)
         t = theme.current()
-        size_pt = max(run.state.font_size * run.state.ctm.expansion() * self.pdf_to_scene.expansion(), 4.0)
         font = QFont()
-        font.setPixelSize(int(round(size_pt)))
+        font.setPixelSize(int(round(max(size_pt, 4.0))))
         edit.setFont(font)
         edit.setStyleSheet(
             f"QLineEdit {{ background: {t.panel}; color: {t.text}; border: 1px solid {t.accent}; border-radius: 2px; padding: 0 2px; }}"
         )
         edit.setMinimumWidth(int(max(rect.width() + 24, 80)))
+        edit.setPlaceholderText("Type text…")
         proxy = self._scene.addWidget(edit)
         proxy.setZValue(5000)
         proxy.setPos(rect.left() - 3, rect.top() - 2)
+        proxy.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsFocusable, True)
         self.text_proxy = proxy
-        self.text_edit_id = oid
+        self.text_edit_ids = list(ids or [])
+        self.text_edit_new = new_at
         edit.returnPressed.connect(lambda: self._end_text_edit(commit=True))
         edit.installEventFilter(self)
-        edit.setFocus()
-        edit.selectAll()
-        self.statusMessage.emit("Editing text: Enter to apply, Esc to cancel")
+        self.setFocus(Qt.FocusReason.OtherFocusReason)
+        self._scene.setFocusItem(proxy, Qt.FocusReason.OtherFocusReason)
+        proxy.setFocus(Qt.FocusReason.OtherFocusReason)
+        edit.setFocus(Qt.FocusReason.OtherFocusReason)
+        if text:
+            edit.selectAll()
+        self.statusMessage.emit("Editing text: Enter applies, Esc cancels")
 
     def _end_text_edit(self, commit: bool) -> None:
         proxy = self.text_proxy
         if proxy is None:
             return
-        oid = self.text_edit_id
+        ids = self.text_edit_ids
+        new_at = self.text_edit_new
         widget = proxy.widget()
         text = widget.text() if isinstance(widget, QLineEdit) else None
         self.text_proxy = None
-        self.text_edit_id = None
+        self.text_edit_ids = []
+        self.text_edit_new = None
         try:
             self._scene.removeItem(proxy)
         except RuntimeError:
             pass
         proxy.deleteLater()
         self.setFocus()
-        if commit and oid is not None and text is not None:
-            self.set_text(oid, text)
+        if not commit or text is None:
+            return
+        if new_at is not None:
+            if text.strip():
+                self.create_text(new_at, text)
+        elif ids:
+            self.set_line_text(ids, text)
 
     def eventFilter(self, obj, event) -> bool:
         if event.type() == QEvent.Type.KeyPress and isinstance(event, QKeyEvent):
             if event.key() == Qt.Key.Key_Escape:
                 self._end_text_edit(commit=False)
                 return True
-        if event.type() == QEvent.Type.FocusOut and self.text_proxy is not None:
-            self._end_text_edit(commit=True)
+        if event.type() == QEvent.Type.FocusOut and self.text_proxy is not None and obj is self.text_proxy.widget():
+            QTimer.singleShot(0, lambda: self._end_text_edit(commit=True) if self.text_proxy is not None and not self.text_proxy.widget().hasFocus() else None)
             return False
         return super().eventFilter(obj, event)
 
+    # -- creation --------------------------------------------------------------
+    def create_path_scene(self, subpaths_scene: list[list[tuple]], closed: bool, label: str) -> None:
+        ed = self._editor()
+        if ed is None:
+            return
+        style = self.draw_style
+        dev = transform_subpaths(subpaths_scene, self.scene_to_pdf())
+        k = self.scene_to_pdf().expansion()
+        ed.append_path(
+            dev,
+            fill_color=style.fill if closed else None,
+            stroke_color=style.stroke,
+            line_width=style.line_width * k,
+        )
+        if style.fill is None and style.stroke is None:
+            self.statusMessage.emit("New objects need a fill or a stroke colour (see the Inspector).")
+            return
+        self._commit(ed, label, select_new=True)
+
+    def create_rect(self, r: QRectF) -> None:
+        self.create_path_scene(
+            [[("m", r.left(), r.top()), ("l", r.right(), r.top()), ("l", r.right(), r.bottom()), ("l", r.left(), r.bottom()), ("h",)]],
+            True, "Draw rectangle",
+        )
+
+    def create_ellipse(self, r: QRectF) -> None:
+        self.create_path_scene([ellipse_subpath(r)], True, "Draw ellipse")
+
+    def create_line(self, a: QPointF, b: QPointF) -> None:
+        self.create_path_scene([[("m", a.x(), a.y()), ("l", b.x(), b.y())]], False, "Draw line")
+
+    def create_polyline(self, pts: list[QPointF], closed: bool) -> None:
+        if len(pts) < 2:
+            return
+        sp: list[tuple] = [("m", pts[0].x(), pts[0].y())] + [("l", p.x(), p.y()) for p in pts[1:]]
+        if closed:
+            sp.append(("h",))
+        self.create_path_scene([sp], closed, "Draw path")
+
+    def create_text(self, pos: QPointF, text: str) -> None:
+        if self.doc is None:
+            return
+        ed = self._editor()
+        if ed is None:
+            return
+        style = self.draw_style
+        try:
+            name, fi = self.doc.ensure_substitute_font(self.page_index, style.font)
+        except Exception as exc:
+            self.statusMessage.emit(f"Could not add font: {exc}")
+            return
+        inv = self.scene_to_pdf()
+        x, y = inv.apply(pos.x(), pos.y())
+        # text rotation follows the page rotation so it reads upright on screen
+        angle = -math.degrees(math.atan2(inv.b, inv.a))
+        size = style.font_size * inv.expansion()
+        if not ed.append_text(x, y, text, name, fi, size, style.text_color, rotation=angle):
+            self.statusMessage.emit("Some characters are not available in the chosen font.")
+            return
+        self._commit(ed, "Add text", select_new=True)
+
+    def create_widget(self, r: QRectF, field_type: int) -> None:
+        if self.doc is None:
+            return
+        if r.width() < 4 or r.height() < 4:
+            size = {2: 14.0, 5: 14.0}.get(field_type, 0.0)
+            if size:
+                r = QRectF(r.left(), r.top(), size, size)
+            else:
+                r = QRectF(r.left(), r.top(), 120.0, 22.0)
+        self.doc.add_widget(self.page_index, field_type, qrect_to_rect(r))
+        self.pageEdited.emit(self.page_index)
+        new = [x for x in self.widget_items]
+        if new:
+            self.select_widgets([max(new)])
+
+    def insert_image(self, path: str) -> None:
+        if self.doc is None:
+            return
+        try:
+            w, h = self.doc.image_size(path)
+        except Exception as exc:
+            self.statusMessage.emit(f"Could not read image: {exc}")
+            return
+        pr = self.page_rect
+        max_w = pr.width() * 0.5
+        max_h = pr.height() * 0.5
+        scale = min(max_w / max(w, 1), max_h / max(h, 1), 1.0)
+        iw, ih = w * scale, h * scale
+        center = self.mapToScene(self.viewport().rect().center())
+        if not pr.contains(center):
+            center = pr.center()
+        r = QRectF(center.x() - iw / 2, center.y() - ih / 2, iw, ih)
+        r = r.intersected(pr) if not pr.contains(r) else r
+        self._select_new_after_rebuild = True
+        self.doc.add_image(self.page_index, qrect_to_rect(r), path)
+        self._select_new_after_rebuild = False
+        self.pageEdited.emit(self.page_index)
+        self.selectionChanged.emit(list(self.selection))
+
+    # -- pen tool --------------------------------------------------------------
+    def _cancel_pen(self) -> None:
+        self.pen_points = []
+        if self.pen_preview is not None:
+            try:
+                self._scene.removeItem(self.pen_preview)
+            except RuntimeError:
+                pass
+            self.pen_preview = None
+
+    def _finish_pen(self, closed: bool = False) -> None:
+        pts = list(self.pen_points)
+        self._cancel_pen()
+        if len(pts) >= 2:
+            self.create_polyline(pts, closed)
+
+    def _update_pen_preview(self, cursor: QPointF | None) -> None:
+        if not self.pen_points:
+            return
+        if self.pen_preview is None:
+            self.pen_preview = QGraphicsPathItem()
+            self.pen_preview.setZValue(3000)
+            self.pen_preview.setPen(self._preview_pen())
+            self._scene.addItem(self.pen_preview)
+        path = QPainterPath(self.pen_points[0])
+        for p in self.pen_points[1:]:
+            path.lineTo(p)
+        if cursor is not None:
+            path.lineTo(cursor)
+        self.pen_preview.setPath(path)
+
+    def _preview_pen(self) -> QPen:
+        t = theme.current()
+        pen = QPen(QColor(t.selection), 0, Qt.PenStyle.DashLine)
+        pen.setCosmetic(True)
+        return pen
+
     # -- mouse handling ---------------------------------------------------------
-    def _object_at(self, pos: QPointF) -> ObjectItem | None:
+    def _object_at(self, pos: QPointF) -> ObjectItem | WidgetItem | None:
         for it in self._scene.items(pos, Qt.ItemSelectionMode.IntersectsItemShape, Qt.SortOrder.DescendingOrder):
-            if isinstance(it, ObjectItem):
+            if isinstance(it, (ObjectItem, WidgetItem)):
                 return it
         return None
 
@@ -855,6 +1269,16 @@ class PageCanvas(QGraphicsView):
             return
         if event.button() != Qt.MouseButton.LeftButton:
             super().mousePressEvent(event)
+            return
+        if self.tool == TOOL_PEN:
+            if self.pen_points and (pos - self.pen_points[0]).manhattanLength() * self.zoom < 8 and len(self.pen_points) > 2:
+                self._finish_pen(closed=True)
+                return
+            self.pen_points.append(pos)
+            self._update_pen_preview(pos)
+            return
+        if self.tool in (TOOL_RECT, TOOL_ELLIPSE, TOOL_LINE) or self.is_field_tool:
+            self.drag = DragState("create", pos, pos)
             return
         if self.tool == TOOL_NODE and self.node_overlay is not None:
             key = self.node_overlay.point_at(pos)
@@ -876,26 +1300,33 @@ class PageCanvas(QGraphicsView):
         item = self._object_at(pos)
         shift = bool(event.modifiers() & Qt.KeyboardModifier.ShiftModifier)
         if self.tool == TOOL_TEXT:
-            if item is not None and isinstance(item.obj, TextRun):
-                self.select([item.obj.id])
+            if isinstance(item, ObjectItem) and isinstance(item.obj, TextRun):
                 self.begin_text_edit(item.obj.id)
-            else:
+            elif self.page_rect.contains(pos):
                 self.clear_selection()
+                self.begin_new_text(pos)
             return
         if item is None:
             if not shift:
                 self.clear_selection()
             self.drag = DragState("rubber", pos, pos)
             self.rubber = QGraphicsRectItem()
-            t = theme.current()
-            pen = QPen(QColor(t.selection), 0, Qt.PenStyle.DashLine)
-            pen.setCosmetic(True)
-            self.rubber.setPen(pen)
-            c = QColor(t.selection)
+            self.rubber.setPen(self._preview_pen())
+            c = QColor(theme.current().selection)
             c.setAlpha(30)
             self.rubber.setBrush(QBrush(c))
             self.rubber.setZValue(3000)
             self._scene.addItem(self.rubber)
+            return
+        if isinstance(item, WidgetItem):
+            x = item.info.xref
+            if shift:
+                sel = [w for w in self.widget_selection if w != x] if x in self.widget_selection else self.widget_selection + [x]
+                self.select_widgets(sel)
+                return
+            if x not in self.widget_selection:
+                self.select_widgets([x])
+            self.drag = DragState("move", pos, pos)
             return
         oid = item.obj.id
         if shift:
@@ -909,9 +1340,11 @@ class PageCanvas(QGraphicsView):
         self.drag = DragState("move", pos, pos)
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        pos = self.mapToScene(event.position().toPoint())
         if self.drag is None:
-            if self.tool in (TOOL_SELECT, TOOL_NODE):
-                pos = self.mapToScene(event.position().toPoint())
+            if self.tool == TOOL_PEN and self.pen_points:
+                self._update_pen_preview(pos)
+            elif self.tool in (TOOL_SELECT, TOOL_NODE):
                 handle = self.frame.handle_at(pos)
                 if self.node_overlay is not None:
                     key = self.node_overlay.point_at(pos)
@@ -931,17 +1364,20 @@ class PageCanvas(QGraphicsView):
             self.horizontalScrollBar().setValue(int(self.horizontalScrollBar().value() - delta.x()))
             self.verticalScrollBar().setValue(int(self.verticalScrollBar().value() - delta.y()))
             return
-        pos = self.mapToScene(event.position().toPoint())
         d.last = pos
+        shift = bool(event.modifiers() & Qt.KeyboardModifier.ShiftModifier)
         if d.mode == "rubber" and self.rubber is not None:
             self.rubber.setRect(QRectF(d.start, pos).normalized())
             d.moved = True
+        elif d.mode == "create":
+            d.moved = True
+            self._update_create_preview(d, pos, shift)
         elif d.mode == "move":
             delta = pos - d.start
             if not d.moved and (abs(delta.x()) + abs(delta.y())) * self.zoom < 3:
                 return
             d.moved = True
-            if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+            if shift:
                 if abs(delta.x()) > abs(delta.y()):
                     delta.setY(0)
                 else:
@@ -954,6 +1390,46 @@ class PageCanvas(QGraphicsView):
             d.moved = True
             self.node_overlay.move_point(d.node_key, pos)
 
+    def _create_geometry(self, d: DragState, pos: QPointF, shift: bool) -> QRectF | tuple[QPointF, QPointF]:
+        if self.tool == TOOL_LINE:
+            end = QPointF(pos)
+            if shift:
+                dx, dy = pos.x() - d.start.x(), pos.y() - d.start.y()
+                ang = round(math.atan2(dy, dx) / (math.pi / 4)) * (math.pi / 4)
+                length = math.hypot(dx, dy)
+                end = QPointF(d.start.x() + length * math.cos(ang), d.start.y() + length * math.sin(ang))
+            return d.start, end
+        r = QRectF(d.start, pos).normalized()
+        if shift:
+            s = max(r.width(), r.height())
+            x = d.start.x() if pos.x() >= d.start.x() else d.start.x() - s
+            y = d.start.y() if pos.y() >= d.start.y() else d.start.y() - s
+            r = QRectF(x, y, s, s)
+        return r
+
+    def _update_create_preview(self, d: DragState, pos: QPointF, shift: bool) -> None:
+        geom = self._create_geometry(d, pos, shift)
+        if self.preview is not None:
+            self._scene.removeItem(self.preview)
+            self.preview = None
+        path = QPainterPath()
+        if isinstance(geom, tuple):
+            path.moveTo(geom[0])
+            path.lineTo(geom[1])
+        elif self.tool == TOOL_ELLIPSE:
+            path.addEllipse(geom)
+        else:
+            path.addRect(geom)
+        item = QGraphicsPathItem(path)
+        item.setPen(self._preview_pen())
+        if not isinstance(geom, tuple):
+            c = QColor(theme.current().selection)
+            c.setAlpha(25)
+            item.setBrush(QBrush(c))
+        item.setZValue(3000)
+        self._scene.addItem(item)
+        self.preview = item
+
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         d = self.drag
         if d is None:
@@ -964,6 +1440,7 @@ class PageCanvas(QGraphicsView):
             self._update_cursor()
             return
         pos = self.mapToScene(event.position().toPoint())
+        shift = bool(event.modifiers() & Qt.KeyboardModifier.ShiftModifier)
         if d.mode == "rubber":
             rect = QRectF(d.start, pos).normalized()
             if self.rubber is not None:
@@ -971,9 +1448,31 @@ class PageCanvas(QGraphicsView):
                 self.rubber = None
             if d.moved and rect.width() * self.zoom > 2:
                 ids = [oid for oid, it in self.items_by_id.items() if rect.contains(it.sceneBoundingRect())]
-                if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
-                    ids = self.selection + [i for i in ids if i not in self.selection]
-                self.select(ids)
+                if ids:
+                    if shift:
+                        ids = self.selection + [i for i in ids if i not in self.selection]
+                    self.select(ids)
+                else:
+                    xs = [x for x, it in self.widget_items.items() if rect.contains(it.sceneBoundingRect())]
+                    self.select_widgets(xs)
+            return
+        if d.mode == "create":
+            if self.preview is not None:
+                self._scene.removeItem(self.preview)
+                self.preview = None
+            geom = self._create_geometry(d, pos, shift)
+            if self.is_field_tool:
+                r = geom if isinstance(geom, QRectF) else QRectF(geom[0], geom[1]).normalized()
+                self.create_widget(r, self.field_tool_type())
+                return
+            if isinstance(geom, tuple):
+                if (geom[0] - geom[1]).manhattanLength() * self.zoom >= 3:
+                    self.create_line(*geom)
+            elif geom.width() * self.zoom >= 3 and geom.height() * self.zoom >= 3:
+                if self.tool == TOOL_ELLIPSE:
+                    self.create_ellipse(geom)
+                else:
+                    self.create_rect(geom)
             return
         if d.mode in ("move", "scale"):
             m = self._clear_preview()
@@ -993,12 +1492,14 @@ class PageCanvas(QGraphicsView):
 
     def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
         pos = self.mapToScene(event.position().toPoint())
+        if self.tool == TOOL_PEN:
+            self._finish_pen(closed=False)
+            return
         item = self._object_at(pos)
-        if item is not None and isinstance(item.obj, TextRun) and self.tool in (TOOL_SELECT, TOOL_TEXT):
-            self.select([item.obj.id])
+        if isinstance(item, ObjectItem) and isinstance(item.obj, TextRun) and self.tool in (TOOL_SELECT, TOOL_TEXT):
             self.begin_text_edit(item.obj.id)
             return
-        if item is not None and isinstance(item.obj, PathObject) and self.tool == TOOL_SELECT:
+        if isinstance(item, ObjectItem) and isinstance(item.obj, PathObject) and self.tool == TOOL_SELECT:
             self.select([item.obj.id])
             self.set_tool(TOOL_NODE)
             return
@@ -1028,20 +1529,16 @@ class PageCanvas(QGraphicsView):
         return t
 
     def _preview_transform(self, t: QTransform) -> None:
-        for oid in self.selection:
-            item = self.items_by_id.get(oid)
-            if item is not None:
-                item.setTransform(t)
+        for item in self._selected_items():
+            item.setTransform(t)
         self.frame.set_rect(self._selection_rect(), self.zoom)
 
     def _clear_preview(self) -> QTransform | None:
         m: QTransform | None = None
-        for oid in self.selection:
-            item = self.items_by_id.get(oid)
-            if item is not None:
-                if m is None:
-                    m = item.transform()
-                item.setTransform(QTransform())
+        for item in self._selected_items():
+            if m is None:
+                m = item.transform()
+            item.setTransform(QTransform())
         self.frame.set_rect(self._selection_rect(), self.zoom)
         return m
 
@@ -1052,17 +1549,22 @@ class PageCanvas(QGraphicsView):
         if key == Qt.Key.Key_Escape:
             if self.text_proxy is not None:
                 self._end_text_edit(commit=False)
-            elif self.tool == TOOL_NODE:
+            elif self.tool == TOOL_PEN and self.pen_points:
+                self._finish_pen(closed=False)
+            elif self.tool != TOOL_SELECT:
                 self.set_tool(TOOL_SELECT)
             else:
                 self.clear_selection()
             return
-        if key in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace) and self.selection:
+        if key in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and self.tool == TOOL_PEN and self.pen_points:
+            self._finish_pen(closed=bool(mods & Qt.KeyboardModifier.ShiftModifier))
+            return
+        if key in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace) and self.has_selection:
             self.delete_selection()
             return
         step = 10.0 if mods & Qt.KeyboardModifier.ShiftModifier else 1.0
         arrows = {Qt.Key.Key_Left: (-step, 0), Qt.Key.Key_Right: (step, 0), Qt.Key.Key_Up: (0, -step), Qt.Key.Key_Down: (0, step)}
-        if key in arrows and self.selection:
+        if key in arrows and self.has_selection:
             dx, dy = arrows[key]
             self.nudge(dx, dy)
             return
@@ -1072,9 +1574,6 @@ class PageCanvas(QGraphicsView):
                 self.begin_text_edit(obj.id)
                 return
         super().keyPressEvent(event)
-
-    def resizeEvent(self, event) -> None:
-        super().resizeEvent(event)
 
 
 def _handle_cursor(handle: str) -> Qt.CursorShape:

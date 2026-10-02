@@ -189,6 +189,7 @@ class ContentEditor:
         self._deleted: set[int] = set()
         self._dirty_blocks: set[int] = set()  # id(block)
         self._blocks_by_id: dict[int, TextBlock] = {}
+        self._appends: list[bytes] = []
 
     # -- mutations -------------------------------------------------------
     def _obj(self, oid: int) -> GObject:
@@ -325,6 +326,73 @@ class ContentEditor:
             run.state.render_mode = int(mode)
             self._mark(run)
 
+    # -- creating new objects (appended at the end, i.e. on top) --------------
+    def _append_base(self) -> tuple[GraphicsState, Matrix]:
+        base = self.content.end_base_state
+        try:
+            inv = base.ctm.inverted()
+        except ValueError:
+            inv = Matrix()
+        return base, inv
+
+    def append_path(
+        self,
+        subpaths_device: list[list[tuple]],
+        *,
+        fill_color: Color | None = None,
+        stroke_color: Color | None = None,
+        line_width: float = 1.0,
+        even_odd: bool = False,
+        line_cap: int = 0,
+        line_join: int = 0,
+    ) -> None:
+        """Append a new path given in device (PDF user) space."""
+        base, inv = self._append_base()
+        subpaths = [[_transform_segment(seg, inv) for seg in sp] for sp in subpaths_device]
+        ops: list[bytes] = [b"q"]
+        if fill_color is not None:
+            ops += _color_ops(base.fill_color, base.fill_space, fill_color, fill_color.space, False) or []
+            if not ops[1:]:
+                ops += _color_ops(Color("X", ()), "X", fill_color, fill_color.space, False)
+        if stroke_color is not None:
+            ops += _color_ops(Color("X", ()), "X", stroke_color, stroke_color.space, True)
+            ops.append(fmt(line_width / max(base.ctm.expansion(), 1e-9)) + b" w")
+            if line_cap:
+                ops.append(fmt(line_cap) + b" J")
+            if line_join:
+                ops.append(fmt(line_join) + b" j")
+        ops.append(serialize_subpaths(subpaths))
+        ops.append(paint_operator(fill_color is not None, stroke_color is not None, even_odd))
+        ops.append(b"Q")
+        self._appends.append(b"\n".join(ops))
+
+    def append_text(
+        self,
+        x: float,
+        y: float,
+        text: str,
+        font_name: str,
+        font: FontInfo,
+        size: float,
+        color: Color | None = None,
+        rotation: float = 0.0,
+    ) -> bool:
+        """Append a text object with its baseline origin at device point (x, y)."""
+        encoded = font.encode(text)
+        if encoded is None:
+            return False
+        base, inv = self._append_base()
+        tm = Matrix.rotation(rotation) * Matrix.translation(x, y) * inv
+        ops: list[bytes] = [b"q", b"BT"]
+        if color is not None:
+            ops += _color_ops(Color("X", ()), "X", color, color.space, False)
+        ops.append(fmt_name(font_name) + b" " + fmt(size) + b" Tf")
+        ops.append(fmt_matrix(tm) + b" Tm")
+        ops.append(fmt_string(encoded, bool(font.code_ranges)) + b" Tj")
+        ops += [b"ET", b"Q"]
+        self._appends.append(b"\n".join(ops))
+        return True
+
     # -- building --------------------------------------------------------
     def build(self) -> bytes:
         reps: list[_Replacement] = []
@@ -349,6 +417,13 @@ class ContentEditor:
             out += r.data
             pos = r.end
         out += self.stream[pos:]
+        if self._appends:
+            if len(out) and out[-1:] not in (b"\n", b" ", b"\r"):
+                out += b"\n"
+            if self.content.end_in_text:
+                out += b"ET\n"
+            out += b"Q\n" * self.content.end_depth
+            out += b"\n".join(self._appends) + b"\n"
         return bytes(out)
 
     def _deletion_bytes(self, obj: GObject) -> bytes:

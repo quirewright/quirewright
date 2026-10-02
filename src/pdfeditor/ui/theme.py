@@ -245,6 +245,18 @@ _ICON_PATHS: dict[str, str] = {
     "check": '<path d="M20 6L9 17l-5-5"/>',
     "search": '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/>',
     "more": '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
+    "rect": '<rect x="4" y="6" width="16" height="12" rx="1.5"/>',
+    "ellipse": '<ellipse cx="12" cy="12" rx="8.5" ry="6.5"/>',
+    "line": '<path d="M5 19L19 5"/><circle cx="5" cy="19" r="1.5"/><circle cx="19" cy="5" r="1.5"/>',
+    "pen": '<path d="M4 20l4-1L19 8a2 2 0 0 0-3-3L5 16z"/><path d="M14 7l3 3"/>',
+    "text-add": '<path d="M4 6h10M9 6v12M7 18h4"/><path d="M18 10v6M15 13h6"/>',
+    "field-text": '<rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 11v2"/>',
+    "field-check": '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/>',
+    "field-radio": '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="currentColor"/>',
+    "field-combo": '<rect x="3" y="7" width="18" height="10" rx="2"/><path d="M14 11l2 2 2-2"/>',
+    "field-list": '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 12h10M7 15h6"/>',
+    "field-button": '<rect x="3" y="8" width="18" height="9" rx="4"/><path d="M8 12.5h8"/>',
+    "form": '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/>',
 }
 
 _icon_cache: dict[tuple[str, str, int], QIcon] = {}

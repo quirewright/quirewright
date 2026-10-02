@@ -234,6 +234,10 @@ class PageContent:
     blocks: list[TextBlock] = field(default_factory=list)
     fonts: dict = field(default_factory=dict)  # resource name -> FontInfo
     warnings: list[str] = field(default_factory=list)
+    # State at the end of the stream, used when appending new objects:
+    end_base_state: GraphicsState = field(default_factory=GraphicsState)  # state after closing open q's
+    end_depth: int = 0  # number of unbalanced q operators
+    end_in_text: bool = False  # stream ended inside BT ... ET
 
     def by_id(self, oid: int) -> GObject:
         return self.objects[oid]

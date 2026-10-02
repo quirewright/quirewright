@@ -24,7 +24,18 @@ from PySide6.QtWidgets import (
 from pdfeditor import APP_NAME, APP_ID
 from pdfeditor.core.document import Document
 from pdfeditor.ui import theme
-from pdfeditor.ui.canvas import TOOL_HAND, TOOL_NODE, TOOL_SELECT, TOOL_TEXT, PageCanvas
+from pdfeditor.ui.canvas import (
+    TOOL_ELLIPSE,
+    TOOL_FIELD,
+    TOOL_HAND,
+    TOOL_LINE,
+    TOOL_NODE,
+    TOOL_PEN,
+    TOOL_RECT,
+    TOOL_SELECT,
+    TOOL_TEXT,
+    PageCanvas,
+)
 from pdfeditor.ui.dialogs import (
     AboutDialog,
     BlankPageDialog,
@@ -119,9 +130,26 @@ class MainWindow(QMainWindow):
         self.act_tool_node = self._act("Nodes", "node", "N", lambda: self.canvas.set_tool(TOOL_NODE), True, "Edit path nodes (N)")
         self.act_tool_text = self._act("Text", "text", "T", lambda: self.canvas.set_tool(TOOL_TEXT), True, "Edit text (T)")
         self.act_tool_hand = self._act("Pan", "hand", "H", lambda: self.canvas.set_tool(TOOL_HAND), True, "Pan the page (H)")
-        for a in (self.act_tool_select, self.act_tool_node, self.act_tool_text, self.act_tool_hand):
+        self.act_tool_rect = self._act("Rectangle", "rect", "R", lambda: self.canvas.set_tool(TOOL_RECT), True, "Draw a rectangle (R)")
+        self.act_tool_ellipse = self._act("Ellipse", "ellipse", "E", lambda: self.canvas.set_tool(TOOL_ELLIPSE), True, "Draw an ellipse (E)")
+        self.act_tool_line = self._act("Line", "line", "L", lambda: self.canvas.set_tool(TOOL_LINE), True, "Draw a straight line (L)")
+        self.act_tool_pen = self._act("Pen", "pen", "P", lambda: self.canvas.set_tool(TOOL_PEN), True, "Draw a polyline: click points, double-click or Enter to finish (P)")
+        self.field_actions: list[QAction] = []
+        self.field_types = [
+            (7, "Text field", "field-text"), (2, "Checkbox", "field-check"), (5, "Radio button", "field-radio"),
+            (3, "Dropdown", "field-combo"), (4, "List box", "field-list"), (1, "Push button", "field-button"),
+        ]
+        for ftype, label, icon_name in self.field_types:
+            a = self._act(label, icon_name, None, lambda checked=False, t=ftype: self.canvas.set_tool(f"{TOOL_FIELD}:{t}"), True, f"Drag on the page to add a {label.lower()}")
+            a.setProperty("fieldType", ftype)
+            self.field_actions.append(a)
+        self.act_tool_field = self._act("Form Field", "form", "F", lambda: self.canvas.set_tool(f"{TOOL_FIELD}:{self._last_field_type}"), True, "Add form fields (F)")
+        self._last_field_type = 7
+        for a in (self.act_tool_select, self.act_tool_node, self.act_tool_text, self.act_tool_hand,
+                  self.act_tool_rect, self.act_tool_ellipse, self.act_tool_line, self.act_tool_pen, self.act_tool_field, *self.field_actions):
             self.tool_group.addAction(a)
         self.act_tool_select.setChecked(True)
+        self.act_insert_image = self._act("Insert &Image…", "image", "Ctrl+Shift+M", self.insert_image, tip="Place an image on the page")
 
         self.act_zoom_in = self._act("Zoom &In", "zoom-in", S.StandardKey.ZoomIn, self.canvas.zoom_in)
         self.act_zoom_out = self._act("Zoom &Out", "zoom-out", S.StandardKey.ZoomOut, self.canvas.zoom_out)
@@ -173,6 +201,14 @@ class MainWindow(QMainWindow):
         m.addAction(self.act_edit_text)
         m.addSeparator()
         m.addAction(self.act_scale_stroke)
+        m = mb.addMenu("&Insert")
+        m.addActions([self.act_tool_rect, self.act_tool_ellipse, self.act_tool_line, self.act_tool_pen, self.act_tool_text])
+        m.addSeparator()
+        m.addAction(self.act_insert_image)
+        m.addSeparator()
+        fm = m.addMenu("Form &Field")
+        fm.setIcon(theme.icon("form"))
+        fm.addActions(self.field_actions)
         m = mb.addMenu("&View")
         m.addActions([self.act_tool_select, self.act_tool_node, self.act_tool_text, self.act_tool_hand])
         m.addSeparator()
@@ -206,6 +242,16 @@ class MainWindow(QMainWindow):
         tb.addActions([self.act_undo, self.act_redo])
         tb.addSeparator()
         tb.addActions([self.act_tool_select, self.act_tool_node, self.act_tool_text, self.act_tool_hand])
+        tb.addSeparator()
+        tb.addActions([self.act_tool_rect, self.act_tool_ellipse, self.act_tool_line, self.act_tool_pen])
+        self.field_button = QToolButton()
+        self.field_button.setDefaultAction(self.act_tool_field)
+        self.field_button.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
+        field_menu = QMenu(self.field_button)
+        field_menu.addActions(self.field_actions)
+        self.field_button.setMenu(field_menu)
+        tb.addWidget(self.field_button)
+        tb.addAction(self.act_insert_image)
         tb.addSeparator()
         tb.addActions([self.act_zoom_out, self.act_zoom_in, self.act_zoom_fit, self.act_zoom_width])
         self.zoom_combo = QComboBox()
@@ -284,8 +330,12 @@ class MainWindow(QMainWindow):
         self.act_redo.setEnabled(has and self.doc.undo_stack.can_redo)
         self.act_undo.setText(f"&Undo {self.doc.undo_stack.undo_label}" if has and self.doc.undo_stack.can_undo else "&Undo")
         self.act_redo.setText(f"&Redo {self.doc.undo_stack.redo_label}" if has and self.doc.undo_stack.can_redo else "&Redo")
+        sel = self.canvas.has_selection
         self.act_delete.setEnabled(sel)
         self.act_deselect.setEnabled(sel)
+        self.act_insert_image.setEnabled(has)
+        for a in (self.act_tool_rect, self.act_tool_ellipse, self.act_tool_line, self.act_tool_pen, self.act_tool_field, *self.field_actions):
+            a.setEnabled(has)
         self.act_edit_text.setEnabled(len(self.canvas.selection) == 1 and self.canvas.selected_objects()[0].kind == "text")
         self.act_del_page.setEnabled(has and n > 1)
         self.act_move_up.setEnabled(has and self.canvas.page_index > 0)
@@ -312,15 +362,34 @@ class MainWindow(QMainWindow):
             pass
 
     def _on_tool_changed(self, tool: str) -> None:
-        mapping = {TOOL_SELECT: self.act_tool_select, TOOL_NODE: self.act_tool_node, TOOL_TEXT: self.act_tool_text, TOOL_HAND: self.act_tool_hand}
-        mapping[tool].setChecked(True)
-        hints = {
-            TOOL_SELECT: "Click to select · drag to move · Shift+click to add · handles resize · Ctrl+wheel zooms",
-            TOOL_NODE: "Drag anchors (squares) and control points (circles) · Esc returns to Select",
-            TOOL_TEXT: "Click a text run to edit it · Enter applies · Esc cancels",
-            TOOL_HAND: "Drag to pan · Ctrl+wheel zooms",
+        mapping = {
+            TOOL_SELECT: self.act_tool_select, TOOL_NODE: self.act_tool_node, TOOL_TEXT: self.act_tool_text, TOOL_HAND: self.act_tool_hand,
+            TOOL_RECT: self.act_tool_rect, TOOL_ELLIPSE: self.act_tool_ellipse, TOOL_LINE: self.act_tool_line, TOOL_PEN: self.act_tool_pen,
         }
-        self.status_hint.setText(hints.get(tool, ""))
+        if tool.startswith(TOOL_FIELD):
+            ftype = self.canvas.field_tool_type()
+            self._last_field_type = ftype
+            for a in self.field_actions:
+                if a.property("fieldType") == ftype:
+                    a.setChecked(True)
+                    self.act_tool_field.setIcon(a.icon())
+                    self.act_tool_field.setToolTip(f"Add {a.text().lower()} (F)")
+            self.field_button.setChecked(True)
+            self.field_button.setDown(False)
+        else:
+            mapping[tool].setChecked(True)
+            self.field_button.setChecked(False)
+        hints = {
+            TOOL_SELECT: "Click to select · drag to move · Shift+click to add · handles resize · double-click text to edit · Ctrl+wheel zooms",
+            TOOL_NODE: "Drag anchors (squares) and control points (circles) · Esc returns to Select",
+            TOOL_TEXT: "Click text to edit the line · click empty space to add new text · Enter applies · Esc cancels",
+            TOOL_HAND: "Drag to pan · Ctrl+wheel zooms",
+            TOOL_RECT: "Drag to draw a rectangle · Shift for a square",
+            TOOL_ELLIPSE: "Drag to draw an ellipse · Shift for a circle",
+            TOOL_LINE: "Drag to draw a line · Shift snaps to 45°",
+            TOOL_PEN: "Click to add points · double-click or Enter to finish · click the first point to close · Esc cancels",
+        }
+        self.status_hint.setText(hints.get(tool, "Drag on the page to place the field · select a field to edit it in the Inspector"))
 
     def show_message(self, text: str, timeout_ms: int = 6000) -> None:
         self.status_msg.setText(text)
@@ -655,6 +724,17 @@ class MainWindow(QMainWindow):
     def redo(self) -> None:
         if self.doc:
             self.doc.undo_stack.redo()
+
+    def insert_image(self) -> None:
+        if not self.doc:
+            return
+        start = self.settings.value("files/lastImageDir", "")
+        path, _ = QFileDialog.getOpenFileName(self, "Insert image", start, "Images (*.png *.jpg *.jpeg *.gif *.bmp *.tif *.tiff *.webp *.svg);;All files (*)")
+        if not path:
+            return
+        self.settings.setValue("files/lastImageDir", os.path.dirname(path))
+        self.canvas.set_tool(TOOL_SELECT)
+        self.canvas.insert_image(path)
 
     def edit_selected_text(self) -> None:
         if len(self.canvas.selection) == 1:

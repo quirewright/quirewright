@@ -115,7 +115,241 @@ class PageResources:
         return info
 
 
-class Document:
+
+# ---------------------------------------------------------------------------
+# Images and form fields
+# ---------------------------------------------------------------------------
+
+from dataclasses import field as _field
+
+WIDGET_TYPES = {
+    1: "Button", 2: "Checkbox", 3: "Combo box", 4: "List box", 5: "Radio button", 6: "Signature", 7: "Text field",
+}
+WIDGET_TYPE_BY_NAME = {v: k for k, v in WIDGET_TYPES.items()}
+
+
+@dataclass
+class WidgetInfo:
+    xref: int
+    field_type: int
+    field_name: str
+    rect: Rect  # scene space (rotated page space, y down)
+    value: Any = None
+    flags: int = 0
+    choices: list[str] = _field(default_factory=list)
+    font_size: float = 0.0
+    text_color: tuple | None = None
+    fill_color: tuple | None = None
+    border_color: tuple | None = None
+    border_width: float = 1.0
+    label: str = ""
+    on_state: str | None = None
+
+    @property
+    def type_name(self) -> str:
+        return WIDGET_TYPES.get(self.field_type, "Unknown")
+
+
+def _to_rgb_tuple(v: Any) -> tuple | None:
+    if v is None:
+        return None
+    try:
+        vals = [float(x) for x in v]
+    except TypeError:
+        return None
+    if len(vals) == 1:
+        return (vals[0], vals[0], vals[0])
+    if len(vals) == 3:
+        return tuple(vals)
+    if len(vals) == 4:
+        c, m, y, k = vals
+        return ((1 - c) * (1 - k), (1 - m) * (1 - k), (1 - y) * (1 - k))
+    return None
+
+
+def _scene_rect(page, r) -> Rect:
+    rr = pymupdf.Rect(r) * page.rotation_matrix
+    return Rect.normalized(rr.x0, rr.y0, rr.x1, rr.y1)
+
+
+def _unrotated_rect(page, r: Rect) -> pymupdf.Rect:
+    rr = pymupdf.Rect(r.x0, r.y0, r.x1, r.y1) * page.derotation_matrix
+    rr.normalize()
+    return rr
+
+
+class _DocumentExtras:
+    """Image and form-field operations (mixed into Document)."""
+
+    def substitute_font_name(self, font_info: FontInfo | None) -> str:
+        """Pick the built-in font (helv/hebo/tiro/...) that best matches a run's font."""
+        from pdfeditor.core.fonts import builtin_font_name
+
+        if font_info is None:
+            return "helv"
+        name = builtin_font_name(font_info.base_font)
+        return "helv" if name in ("symb", "zadb") else name
+
+    # -- images ----------------------------------------------------------------
+    def add_image(self, index: int, rect_scene: Rect, path: str) -> None:
+        def action(doc: "Document") -> None:
+            page = doc.pdf[index]
+            r = _unrotated_rect(page, rect_scene)
+            page.insert_image(r, filename=path, keep_proportion=True, rotate=page.rotation)
+
+        self._structure_op("Insert image", action)
+
+    def image_size(self, path: str) -> tuple[int, int]:
+        pix = pymupdf.Pixmap(path)
+        w, h = pix.width, pix.height
+        pix = None
+        return w, h
+
+    # -- form fields ------------------------------------------------------------
+    def widgets(self, index: int) -> list[WidgetInfo]:
+        page = self.pdf[index]
+        out: list[WidgetInfo] = []
+        try:
+            iterator = page.widgets()
+        except Exception:
+            return out
+        for w in iterator:
+            try:
+                info = WidgetInfo(
+                    xref=w.xref,
+                    field_type=int(w.field_type),
+                    field_name=w.field_name or "",
+                    rect=_scene_rect(page, w.rect),
+                    value=w.field_value,
+                    flags=int(w.field_flags or 0),
+                    choices=list(w.choice_values or []),
+                    font_size=float(w.text_fontsize or 0),
+                    text_color=_to_rgb_tuple(w.text_color),
+                    fill_color=_to_rgb_tuple(w.fill_color),
+                    border_color=_to_rgb_tuple(w.border_color),
+                    border_width=float(w.border_width or 0),
+                    label=w.field_label or "",
+                    on_state=w.on_state() if w.field_type in (2, 5) else None,
+                )
+            except Exception as exc:  # pragma: no cover
+                log.warning("widget %s: %s", getattr(w, "xref", "?"), exc)
+                continue
+            out.append(info)
+        return out
+
+    def has_widgets(self, index: int) -> bool:
+        return bool(self.widgets(index))
+
+    def _unique_field_name(self, base: str) -> str:
+        existing: set[str] = set()
+        for i in range(self.pdf.page_count):
+            for w in self.widgets(i):
+                existing.add(w.field_name)
+        n = 1
+        while f"{base}{n}" in existing:
+            n += 1
+        return f"{base}{n}"
+
+    def add_widget(self, index: int, field_type: int, rect_scene: Rect, name: str | None = None, **props) -> None:
+        base = {1: "Button", 2: "Check", 3: "Combo", 4: "List", 5: "Radio", 6: "Signature", 7: "Text"}.get(field_type, "Field")
+        name = name or self._unique_field_name(base)
+
+        def action(doc: "Document") -> None:
+            page = doc.pdf[index]
+            w = pymupdf.Widget()
+            w.field_type = field_type
+            w.field_name = name
+            w.rect = _unrotated_rect(page, rect_scene)
+            w.text_fontsize = props.get("font_size", 0 if field_type in (2, 5) else 11)
+            w.border_color = props.get("border_color", (0.45, 0.45, 0.45))
+            w.border_width = props.get("border_width", 1)
+            if field_type in (3, 4):
+                w.choice_values = props.get("choices", ["Option 1", "Option 2", "Option 3"])
+                w.field_value = props.get("value", w.choice_values[0] if w.choice_values else "")
+            elif field_type == 7:
+                w.field_value = props.get("value", "")
+                w.fill_color = props.get("fill_color", (1, 1, 1))
+            elif field_type == 1:
+                w.button_caption = props.get("label", "Button")
+                w.fill_color = props.get("fill_color", (0.9, 0.9, 0.9))
+            elif field_type == 2:
+                w.field_value = props.get("value", False)
+            elif field_type == 5:
+                w.field_value = props.get("value", False)
+            if "fill_color" in props:
+                w.fill_color = props["fill_color"]
+            if "flags" in props:
+                w.field_flags = props["flags"]
+            page.add_widget(w)
+
+        self._structure_op(f"Add {WIDGET_TYPES.get(field_type, 'field').lower()}", action)
+
+    def _find_widget(self, page, xref: int):
+        for w in page.widgets():
+            if w.xref == xref:
+                return w
+        return None
+
+    def update_widget(self, index: int, xref: int, label: str = "Edit field", **props) -> None:
+        def action(doc: "Document") -> None:
+            page = doc.pdf[index]
+            w = doc._find_widget(page, xref)
+            if w is None:
+                return
+            if "rect" in props:
+                w.rect = _unrotated_rect(page, props["rect"])
+            if "field_name" in props and props["field_name"]:
+                w.field_name = props["field_name"]
+            if "value" in props:
+                w.field_value = props["value"]
+            if "flags" in props:
+                w.field_flags = int(props["flags"])
+            if "choices" in props:
+                w.choice_values = list(props["choices"])
+            if "font_size" in props:
+                w.text_fontsize = float(props["font_size"])
+            if "text_color" in props:
+                w.text_color = props["text_color"]
+            if "fill_color" in props:
+                w.fill_color = props["fill_color"]
+            if "border_color" in props:
+                w.border_color = props["border_color"]
+            if "border_width" in props:
+                w.border_width = float(props["border_width"])
+            if "label" in props:
+                w.button_caption = props["label"]
+            w.update()
+
+        self._structure_op(label, action)
+
+    def delete_widgets(self, index: int, xrefs: Iterable[int]) -> None:
+        xs = set(xrefs)
+
+        def action(doc: "Document") -> None:
+            page = doc.pdf[index]
+            for w in list(page.widgets()):
+                if w.xref in xs:
+                    page.delete_widget(w)
+
+        self._structure_op("Delete field(s)", action)
+
+    def transform_widgets(self, index: int, xrefs: Iterable[int], m_scene: Matrix) -> None:
+        """Apply a scene-space transform to widget rectangles (move/scale)."""
+        xs = list(xrefs)
+
+        def action(doc: "Document") -> None:
+            page = doc.pdf[index]
+            for w in list(page.widgets()):
+                if w.xref not in xs:
+                    continue
+                r = _scene_rect(page, w.rect).transformed(m_scene)
+                w.rect = _unrotated_rect(page, r)
+                w.update()
+
+        self._structure_op("Move field(s)", action)
+
+
+class Document(_DocumentExtras):
     def __init__(self, path: str | None = None, pdf: pymupdf.Document | None = None):
         self.path: str | None = path
         if pdf is not None:

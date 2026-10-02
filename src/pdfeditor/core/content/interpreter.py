@@ -125,6 +125,9 @@ class Interpreter:
                 self.content.warnings.append(f"{op} at {start}: {exc}")
             operands = []
             operand_start = None
+        self.content.end_in_text = self._block is not None
+        self.content.end_depth = len(self.stack)
+        self.content.end_base_state = (self.stack[0].saved_state if self.stack else self.state).copy()
         if self._block is not None:  # unterminated BT
             self._end_text(len(self.stream), len(self.stream))
         self.content.objects.sort(key=lambda o: o.sequence)

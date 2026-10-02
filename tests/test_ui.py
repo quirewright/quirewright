@@ -237,6 +237,6 @@ def test_double_click_text_opens_editor(app, window):
     center = c.items_by_id[tid].sceneBoundingRect().center()
     p = c.mapFromScene(center)
     QTest.mouseDClick(c.viewport(), Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, p)
-    assert c.text_proxy is not None and c.text_edit_id == tid
+    assert c.text_proxy is not None and c.text_edit_ids == [tid]
     c._end_text_edit(commit=False)
     assert c.text_proxy is None
