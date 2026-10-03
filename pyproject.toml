@@ -24,6 +24,9 @@ pdfeditor = "pdfeditor.app:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+pdfeditor = ["help/*.md"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]

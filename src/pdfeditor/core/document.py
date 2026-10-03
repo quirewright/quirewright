@@ -258,6 +258,9 @@ class _DocumentExtras:
 
         def action(doc: "Document") -> None:
             page = doc.pdf[index]
+            if field_type == 5:
+                doc._add_radio(page, name, rect_scene, props)
+                return
             w = pymupdf.Widget()
             w.field_type = field_type
             w.field_name = name
@@ -285,6 +288,43 @@ class _DocumentExtras:
             page.add_widget(w)
 
         self._structure_op(f"Add {WIDGET_TYPES.get(field_type, 'field').lower()}", action)
+
+    def _add_radio(self, page, name: str, rect_scene: Rect, props: dict) -> None:
+        """Create a radio button.
+
+        PyMuPDF cannot create radio widgets directly, so this adds a checkbox,
+        flips the radio flag and gives the button its own on-state name so
+        buttons sharing a field name form a group with distinct choices.
+        """
+        w = pymupdf.Widget()
+        w.field_type = 2
+        w.field_name = name
+        w.rect = _unrotated_rect(page, rect_scene)
+        w.border_color = props.get("border_color", (0.45, 0.45, 0.45))
+        w.border_width = props.get("border_width", 1)
+        w.field_value = bool(props.get("value", False))
+        if "fill_color" in props:
+            w.fill_color = props["fill_color"]
+        annot = page.add_widget(w)
+        xref = annot.xref
+        doc = self.pdf
+        # unique on-state name within the group
+        existing = sum(1 for x in page.widgets() if x.field_name == name)
+        state = props.get("on_state") or f"Choice{existing}"
+        try:
+            kind, ap = doc.xref_get_key(xref, "AP/N")
+            if kind == "dict" and "/Yes" in ap:
+                doc.xref_set_key(xref, "AP/N", ap.replace("/Yes", "/" + state, 1))
+            kind, ap = doc.xref_get_key(xref, "AP/D")
+            if kind == "dict" and "/Yes" in ap:
+                doc.xref_set_key(xref, "AP/D", ap.replace("/Yes", "/" + state, 1))
+            flags = int(doc.xref_get_key(xref, "Ff")[1] or 0) if doc.xref_get_key(xref, "Ff")[0] == "int" else 0
+            doc.xref_set_key(xref, "Ff", str(flags | pymupdf.PDF_BTN_FIELD_IS_RADIO | pymupdf.PDF_BTN_FIELD_IS_NO_TOGGLE_TO_OFF))
+            doc.xref_set_key(xref, "AS", "/" + (state if w.field_value else "Off"))
+            doc.xref_set_key(xref, "V", "/" + (state if w.field_value else "Off"))
+            doc.xref_set_key(xref, "MK", "<< /CA (l) >>")  # ZapfDingbats 'l' = filled circle
+        except Exception as exc:  # pragma: no cover
+            log.warning("radio setup: %s", exc)
 
     def _find_widget(self, page, xref: int):
         for w in page.widgets():

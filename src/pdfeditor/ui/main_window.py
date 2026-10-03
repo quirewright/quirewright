@@ -68,6 +68,7 @@ from pdfeditor.ui.doc_dialogs import (
     _human_size,
 )
 from pdfeditor.ui.findbar import FindBar
+from pdfeditor.ui.help import HelpWindow
 from pdfeditor.ui.outline import OutlinePanel
 from pdfeditor.ui.properties import PropertiesPanel
 from pdfeditor.ui.render import pixmap_to_qimage
@@ -1128,13 +1129,14 @@ class MainWindow(QMainWindow):
     def show_shortcuts(self) -> None:
         ShortcutsDialog(self.findChildren(QAction), self).exec()
 
-    def open_guide(self) -> None:
-        here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-        for candidate in (os.path.join(here, "docs", "USER_GUIDE.md"), os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs", "USER_GUIDE.md")):
-            if os.path.exists(candidate):
-                QDesktopServices.openUrl(QUrl.fromLocalFile(os.path.abspath(candidate)))
-                return
-        QMessageBox.information(self, "User guide", "The user guide ships as docs/USER_GUIDE.md in the source tree.")
+    def open_guide(self, section: str | None = None) -> None:
+        if getattr(self, "help_window", None) is None:
+            self.help_window = HelpWindow(self)
+        self.help_window.show()
+        self.help_window.raise_()
+        self.help_window.activateWindow()
+        if section:
+            self.help_window.show_section(section)
 
     # -- theme ---------------------------------------------------------------
     def toggle_dark(self, on: bool, persist: bool = True) -> None:
@@ -1148,6 +1150,8 @@ class MainWindow(QMainWindow):
         self.properties.refresh()
         self.findbar.refresh_icons()
         self.welcome.refresh_theme()
+        if getattr(self, "help_window", None) is not None:
+            self.help_window.reload()
 
     def _refresh_icons(self) -> None:
         for a in self.findChildren(QAction):

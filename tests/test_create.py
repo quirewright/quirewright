@@ -135,3 +135,17 @@ def test_widgets_on_rotated_page(tmp_path):
     pm = doc.render(0, 1.0)
     bb = colour_bbox(pm, lambda c: c[0] > 230 and c[1] > 230 and c[2] < 80)
     assert bb is not None and abs(bb[0] - 20) <= 2 and abs(bb[1] - 30) <= 2
+
+
+def test_radio_buttons(tmp_path):
+    doc = Document(make_doc(tmp_path))
+    doc.add_widget(0, 5, Rect(20, 20, 34, 34), name="grp")
+    doc.add_widget(0, 5, Rect(60, 20, 74, 34), name="grp")
+    ws = doc.widgets(0)
+    assert [w.type_name for w in ws] == ["Radio button", "Radio button"]
+    assert ws[0].field_name == ws[1].field_name == "grp"
+    assert ws[0].on_state != ws[1].on_state
+    pix = doc.render(0, 1.0)
+    assert any(pix.pixel(x, y) != (255, 255, 255) for x in range(20, 34) for y in range(166, 180))
+    doc.update_widget(0, ws[1].xref, value=True)
+    assert doc.widgets(0)[1].value not in (False, "Off", "", None)
