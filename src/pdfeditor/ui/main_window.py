@@ -245,6 +245,8 @@ class MainWindow(QMainWindow):
         self.act_first = self._act("&First Page", None, "Ctrl+Home", lambda: self.go_to_page(0))
         self.act_last = self._act("&Last Page", None, "Ctrl+End", lambda: self.go_to_page(10**9))
         self.act_goto = self._act("&Go to Page…", None, "Ctrl+G", self.focus_page_entry)
+        self.act_continuous = self._act("&Continuous Scrolling", None, "Ctrl+Shift+C", self._toggle_continuous, checkable=True, tip="Show all pages in one scrolling column")
+        self.act_continuous.setChecked(True)
         self.act_dark = self._act("&Dark Mode", "moon", None, self.toggle_dark, checkable=True)
         self.act_dark.setChecked(theme.current().dark)
         self.act_show_pages = self.pages_dock.toggleViewAction()
@@ -335,6 +337,7 @@ class MainWindow(QMainWindow):
         m.addSeparator()
         m.addActions([self.act_first, self.act_prev, self.act_next, self.act_last, self.act_goto])
         m.addSeparator()
+        m.addAction(self.act_continuous)
         m.addActions([self.act_show_pages, self.act_show_props, self.act_dark])
 
         m = mb.addMenu("&Page")
@@ -435,6 +438,7 @@ class MainWindow(QMainWindow):
         self.canvas.statusMessage.connect(self.show_message)
         self.canvas.selectionChanged.connect(lambda ids: self._update_actions())
         self.canvas.toolChanged.connect(self._on_tool_changed)
+        self.canvas.pageChanged.connect(self._on_canvas_page_changed)
         self.pages.pageActivated.connect(self.go_to_page)
         self.pages.movePagesRequested.connect(self._move_pages_to)
         self.pages.contextMenuRequestedAt.connect(self._pages_context_menu)
@@ -457,6 +461,9 @@ class MainWindow(QMainWindow):
             self.restoreState(st)
         self.canvas.scale_stroke = self.settings.value("edit/scaleStroke", True, type=bool)
         self.act_scale_stroke.setChecked(self.canvas.scale_stroke)
+        cont = self.settings.value("view/continuous", True, type=bool)
+        self.act_continuous.setChecked(cont)
+        self.canvas.continuous = cont
 
     def closeEvent(self, event: QCloseEvent) -> None:
         if not self._maybe_save():
@@ -812,6 +819,18 @@ class MainWindow(QMainWindow):
             self.canvas.set_highlights(self.findbar.page_highlights(index))
         self.properties.refresh()
         self._update_actions()
+
+    def _on_canvas_page_changed(self, index: int) -> None:
+        self.pages.set_current_page(index)
+        self.outline.current_page = index
+        if self.findbar.isVisible():
+            self.canvas.set_highlights(self.findbar.page_highlights(index))
+        self.properties.refresh()
+        self._update_actions()
+
+    def _toggle_continuous(self, on: bool) -> None:
+        self.settings.setValue("view/continuous", on)
+        self.canvas.set_continuous(on)
 
     def _target_pages(self) -> list[int]:
         sel = self.pages.selected_pages() if self.pages_dock.isVisible() else []

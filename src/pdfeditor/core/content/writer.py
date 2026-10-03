@@ -394,6 +394,32 @@ class ContentEditor:
         self._appends.append(b"\n".join(ops))
         return True
 
+    def append_text_block(
+        self,
+        x: float,
+        y: float,
+        width: float,
+        text: str,
+        font_name: str,
+        font: FontInfo,
+        size: float,
+        color: Color | None = None,
+        leading: float | None = None,
+        rotation: float = 0.0,
+    ) -> list[str]:
+        """Append word-wrapped lines of ``text`` in a column of ``width`` starting at baseline (x, y).
+
+        Returns the laid-out lines. Explicit newlines start new paragraphs.
+        """
+        lines = wrap_text(text, font, size, width)
+        lead = leading if leading and leading > 0 else size * 1.2
+        rot = Matrix.rotation(rotation)
+        for i, line in enumerate(lines):
+            dx, dy = rot.apply_vector(0, -i * lead)
+            if line and not self.append_text(x + dx, y + dy, line, font_name, font, size, color, rotation):
+                return lines[:i]
+        return lines
+
     # -- duplicate / z-order ------------------------------------------------------
     def _standalone_bytes(self, obj: GObject, offset: Matrix | None = None) -> bytes | None:
         """Serialize an object relative to the end-of-stream base state (for appending)."""
@@ -592,6 +618,60 @@ class ContentEditor:
             return b"[" + b" ".join(parts) + b"] TJ"
         data = run.items[0] if run.items and isinstance(run.items[0], bytes) else b""
         return fmt_string(data, force_hex) + b" Tj"
+
+
+def text_width(text: str, font: FontInfo, size: float) -> float:
+    """Advance width of ``text`` in points for ``font`` at ``size`` (no spacing adjustments)."""
+    total = 0.0
+    encoded = font.encode(text)
+    if encoded is None:
+        # best effort: measure what can be encoded, estimate the rest
+        for ch in text:
+            e = font.encode(ch)
+            if e is None:
+                total += 0.5 * size
+            else:
+                total += sum(font.width(c) for c, _ in font.decode(e)) * size
+        return total
+    return sum(font.width(c) for c, _ in font.decode(encoded)) * size
+
+
+def wrap_text(text: str, font: FontInfo, size: float, width: float) -> list[str]:
+    """Greedy word wrap; words longer than the column are split by character."""
+    lines: list[str] = []
+    space_w = text_width(" ", font, size) or 0.25 * size
+    for para in text.replace("\r\n", "\n").split("\n"):
+        words = para.split(" ")
+        cur = ""
+        cur_w = 0.0
+        for word in words:
+            if not word:
+                continue
+            w = text_width(word, font, size)
+            if w > width and width > 0:
+                # split long word
+                if cur:
+                    lines.append(cur)
+                    cur, cur_w = "", 0.0
+                piece = ""
+                for ch in word:
+                    cw = text_width(ch, font, size)
+                    if cur_w + cw > width and piece:
+                        lines.append(piece)
+                        piece, cur_w = "", 0.0
+                    piece += ch
+                    cur_w += cw
+                cur, cur_w = piece, cur_w
+                continue
+            add = w if not cur else space_w + w
+            if cur and cur_w + add > width:
+                lines.append(cur)
+                cur, cur_w = word, w
+            else:
+                cur = word if not cur else cur + " " + word
+                cur_w += add
+        lines.append(cur)
+    return lines
 
 
 def _transform_segment(seg: tuple, m: Matrix) -> tuple:

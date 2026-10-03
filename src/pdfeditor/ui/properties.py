@@ -505,7 +505,7 @@ class PropertiesPanel(QScrollArea):
             else:
                 self.sel_title.setText(f"{len(objs)} objects")
                 self.sel_sub.setText(", ".join(sorted({_kind_label(o) for o in objs})))
-            rect = self.canvas._selection_rect()
+            rect = self.canvas._selection_rect().translated(-self.canvas.page_offset)
             self.x.set_value_pt(rect.x())
             self.y.set_value_pt(rect.y())
             self.w.set_value_pt(rect.width())
@@ -678,7 +678,8 @@ class PropertiesPanel(QScrollArea):
         rect = self.canvas._selection_rect()
         if rect.isNull():
             return
-        nx, ny, nw, nh = self.x.value_pt(), self.y.value_pt(), self.w.value_pt(), self.h.value_pt()
+        off = self.canvas.page_offset
+        nx, ny, nw, nh = self.x.value_pt() + off.x(), self.y.value_pt() + off.y(), self.w.value_pt(), self.h.value_pt()
         sx = nw / rect.width() if rect.width() > 1e-9 else 1.0
         sy = nh / rect.height() if rect.height() > 1e-9 else 1.0
         if self.lock.isChecked() and (abs(sx - 1) > 1e-9) != (abs(sy - 1) > 1e-9):

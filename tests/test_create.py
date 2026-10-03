@@ -149,3 +149,21 @@ def test_radio_buttons(tmp_path):
     assert any(pix.pixel(x, y) != (255, 255, 255) for x in range(20, 34) for y in range(166, 180))
     doc.update_widget(0, ws[1].xref, value=True)
     assert doc.widgets(0)[1].value not in (False, "Off", "", None)
+
+
+def test_append_text_block_wraps(tmp_path):
+    from pdfeditor.core.content.writer import wrap_text
+
+    doc = Document(make_doc(tmp_path))
+    name, fi = doc.ensure_substitute_font(0, "helv")
+    lines = wrap_text("The quick brown fox jumps over the lazy dog near the riverbank", fi, 12, 150)
+    assert len(lines) >= 3 and all(lines)
+    assert " ".join(lines) == "The quick brown fox jumps over the lazy dog near the riverbank"
+    assert wrap_text("a\nb", fi, 12, 150) == ["a", "b"]
+    ed = ContentEditor(doc.content(0))
+    out = ed.append_text_block(20, 180, 150, "The quick brown fox jumps over the lazy dog", name, fi, 12, Color("DeviceGray", (0,)))
+    doc.apply_content_edit(0, ed.build(), "Add text box")
+    runs = [o for o in doc.content(0).objects if o.kind == "text"]
+    assert [r.text for r in runs] == out and len(out) >= 2
+    assert all(abs(r.tm.e - 20) < 1e-6 for r in runs)
+    assert abs((runs[0].tm.f - runs[1].tm.f) - 14.4) < 1e-6

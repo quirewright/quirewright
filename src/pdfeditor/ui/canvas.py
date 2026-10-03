@@ -27,7 +27,7 @@ from PySide6.QtGui import (
     QTransform,
     QWheelEvent,
 )
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QPixmap
 from PySide6.QtWidgets import (
     QGraphicsItem,
     QGraphicsPathItem,
@@ -66,6 +66,7 @@ TOOL_REDACT = "redact"
 DRAW_TOOLS = (TOOL_RECT, TOOL_ELLIPSE, TOOL_LINE, TOOL_PEN)
 AREA_TOOLS = (TOOL_CROP, TOOL_REDACT)
 
+PAGE_GAP = 24.0
 HANDLE_PX = 8.0
 MIN_ZOOM = 0.1
 MAX_ZOOM = 16.0
@@ -155,10 +156,10 @@ class ObjectItem(QGraphicsItem):
 class WidgetItem(QGraphicsItem):
     """Hit-test and highlight proxy for a form field (widget annotation)."""
 
-    def __init__(self, info: WidgetInfo):
+    def __init__(self, info: WidgetInfo, offset: QPointF | None = None):
         super().__init__()
         self.info = info
-        self.rect = rect_to_qrect(info.rect)
+        self.rect = rect_to_qrect(info.rect).translated(offset or QPointF())
         self.hovered = False
         self.selected_flag = False
         self.show_tint = False
@@ -205,10 +206,10 @@ class WidgetItem(QGraphicsItem):
 class AnnotItem(QGraphicsItem):
     """Hit-test and highlight proxy for an annotation (comment)."""
 
-    def __init__(self, info: AnnotInfo):
+    def __init__(self, info: AnnotInfo, offset: QPointF | None = None):
         super().__init__()
         self.info = info
-        self.rect = rect_to_qrect(info.rect)
+        self.rect = rect_to_qrect(info.rect).translated(offset or QPointF())
         self.hovered = False
         self.selected_flag = False
         self.setAcceptHoverEvents(True)
@@ -487,6 +488,7 @@ class PageCanvas(QGraphicsView):
     statusMessage = Signal(str)
     pageEdited = Signal(int)
     toolChanged = Signal(str)
+    pageChanged = Signal(int)  # active page changed by clicking/scrolling
 
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
@@ -499,6 +501,13 @@ class PageCanvas(QGraphicsView):
         self._scene = QGraphicsScene(self)
         self.setScene(self._scene)
         self.page_item: QGraphicsPixmapItem | None = None
+        self.continuous = True
+        self.page_items: dict[int, QGraphicsPixmapItem] = {}
+        self.page_placeholders: dict[int, QGraphicsRectItem] = {}
+        self.page_scales: dict[int, float] = {}
+        self.page_rects: list[QRectF] = []  # scene rect of every laid-out page
+        self.page_offset = QPointF()
+        self.layout_rect = QRectF(0, 0, 1, 1)
         self.items_by_id: dict[int, ObjectItem] = {}
         self.widget_items: dict[int, WidgetItem] = {}
         self.annot_items: dict[int, AnnotItem] = {}
@@ -531,6 +540,12 @@ class PageCanvas(QGraphicsView):
         self._render_timer.setSingleShot(True)
         self._render_timer.setInterval(120)
         self._render_timer.timeout.connect(self._render_now)
+        self._scroll_timer = QTimer(self)
+        self._scroll_timer.setSingleShot(True)
+        self._scroll_timer.setInterval(60)
+        self._scroll_timer.timeout.connect(self._on_scrolled)
+        self.verticalScrollBar().valueChanged.connect(lambda v: self._scroll_timer.start())
+        self.horizontalScrollBar().valueChanged.connect(lambda v: self._scroll_timer.start())
 
         self.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         self.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
@@ -566,26 +581,111 @@ class PageCanvas(QGraphicsView):
     def _on_doc_event(self, event: str, payload) -> None:
         if event == "page_content":
             self.cache.drop_page(payload)
+            self.page_scales.pop(payload, None)
             if payload == self.page_index:
                 self.rebuild(keep_selection=True)
+            else:
+                self._render_now()
         elif event in ("pages", "saved"):
             self.cache.clear()
             if self.doc is not None and self.page_index >= self.doc.page_count:
                 self.page_index = max(0, self.doc.page_count - 1)
             self.rebuild(keep_selection=True)
 
-    def set_page(self, index: int) -> None:
+    def set_page(self, index: int, scroll: bool = True) -> None:
         if self.doc is None:
             return
         index = max(0, min(index, self.doc.page_count - 1))
         if index == self.page_index:
+            if scroll and self.continuous:
+                self.scroll_to_page(index)
             return
         self.page_index = index
         self.selection = []
         self.widget_selection = []
         self.annot_selection = []
-        self.rebuild()
+        if self.continuous and self.page_items:
+            self._activate_page(index)
+            if scroll:
+                self.scroll_to_page(index)
+        else:
+            self.rebuild()
         self.selectionChanged.emit([])
+
+    def set_continuous(self, on: bool) -> None:
+        if on == self.continuous:
+            return
+        self.continuous = on
+        self.rebuild()
+        if on:
+            self.scroll_to_page(self.page_index)
+
+    def scroll_to_page(self, index: int) -> None:
+        if 0 <= index < len(self.page_rects):
+            r = self.page_rects[index]
+            self._scroll_timer.stop()
+            self.verticalScrollBar().setValue(int((r.top() - PAGE_GAP / 2) * self.zoom - self.sceneRect().top() * self.zoom))
+            self.horizontalScrollBar().setValue(int((r.center().x() * self.zoom) - self.viewport().width() / 2 - self.sceneRect().left() * self.zoom))
+            self._scroll_timer.stop()
+            self._last_scroll = (self.verticalScrollBar().value(), self.horizontalScrollBar().value())
+            self._render_now()
+
+    def page_at(self, pos: QPointF) -> int | None:
+        for i, r in enumerate(self.page_rects):
+            if r.adjusted(0, -PAGE_GAP / 2, 0, PAGE_GAP / 2).contains(pos):
+                return i
+        return None
+
+    def _page_under_viewport(self) -> int | None:
+        vp = self.mapToScene(self.viewport().rect()).boundingRect()
+        probe = QPointF(vp.center().x(), vp.top() + min(vp.height() * 0.35, 200 / max(self.zoom, 1e-6)))
+        best, best_overlap = None, 0.0
+        for i, r in enumerate(self.page_rects):
+            inter = r.intersected(vp)
+            if r.contains(probe):
+                return i
+            overlap = inter.height() if not inter.isEmpty() else 0.0
+            if overlap > best_overlap:
+                best, best_overlap = i, overlap
+        return best
+
+    def _on_scrolled(self) -> None:
+        if self.doc is None or not self.continuous:
+            return
+        self._render_now()
+        if self.drag is not None or self.text_proxy is not None:
+            return
+        pos = (self.verticalScrollBar().value(), self.horizontalScrollBar().value())
+        if pos == getattr(self, "_last_scroll", None):
+            return
+        self._last_scroll = pos
+        vp = self.mapToScene(self.viewport().rect()).boundingRect()
+        if self.page_rects and 0 <= self.page_index < len(self.page_rects):
+            cur = self.page_rects[self.page_index]
+            visible = cur.intersected(vp)
+            # keep the active page while a good part of it is still on screen
+            if not visible.isEmpty() and (visible.height() >= 0.3 * vp.height() or visible.height() >= 0.9 * cur.height()):
+                return
+        i = self._page_under_viewport()
+        if i is not None and i != self.page_index:
+            self.page_index = i
+            self.selection = []
+            self.widget_selection = []
+            self.annot_selection = []
+            self._activate_page(i)
+            self.selectionChanged.emit([])
+            self.pageChanged.emit(i)
+
+    # -- local <-> scene helpers (scene = page-local + page offset) ------------
+    def to_local_rect(self, r: QRectF) -> Rect:
+        return qrect_to_rect(r.translated(-self.page_offset))
+
+    def to_local_point(self, p: QPointF) -> tuple[float, float]:
+        return (p.x() - self.page_offset.x(), p.y() - self.page_offset.y())
+
+    def to_local_matrix(self, m: Matrix) -> Matrix:
+        off = self.page_offset
+        return Matrix.translation(off.x(), off.y()) * m * Matrix.translation(-off.x(), -off.y())
 
     def set_tool(self, tool: str) -> None:
         if tool == self.tool:
@@ -653,6 +753,10 @@ class PageCanvas(QGraphicsView):
         self.widget_items = {}
         self.annot_items = {}
         self.highlight_items = []
+        self.page_items = {}
+        self.page_placeholders = {}
+        self.page_scales = {}
+        self.page_rects = []
         self.page_item = None
         self.node_overlay = None
         self.text_proxy = None
@@ -662,24 +766,82 @@ class PageCanvas(QGraphicsView):
         self._scene.addItem(self.frame)
         self.frame.set_rect(QRectF(), self.zoom)
         if self.doc is None or self.doc.page_count == 0:
-            self._scene.setSceneRect(QRectF(0, 0, 1, 1))
+            self.layout_rect = QRectF(0, 0, 1, 1)
+            self._scene.setSceneRect(self.layout_rect)
             self.viewport().update()
             return
-        r = self.doc.page_rect(self.page_index)
-        self.page_rect = QRectF(r.x0, r.y0, r.width, r.height)
-        self.pdf_to_scene = self.doc.pdf_to_page_matrix(self.page_index)
-        margin = 40 / max(self.zoom, 0.2)
-        self._scene.setSceneRect(self.page_rect.adjusted(-margin, -margin, margin, margin))
-        shadow = QGraphicsRectItem(self.page_rect.translated(2, 3))
-        shadow.setBrush(QBrush(QColor(0, 0, 0, 40)))
-        shadow.setPen(Qt.PenStyle.NoPen)
-        shadow.setZValue(-2)
-        self._scene.addItem(shadow)
-        self.page_item = QGraphicsPixmapItem()
-        self.page_item.setZValue(-1)
-        self.page_item.setTransformationMode(Qt.TransformationMode.SmoothTransformation)
-        self._scene.addItem(self.page_item)
+        self._layout_pages()
+        self._activate_page(self.page_index, old_selection, old_widgets, old_annots)
         self._render_now()
+
+    def _layout_pages(self) -> None:
+        assert self.doc is not None
+        n = self.doc.page_count
+        indices = list(range(n)) if self.continuous else [self.page_index]
+        rects = [self.doc.page_rect(i) for i in indices]
+        max_w = max((r.width for r in rects), default=1.0)
+        y = 0.0
+        self.page_rects = [QRectF() for _ in range(n)]
+        t = theme.current()
+        for i, r in zip(indices, rects):
+            x = (max_w - r.width) / 2 if self.continuous else 0.0
+            scene_rect = QRectF(x, y, r.width, r.height)
+            self.page_rects[i] = scene_rect
+            shadow = QGraphicsRectItem(scene_rect.translated(2, 3))
+            shadow.setBrush(QBrush(QColor(0, 0, 0, 40)))
+            shadow.setPen(Qt.PenStyle.NoPen)
+            shadow.setZValue(-3)
+            self._scene.addItem(shadow)
+            placeholder = QGraphicsRectItem(scene_rect)
+            placeholder.setBrush(QBrush(QColor("#ffffff" if not t.dark else "#f3f4f6")))
+            placeholder.setPen(Qt.PenStyle.NoPen)
+            placeholder.setZValue(-2)
+            self._scene.addItem(placeholder)
+            self.page_placeholders[i] = placeholder
+            item = QGraphicsPixmapItem()
+            item.setZValue(-1)
+            item.setTransformationMode(Qt.TransformationMode.SmoothTransformation)
+            item.setPos(scene_rect.topLeft())
+            self._scene.addItem(item)
+            self.page_items[i] = item
+            y += r.height + PAGE_GAP
+        total_h = max(y - PAGE_GAP, 1.0)
+        self.layout_rect = QRectF(0, 0, max_w, total_h)
+        margin = 40 / max(self.zoom, 0.2)
+        self._scene.setSceneRect(self.layout_rect.adjusted(-margin, -margin, margin, margin))
+
+    def _clear_overlay(self) -> None:
+        for coll in (self.items_by_id, self.widget_items, self.annot_items):
+            for it in coll.values():
+                try:
+                    self._scene.removeItem(it)
+                except RuntimeError:
+                    pass
+            coll.clear()
+        for it in self.highlight_items:
+            try:
+                self._scene.removeItem(it)
+            except RuntimeError:
+                pass
+        self.highlight_items = []
+        if self.node_overlay is not None:
+            self._scene.removeItem(self.node_overlay)
+            self.node_overlay = None
+
+    def _activate_page(self, index: int, old_selection=None, old_widgets=None, old_annots=None) -> None:
+        """Make ``index`` the editable page: (re)build its overlay in place."""
+        assert self.doc is not None
+        self._end_text_edit(commit=False)
+        self._cancel_pen()
+        self._clear_overlay()
+        self.page_index = index
+        if not self.continuous and (not self.page_rects or self.page_rects[index].isNull()):
+            self._layout_pages()
+        self.page_rect = QRectF(self.page_rects[index])
+        self.page_offset = self.page_rect.topLeft()
+        self.page_item = self.page_items.get(index)
+        base = self.doc.pdf_to_page_matrix(index)
+        self.pdf_to_scene = base * Matrix.translation(self.page_offset.x(), self.page_offset.y())
         self._build_overlay()
         self._build_widgets()
         self._build_annots()
@@ -690,9 +852,9 @@ class PageCanvas(QGraphicsView):
             self.widget_selection = []
             self.annot_selection = []
         else:
-            self.selection = [i for i in old_selection if i in self.items_by_id]
-            self.widget_selection = [x for x in old_widgets if x in self.widget_items]
-            self.annot_selection = [x for x in old_annots if x in self.annot_items]
+            self.selection = [i for i in (old_selection or []) if i in self.items_by_id]
+            self.widget_selection = [x for x in (old_widgets or []) if x in self.widget_items]
+            self.annot_selection = [x for x in (old_annots or []) if x in self.annot_items]
         self._update_selection_visuals()
         self._update_node_overlay()
         self._update_widget_tint()
@@ -720,14 +882,14 @@ class PageCanvas(QGraphicsView):
     def _build_widgets(self) -> None:
         assert self.doc is not None
         for info in self.doc.widgets(self.page_index):
-            item = WidgetItem(info)
+            item = WidgetItem(info, self.page_offset)
             self._scene.addItem(item)
             self.widget_items[info.xref] = item
 
     def _build_annots(self) -> None:
         assert self.doc is not None
         for info in self.doc.annotations(self.page_index):
-            item = AnnotItem(info)
+            item = AnnotItem(info, self.page_offset)
             self._scene.addItem(item)
             self.annot_items[info.xref] = item
 
@@ -742,7 +904,7 @@ class PageCanvas(QGraphicsView):
             return
         t = theme.current()
         for r in self.highlights:
-            item = QGraphicsRectItem(rect_to_qrect(r).adjusted(-1, -1, 1, 1))
+            item = QGraphicsRectItem(rect_to_qrect(r).translated(self.page_offset).adjusted(-1, -1, 1, 1))
             is_current = self.current_highlight is not None and r == self.current_highlight
             c = QColor("#f59e0b" if is_current else "#fde047")
             c.setAlpha(120 if is_current else 70)
@@ -759,7 +921,7 @@ class PageCanvas(QGraphicsView):
         self.current_highlight = current
         self._build_highlights()
         if current is not None:
-            self.ensureVisible(rect_to_qrect(current).adjusted(-40, -40, 40, 40))
+            self.ensureVisible(rect_to_qrect(current).translated(self.page_offset).adjusted(-40, -40, 40, 40))
 
     def _object_geometry(self, obj: GObject, S: QTransform) -> tuple[QPainterPath | None, QPainterPath | None]:
         clip = obj.state.clip_bbox
@@ -835,22 +997,33 @@ class PageCanvas(QGraphicsView):
 
     # -- rendering ---------------------------------------------------------
     def _render_now(self) -> None:
-        if self.doc is None or self.page_item is None:
+        if self.doc is None or not self.page_items:
             return
         dpr = self.devicePixelRatioF()
         scale = self.zoom * dpr
-        key = (self.page_index, round(scale, 3), self.generation)
-        pm = self.cache.get(key)
-        if pm is None:
-            try:
-                pm = render_page(self.doc, self.page_index, scale)
-            except Exception as exc:  # pragma: no cover
-                self.statusMessage.emit(f"Render failed: {exc}")
-                return
-            self.cache.put(key, pm)
-        self.page_item.setPixmap(pm)
-        self.page_item.setPos(self.page_rect.topLeft())
-        self.page_item.setScale(1.0 / scale)
+        vp = self.mapToScene(self.viewport().rect()).boundingRect()
+        keep = vp.adjusted(0, -vp.height(), 0, vp.height())
+        for i, item in self.page_items.items():
+            r = self.page_rects[i]
+            if not r.intersects(keep):
+                if self.page_scales.get(i) is not None:
+                    item.setPixmap(QPixmap())
+                    self.page_scales.pop(i, None)
+                continue
+            if self.page_scales.get(i) == scale:
+                continue
+            key = (i, round(scale, 3), self.generation)
+            pm = self.cache.get(key)
+            if pm is None:
+                try:
+                    pm = render_page(self.doc, i, scale)
+                except Exception as exc:  # pragma: no cover
+                    self.statusMessage.emit(f"Render failed: {exc}")
+                    continue
+                self.cache.put(key, pm)
+            item.setPixmap(pm)
+            item.setScale(1.0 / scale)
+            self.page_scales[i] = scale
 
     def _schedule_render(self) -> None:
         self._render_timer.start()
@@ -863,7 +1036,7 @@ class PageCanvas(QGraphicsView):
         self.zoom = zoom
         self.setTransform(QTransform.fromScale(zoom, zoom))
         margin = 40 / max(self.zoom, 0.2)
-        self._scene.setSceneRect(self.page_rect.adjusted(-margin, -margin, margin, margin))
+        self._scene.setSceneRect(self.layout_rect.adjusted(-margin, -margin, margin, margin))
         self.frame.set_rect(self.frame.rect, zoom)
         if self.node_overlay is not None:
             self.node_overlay.zoom = zoom
@@ -883,14 +1056,20 @@ class PageCanvas(QGraphicsView):
             return
         z = min((vp.width() - 48) / self.page_rect.width(), (vp.height() - 48) / self.page_rect.height())
         self.set_zoom(z)
-        self.centerOn(self.page_rect.center())
+        if self.continuous:
+            self.scroll_to_page(self.page_index)
+        else:
+            self.centerOn(self.page_rect.center())
 
     def zoom_width(self) -> None:
         vp = self.viewport().rect()
         if self.page_rect.isEmpty():
             return
         self.set_zoom((vp.width() - 48) / self.page_rect.width())
-        self.centerOn(QPointF(self.page_rect.center().x(), self.page_rect.top() + vp.height() / (2 * self.zoom)))
+        if self.continuous:
+            self.scroll_to_page(self.page_index)
+        else:
+            self.centerOn(QPointF(self.page_rect.center().x(), self.page_rect.top() + vp.height() / (2 * self.zoom)))
 
     def zoom_actual(self) -> None:
         self.set_zoom(1.0)
@@ -1019,13 +1198,13 @@ class PageCanvas(QGraphicsView):
         if self.annot_selection and self.doc is not None:
             movable = [a.xref for a in self.selected_annots() if a.movable]
             if movable:
-                self.doc.transform_annotations(self.page_index, movable, m_scene)
+                self.doc.transform_annotations(self.page_index, movable, self.to_local_matrix(m_scene))
                 self.pageEdited.emit(self.page_index)
             else:
                 self.statusMessage.emit("Text markup annotations follow the text and cannot be moved.")
             return
         if self.widget_selection and self.doc is not None:
-            self.doc.transform_widgets(self.page_index, list(self.widget_selection), m_scene)
+            self.doc.transform_widgets(self.page_index, list(self.widget_selection), self.to_local_matrix(m_scene))
             self.pageEdited.emit(self.page_index)
             return
         if not self.selection:
@@ -1439,7 +1618,7 @@ class PageCanvas(QGraphicsView):
                 r = QRectF(r.left(), r.top(), size, size)
             else:
                 r = QRectF(r.left(), r.top(), 120.0, 22.0)
-        self.doc.add_widget(self.page_index, field_type, qrect_to_rect(r))
+        self.doc.add_widget(self.page_index, field_type, self.to_local_rect(r))
         self.pageEdited.emit(self.page_index)
         new = [x for x in self.widget_items]
         if new:
@@ -1464,7 +1643,7 @@ class PageCanvas(QGraphicsView):
         r = QRectF(center.x() - iw / 2, center.y() - ih / 2, iw, ih)
         r = r.intersected(pr) if not pr.contains(r) else r
         self._select_new_after_rebuild = True
-        self.doc.add_image(self.page_index, qrect_to_rect(r), path)
+        self.doc.add_image(self.page_index, self.to_local_rect(r), path)
         self._select_new_after_rebuild = False
         self.pageEdited.emit(self.page_index)
         self.selectionChanged.emit(list(self.selection))
@@ -1530,6 +1709,16 @@ class PageCanvas(QGraphicsView):
         if event.button() != Qt.MouseButton.LeftButton:
             super().mousePressEvent(event)
             return
+        if self.continuous:
+            target = self.page_at(pos)
+            if target is not None and target != self.page_index and not (self.tool == TOOL_PEN and self.pen_points):
+                self.page_index = target
+                self.selection = []
+                self.widget_selection = []
+                self.annot_selection = []
+                self._activate_page(target)
+                self.selectionChanged.emit([])
+                self.pageChanged.emit(target)
         if self.tool == TOOL_PEN:
             if self.pen_points and (pos - self.pen_points[0]).manhattanLength() * self.zoom < 8 and len(self.pen_points) > 2:
                 self._finish_pen(closed=True)
@@ -1542,7 +1731,7 @@ class PageCanvas(QGraphicsView):
             return
         if self.tool == TOOL_NOTE:
             if self.page_rect.contains(pos) and self.doc is not None:
-                self.doc.add_note(self.page_index, (pos.x(), pos.y()), "", author=self.author)
+                self.doc.add_note(self.page_index, self.to_local_point(pos), "", author=self.author)
                 self.pageEdited.emit(self.page_index)
                 if self.annot_items:
                     self.select_annots([max(self.annot_items)])
@@ -1779,7 +1968,7 @@ class PageCanvas(QGraphicsView):
     def _apply_area_tool(self, r: QRectF) -> None:
         if self.doc is None:
             return
-        rect = qrect_to_rect(r)
+        rect = self.to_local_rect(r)
         if self.is_markup_tool:
             words = self.doc.words_in_rect(self.page_index, rect)
             if not words:
