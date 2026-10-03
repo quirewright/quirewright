@@ -10,3 +10,4 @@ htmlcov/
 *.swp
 squashfs-root/
 *.AppImage
+.claude/

@@ -4,6 +4,8 @@
   <name>Quirewright</name>
   <summary>Edit PDF content, pages, forms and comments</summary>
   <metadata_license>CC0-1.0</metadata_license>
+  <url type="homepage">https://quirewright.github.io/quirewright/</url>
+  <url type="bugtracker">https://github.com/quirewright/quirewright/issues</url>
   <project_license>AGPL-3.0-or-later</project_license>
   <description>
     <p>A free and open-source PDF editor that combines vector-level editing of page content (move, resize, reshape and restyle paths, edit text in place, draw new shapes) with page management (rotate, reorder, insert, extract, crop), form fields, comments, metadata, security, OCR and more.</p>

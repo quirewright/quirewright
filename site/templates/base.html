@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+<meta property="og:title" content="{{title}}">
+<meta property="og:description" content="{{description}}">
+<meta property="og:image" content="{{site_url}}static/img/hero-light.png">
+<meta property="og:type" content="website">
+<link rel="icon" href="static/img/quirewright.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500..700,0..100&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v={{version}}">
+<script>
+  try { var t = localStorage.getItem('qw-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="static/img/quirewright.svg" alt="" width="34" height="34">Quirewright</a>
+    <button class="theme-btn nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <nav class="nav-links" id="navLinks">
+      <a href="./#features">Features</a>
+      <a href="./#install">Install</a>
+      <a href="guide.html">User guide</a>
+      <a href="features.html">Checklist</a>
+      <a href="{{repo_url}}">GitHub</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle light or dark theme" title="Toggle theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<main id="main">
+{{content}}
+</main>
+<footer>
+  <div class="wrap">
+    <span>Quirewright {{version}} · GNU AGPL-3.0-or-later · built on PySide6, MuPDF and pyHanko</span>
+    <span><a href="{{repo_url}}">Source</a> · <a href="{{repo_url}}/issues">Issues</a> · <a href="{{repo_url}}/blob/main/CHANGELOG.md">Changelog</a></span>
+  </div>
+</footer>
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('themeBtn');
+    btn.addEventListener('click', function () {
+      var dark = root.getAttribute('data-theme') === 'dark' ||
+        (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+      var next = dark ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('qw-theme', next); } catch (e) {}
+    });
+    var tog = document.getElementById('navToggle'), links = document.getElementById('navLinks');
+    tog.addEventListener('click', function () {
+      var open = links.classList.toggle('open');
+      tog.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    var toc = document.querySelector('.toc');
+    if (toc && 'IntersectionObserver' in window) {
+      var map = {}, anchors = toc.querySelectorAll('a[href^="#"]');
+      anchors.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+      var heads = document.querySelectorAll('.prose h2[id], .prose h3[id]');
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) {
+            anchors.forEach(function (a) { a.classList.remove('active'); });
+            var a = map[en.target.id]; if (a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-80px 0px -70% 0px' });
+      heads.forEach(function (h) { obs.observe(h); });
+    }
+  })();
+</script>
+</body>
+</html>

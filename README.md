@@ -199,3 +199,19 @@ Flatpak. Tagging `vX.Y.Z` attaches the AppImage to a GitHub release.
 
 See [docs/FEATURES.md](docs/FEATURES.md) for the full checklist. Everything on
 it is implemented, including digital signatures (via pyHanko).
+
+## Project site
+
+The site at <https://quirewright.github.io/quirewright/> is generated from
+`site/` plus the bundled user guide and feature checklist:
+
+```bash
+.venv/bin/pip install markdown
+.venv/bin/python scripts/build_site.py        # -> build/site
+```
+
+The `gh-pages` branch holds only that output (no history shared with `main`);
+`.github/workflows/pages.yml` rebuilds and force-pushes it on every change to
+the site sources, so GitHub Pages should be set to deploy from `gh-pages`.
+Screenshots come from `scripts/site_screenshots.py` run on a demo PDF made by
+`scripts/make_demo_pdf.py`.

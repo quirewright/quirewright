@@ -17,8 +17,13 @@ dependencies = [
     "cryptography>=42",
 ]
 
+[project.urls]
+Homepage = "https://quirewright.github.io/quirewright/"
+Source = "https://github.com/quirewright/quirewright"
+Issues = "https://github.com/quirewright/quirewright/issues"
+
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-cov", "ruff>=0.5"]
+dev = ["pytest>=8", "pytest-cov", "ruff>=0.5", "markdown>=3.5"]
 build = ["pyinstaller>=6"]
 
 [project.scripts]
