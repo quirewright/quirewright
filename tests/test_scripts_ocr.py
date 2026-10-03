@@ -3,8 +3,8 @@
 import pymupdf
 import pytest
 
-from pdfeditor.core import ocr
-from pdfeditor.core.document import (
+from quirewright.core import ocr
+from quirewright.core.document import (
     Document,
     calc_script,
     date_format_script,
@@ -13,7 +13,7 @@ from pdfeditor.core.document import (
     percent_format_script,
     range_validate_script,
 )
-from pdfeditor.core.geometry import Rect
+from quirewright.core.geometry import Rect
 
 
 @pytest.fixture

@@ -4,8 +4,8 @@ import pymupdf
 import pytest
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
 
-from pdfeditor.core import signing
-from pdfeditor.ui import theme
+from quirewright.core import signing
+from quirewright.ui import theme
 
 
 @pytest.fixture(scope="session")
@@ -17,7 +17,7 @@ def app():
 
 @pytest.fixture
 def window(app, tmp_path):
-    from pdfeditor.ui.main_window import MainWindow
+    from quirewright.ui.main_window import MainWindow
 
     pdf = pymupdf.open()
     pdf.new_page(width=300, height=200).insert_text((20, 40), "Agreement", fontsize=14)
@@ -34,7 +34,7 @@ def window(app, tmp_path):
 
 
 def test_sign_visible_from_window(app, window, tmp_path, monkeypatch):
-    from pdfeditor.ui import main_window as mw
+    from quirewright.ui import main_window as mw
 
     cert = str(tmp_path / "c.p12")
     signing.generate_self_signed("UI Signer", cert, "pw")
@@ -68,7 +68,7 @@ def test_sign_visible_from_window(app, window, tmp_path, monkeypatch):
     monkeypatch.setattr(QMessageBox, "warning", staticmethod(lambda *a, **k: QMessageBox.StandardButton.Cancel))
     assert window.save() is False and window.doc.is_modified
     # signatures dialog lists it
-    from pdfeditor.ui.sign_dialogs import SignaturesDialog
+    from quirewright.ui.sign_dialogs import SignaturesDialog
 
     dlg = SignaturesDialog(signing.signatures(open(out, "rb").read()), lambda p: None, window)
     assert dlg.table.rowCount() == 1 and "VALID" in dlg.table.item(0, 0).text()
@@ -76,7 +76,7 @@ def test_sign_visible_from_window(app, window, tmp_path, monkeypatch):
 
 
 def test_sign_dialog_widgets(app, window):
-    from pdfeditor.ui.sign_dialogs import CreateCertificateDialog, SignDialog
+    from quirewright.ui.sign_dialogs import CreateCertificateDialog, SignDialog
 
     d = SignDialog(1, 0, ["sig1"], window)
     assert d.field.isChecked() and d.values()["mode"] == "field" and d.values()["field"] == "sig1"

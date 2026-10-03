@@ -6,8 +6,8 @@ from PySide6.QtCore import QPoint, QPointF, Qt
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QPlainTextEdit
 
-from pdfeditor.ui import theme
-from pdfeditor.ui.canvas import TOOL_PEN, TOOL_TEXT
+from quirewright.ui import theme
+from quirewright.ui.canvas import TOOL_PEN, TOOL_TEXT
 
 
 @pytest.fixture(scope="session")
@@ -35,7 +35,7 @@ def pdf_path(tmp_path):
 
 @pytest.fixture
 def window(app, pdf_path):
-    from pdfeditor.ui.main_window import MainWindow
+    from quirewright.ui.main_window import MainWindow
 
     win = MainWindow()
     win.resize(1200, 800)

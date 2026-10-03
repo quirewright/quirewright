@@ -1,5 +1,5 @@
-from pdfeditor.core.content.lexer import Lexer, Name, tokenize
-from pdfeditor.core.pdfobj import Ref, parse_object
+from quirewright.core.content.lexer import Lexer, Name, tokenize
+from quirewright.core.pdfobj import Ref, parse_object
 
 
 def kinds(data: bytes):

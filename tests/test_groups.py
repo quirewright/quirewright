@@ -3,9 +3,9 @@
 import pymupdf
 import pytest
 
-from pdfeditor.core.content.writer import ContentEditor
-from pdfeditor.core.document import Document
-from pdfeditor.core.geometry import Matrix
+from quirewright.core.content.writer import ContentEditor
+from quirewright.core.document import Document
+from quirewright.core.geometry import Matrix
 
 
 def render_bytes(doc, index=0):
@@ -93,7 +93,7 @@ def test_edit_inside_form(doc):
     # add a new object inside the form
     inner = doc.content(0, path)
     ed = ContentEditor(inner)
-    from pdfeditor.core.content.model import Color
+    from quirewright.core.content.model import Color
 
     ed.append_path([[("m", 150, 150), ("l", 170, 150), ("l", 170, 170), ("h",)]], fill_color=Color("DeviceRGB", (1, 0, 1)))
     doc.apply_content_edit(0, ed.build(), "Add inside", path)

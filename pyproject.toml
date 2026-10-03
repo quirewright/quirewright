@@ -3,10 +3,10 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-# NOTE: "pdfeditor" is a placeholder name. See src/pdfeditor/__init__.py (APP_NAME).
-name = "pdfeditor"
+# NOTE: "quirewright" is a placeholder name. See src/quirewright/__init__.py (APP_NAME).
+name = "quirewright"
 version = "0.1.0"
-description = "A free and open-source PDF editor: vector object editing plus page management, Linux native and cross-platform."
+description = "Quirewright: a free and open-source PDF editor combining vector object editing with page management, forms, comments and signatures."
 readme = "README.md"
 license = "AGPL-3.0-or-later"
 requires-python = ">=3.11"
@@ -22,13 +22,13 @@ dev = ["pytest>=8", "pytest-cov", "ruff>=0.5"]
 build = ["pyinstaller>=6"]
 
 [project.scripts]
-pdfeditor = "pdfeditor.app:main"
+quirewright = "quirewright.app:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-pdfeditor = ["help/*.md", "locale/*.pot", "locale/*/LC_MESSAGES/*.po", "locale/*/LC_MESSAGES/*.mo"]
+quirewright = ["assets/*.svg", "help/*.md", "locale/*.pot", "locale/*/LC_MESSAGES/*.po", "locale/*/LC_MESSAGES/*.mo"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

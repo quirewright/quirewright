@@ -8,18 +8,18 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root"
 py="${PYTHON:-python}"
 if [ -x "$root/.venv/bin/python" ] && [ -z "${PYTHON:-}" ]; then py="$root/.venv/bin/python"; fi
-version="$($py -c 'import pdfeditor; print(pdfeditor.__version__)')"
+version="$($py -c 'import quirewright; print(quirewright.__version__)')"
 arch="$(uname -m)"
 build="$root/build/appimage"
-rm -rf "$build" "$root/dist/PDFEditor-$version-$arch.AppImage"
+rm -rf "$build" "$root/dist/Quirewright-$version-$arch.AppImage"
 mkdir -p "$build" "$root/dist"
 
 echo "==> PyInstaller bundle"
 "$py" -m PyInstaller --noconfirm --clean --log-level WARN \
-  --name pdfeditor --windowed --onedir \
+  --name quirewright --windowed --onedir \
   --distpath "$build/dist" --workpath "$build/work" --specpath "$build" \
-  --collect-data pdfeditor \
-  --hidden-import pdfeditor.ui.main_window \
+  --collect-data quirewright \
+  --hidden-import quirewright.ui.main_window \
   --exclude-module tkinter --exclude-module PyQt5 --exclude-module PyQt6 --exclude-module PySide2 \
   --exclude-module PySide6.QtWebEngineCore --exclude-module PySide6.QtWebEngineWidgets \
   --exclude-module PySide6.Qt3DCore --exclude-module PySide6.QtQuick --exclude-module PySide6.QtQml \
@@ -29,17 +29,17 @@ echo "==> PyInstaller bundle"
 echo "==> AppDir"
 appdir="$build/AppDir"
 mkdir -p "$appdir/usr/bin" "$appdir/usr/share/applications" "$appdir/usr/share/icons/hicolor/scalable/apps" "$appdir/usr/share/metainfo"
-cp -r "$build/dist/pdfeditor/." "$appdir/usr/bin/"
-cp "$root/packaging/pdfeditor.desktop" "$appdir/pdfeditor.desktop"
-cp "$root/packaging/pdfeditor.desktop" "$appdir/usr/share/applications/"
-cp "$root/packaging/pdfeditor.svg" "$appdir/pdfeditor.svg"
-cp "$root/packaging/pdfeditor.svg" "$appdir/usr/share/icons/hicolor/scalable/apps/pdfeditor.svg"
-cp "$root/packaging/io.github.pdfeditor.PDFEditor.metainfo.xml" "$appdir/usr/share/metainfo/" 2>/dev/null || true
+cp -r "$build/dist/quirewright/." "$appdir/usr/bin/"
+cp "$root/packaging/quirewright.desktop" "$appdir/quirewright.desktop"
+cp "$root/packaging/quirewright.desktop" "$appdir/usr/share/applications/"
+cp "$root/src/quirewright/assets/quirewright.svg" "$appdir/quirewright.svg"
+cp "$root/src/quirewright/assets/quirewright.svg" "$appdir/usr/share/icons/hicolor/scalable/apps/quirewright.svg"
+cp "$root/packaging/io.github.quirewright.Quirewright.metainfo.xml" "$appdir/usr/share/metainfo/" 2>/dev/null || true
 cat > "$appdir/AppRun" <<'EOF'
 #!/bin/sh
 here="$(dirname "$(readlink -f "$0")")"
 export QT_QPA_PLATFORMTHEME="${QT_QPA_PLATFORMTHEME:-xdgdesktopportal}"
-exec "$here/usr/bin/pdfeditor" "$@"
+exec "$here/usr/bin/quirewright" "$@"
 EOF
 chmod +x "$appdir/AppRun"
 
@@ -50,7 +50,7 @@ if [ ! -x "$tool" ]; then
   chmod +x "$tool"
 fi
 export ARCH="$arch"
-out="$root/dist/PDFEditor-$version-$arch.AppImage"
+out="$root/dist/Quirewright-$version-$arch.AppImage"
 if [ -n "${APPIMAGE_EXTRACT_AND_RUN:-}" ] || ! [ -e /dev/fuse ]; then
   "$tool" --appimage-extract-and-run "$appdir" "$out"
 else

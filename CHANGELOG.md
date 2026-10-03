@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changed
+- The project is now **Quirewright** (package `quirewright`, app id `io.github.quirewright.Quirewright`). Settings from the pre-release name are migrated on first start.
+- New icon (a quire of folded sheets with an awl; oxblood, parchment and brass) and an oxblood UI accent.
+
 ### Added
 - Signature Field tool (G) with a visible 'sign here' placeholder, editable caption and colours, and a Sign-this-field shortcut in the Inspector
 - Digital signatures via pyHanko: sign (invisible / visible / existing field), self-signed certificate creation, signature verification with a personal trust store, signature fields in the form tool

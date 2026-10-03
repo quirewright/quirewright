@@ -1,1 +1,1 @@
-../src/pdfeditor/help/USER_GUIDE.md
+../src/quirewright/help/USER_GUIDE.md

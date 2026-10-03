@@ -6,11 +6,11 @@ from PySide6.QtCore import QPointF, Qt
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
-from pdfeditor.core import signing
-from pdfeditor.core.document import Document
-from pdfeditor.core.geometry import Rect
-from pdfeditor.ui import theme
-from pdfeditor.ui.canvas import TOOL_FIELD, TOOL_SELECT
+from quirewright.core import signing
+from quirewright.core.document import Document
+from quirewright.core.geometry import Rect
+from quirewright.ui import theme
+from quirewright.ui.canvas import TOOL_FIELD, TOOL_SELECT
 
 
 @pytest.fixture(scope="session")
@@ -41,7 +41,7 @@ def test_placeholder_appearance_and_signing(tmp_path):
     assert doc.widgets(0)[0].label == "Please sign"
     assert b"(Please sign) Tj" in ap_stream(doc) and b"1 0 0 RG" in ap_stream(doc)
     # moving keeps the placeholder
-    doc.transform_widgets(0, [w.xref], __import__("pdfeditor.core.geometry", fromlist=["Matrix"]).Matrix.translation(20, 0))
+    doc.transform_widgets(0, [w.xref], __import__("quirewright.core.geometry", fromlist=["Matrix"]).Matrix.translation(20, 0))
     assert b"(Please sign) Tj" in ap_stream(doc)
     # the saved file keeps it too
     out_path = str(tmp_path / "saved.pdf")
@@ -63,7 +63,7 @@ def test_placeholder_appearance_and_signing(tmp_path):
 
 
 def test_tool_click_and_inspector(app, tmp_path):
-    from pdfeditor.ui.main_window import MainWindow
+    from quirewright.ui.main_window import MainWindow
 
     pdf = pymupdf.open()
     pdf.new_page(width=300, height=200)
@@ -109,7 +109,7 @@ def test_tool_click_and_inspector(app, tmp_path):
 
 
 def test_signed_field_state_and_overlay(tmp_path, app):
-    from pdfeditor.ui.canvas import WidgetItem
+    from quirewright.ui.canvas import WidgetItem
 
     pdf = pymupdf.open()
     pdf.new_page(width=300, height=200)

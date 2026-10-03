@@ -1,5 +1,5 @@
-from pdfeditor.core.fonts import FontInfo, builtin_font_name, parse_cmap
-from pdfeditor.core.pdfobj import Resolver, parse_object
+from quirewright.core.fonts import FontInfo, builtin_font_name, parse_cmap
+from quirewright.core.pdfobj import Resolver, parse_object
 
 
 class FakeDoc:

@@ -1,0 +1,1583 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: quirewright\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "&File"
+msgstr "&Fichier"
+
+msgid "&Edit"
+msgstr "&Édition"
+
+msgid "&Object"
+msgstr "&Objet"
+
+msgid "&Insert"
+msgstr "&Insertion"
+
+msgid "&View"
+msgstr "&Affichage"
+
+msgid "&Page"
+msgstr "&Page"
+
+msgid "&Document"
+msgstr "&Document"
+
+msgid "&Help"
+msgstr "&Aide"
+
+msgid "&New"
+msgstr "&Nouveau"
+
+msgid "&Open…"
+msgstr "&Ouvrir…"
+
+msgid "Open &Recent"
+msgstr "Documents &récents"
+
+msgid "&Save"
+msgstr "&Enregistrer"
+
+msgid "Save &As…"
+msgstr "Enregistrer &sous…"
+
+msgid "Save &Reduced Size Copy…"
+msgstr "Enregistrer une copie &réduite…"
+
+msgid "&Export"
+msgstr "&Exporter"
+
+msgid "Export Page as &Image…"
+msgstr "Exporter la page en &image…"
+
+msgid "Export &Text…"
+msgstr "Exporter le &texte…"
+
+msgid "&Print…"
+msgstr "Im&primer…"
+
+msgid "&Close"
+msgstr "&Fermer"
+
+msgid "&Quit"
+msgstr "&Quitter"
+
+msgid "&Insert Pages from File…"
+msgstr "&Insérer des pages depuis un fichier…"
+
+msgid "&Extract Pages…"
+msgstr "E&xtraire des pages…"
+
+msgid "S&plit Document…"
+msgstr "&Scinder le document…"
+
+msgid "&Undo"
+msgstr "&Annuler"
+
+msgid "&Redo"
+msgstr "&Rétablir"
+
+msgid "&Delete"
+msgstr "&Supprimer"
+
+msgid "Select &All"
+msgstr "&Tout sélectionner"
+
+msgid "D&eselect"
+msgstr "&Désélectionner"
+
+msgid "&Copy Text"
+msgstr "&Copier le texte"
+
+msgid "D&uplicate"
+msgstr "D&upliquer"
+
+msgid "Edit &Text Line"
+msgstr "Modifier la &ligne de texte"
+
+msgid "Edit &Paragraph"
+msgstr "Modifier le &paragraphe"
+
+msgid "&Find…"
+msgstr "&Rechercher…"
+
+msgid "Find &Next"
+msgstr "Résultat &suivant"
+
+msgid "Find &Previous"
+msgstr "Résultat &précédent"
+
+msgid "&Preferences…"
+msgstr "&Préférences…"
+
+msgid "&Group"
+msgstr "&Grouper"
+
+msgid "&Ungroup"
+msgstr "&Dégrouper"
+
+msgid "&Enter Group"
+msgstr "&Entrer dans le groupe"
+
+msgid "E&xit Group"
+msgstr "&Quitter le groupe"
+
+msgid "Bring to &Front"
+msgstr "Mettre au premier &plan"
+
+msgid "Send to &Back"
+msgstr "Mettre à l'&arrière-plan"
+
+msgid "Flip &Horizontal"
+msgstr "Retourner &horizontalement"
+
+msgid "Flip &Vertical"
+msgstr "Retourner &verticalement"
+
+msgid "&Align"
+msgstr "&Aligner"
+
+msgid "Align &Left"
+msgstr "Aligner à &gauche"
+
+msgid "Align &Centre"
+msgstr "&Centrer horizontalement"
+
+msgid "Align &Right"
+msgstr "Aligner à &droite"
+
+msgid "Align &Top"
+msgstr "Aligner en &haut"
+
+msgid "Align &Middle"
+msgstr "Centrer &verticalement"
+
+msgid "Align &Bottom"
+msgstr "Aligner en &bas"
+
+msgid "Distribute Hori&zontally"
+msgstr "Distribuer hori&zontalement"
+
+msgid "Distribute &Vertically"
+msgstr "Distribuer &verticalement"
+
+msgid "Rotate Selection 90° CW"
+msgstr "Pivoter la sélection de 90° (horaire)"
+
+msgid "Rotate Selection 90° CCW"
+msgstr "Pivoter la sélection de 90° (antihoraire)"
+
+msgid "Select"
+msgstr "Sélection"
+
+msgid "Nodes"
+msgstr "Nœuds"
+
+msgid "Text"
+msgstr "Texte"
+
+msgid "Pan"
+msgstr "Main"
+
+msgid "Rectangle"
+msgstr "Rectangle"
+
+msgid "Ellipse"
+msgstr "Ellipse"
+
+msgid "Line"
+msgstr "Ligne"
+
+msgid "Pen"
+msgstr "Plume"
+
+msgid "Text field"
+msgstr "Champ de texte"
+
+msgid "Checkbox"
+msgstr "Case à cocher"
+
+msgid "Radio button"
+msgstr "Bouton radio"
+
+msgid "Dropdown"
+msgstr "Liste déroulante"
+
+msgid "List box"
+msgstr "Liste"
+
+msgid "Push button"
+msgstr "Bouton"
+
+msgid "Form Field"
+msgstr "Champ de formulaire"
+
+msgid "Form &Field"
+msgstr "Champ de &formulaire"
+
+msgid "&Comment"
+msgstr "&Commentaire"
+
+msgid "Highlight"
+msgstr "Surligner"
+
+msgid "Underline"
+msgstr "Souligner"
+
+msgid "Strike Out"
+msgstr "Barrer"
+
+msgid "Sticky Note"
+msgstr "Note"
+
+msgid "Crop Tool"
+msgstr "Outil de recadrage"
+
+msgid "Redact Area"
+msgstr "Caviarder une zone"
+
+msgid "Insert &Image…"
+msgstr "Insérer une &image…"
+
+msgid "Zoom &In"
+msgstr "Zoom &avant"
+
+msgid "Zoom &Out"
+msgstr "Zoom a&rrière"
+
+msgid "&Fit Page"
+msgstr "&Page entière"
+
+msgid "Fit &Width"
+msgstr "&Largeur de page"
+
+msgid "&Actual Size"
+msgstr "&Taille réelle"
+
+msgid "&Previous Page"
+msgstr "Page &précédente"
+
+msgid "&Next Page"
+msgstr "Page &suivante"
+
+msgid "&First Page"
+msgstr "&Première page"
+
+msgid "&Last Page"
+msgstr "&Dernière page"
+
+msgid "&Go to Page…"
+msgstr "&Aller à la page…"
+
+msgid "&Continuous Scrolling"
+msgstr "Défilement &continu"
+
+msgid "Show &Rulers"
+msgstr "Afficher les &règles"
+
+msgid "Show &Guides"
+msgstr "Afficher les &guides"
+
+msgid "Show Gr&id"
+msgstr "Afficher la gr&ille"
+
+msgid "S&napping"
+msgstr "&Magnétisme"
+
+msgid "&Snap"
+msgstr "&Magnétisme"
+
+msgid "Snap to &Objects"
+msgstr "Aimanter aux &objets"
+
+msgid "Snap to Gri&d"
+msgstr "Aimanter à la &grille"
+
+msgid "Clear Guides on This Page"
+msgstr "Effacer les guides de cette page"
+
+msgid "Clear All Guides"
+msgstr "Effacer tous les guides"
+
+msgid "&Dark Mode"
+msgstr "Mode &sombre"
+
+msgid "Show &Navigation Panel"
+msgstr "Afficher le panneau de &navigation"
+
+msgid "Show &Inspector"
+msgstr "Afficher l'&inspecteur"
+
+msgid "Next &Tab"
+msgstr "Onglet &suivant"
+
+msgid "Previous Ta&b"
+msgstr "Onglet &précédent"
+
+msgid "Rotate &Clockwise"
+msgstr "Pivoter dans le sens &horaire"
+
+msgid "Rotate Counter-cloc&kwise"
+msgstr "Pivoter dans le sens &antihoraire"
+
+msgid "Rotate &180°"
+msgstr "Pivoter de &180°"
+
+msgid "&Delete Page(s)"
+msgstr "&Supprimer la ou les pages"
+
+msgid "D&uplicate Page(s)"
+msgstr "D&upliquer la ou les pages"
+
+msgid "Insert &Blank Page…"
+msgstr "Insérer une page &vierge…"
+
+msgid "Move Page &Up"
+msgstr "Monter la page"
+
+msgid "Move Page Do&wn"
+msgstr "Descendre la page"
+
+msgid "&Reverse Page Order"
+msgstr "&Inverser l'ordre des pages"
+
+msgid "Crop by &Margins…"
+msgstr "Recadrer par &marges…"
+
+msgid "Reset Cr&op"
+msgstr "Annuler le &recadrage"
+
+msgid "Add Page &Numbers…"
+msgstr "Ajouter des &numéros de page…"
+
+msgid "Add &Watermark…"
+msgstr "Ajouter un &filigrane…"
+
+msgid "Page &Labels…"
+msgstr "É&tiquettes de pages…"
+
+msgid "&Properties…"
+msgstr "&Propriétés…"
+
+msgid "&Security…"
+msgstr "&Sécurité…"
+
+msgid "&Resources (Images, Fonts, Attachments)…"
+msgstr "&Ressources (images, polices, pièces jointes)…"
+
+msgid "&Attach File…"
+msgstr "&Joindre un fichier…"
+
+msgid "&Flatten Forms and Comments"
+msgstr "&Aplatir les formulaires et commentaires"
+
+msgid "Recognize &Text (OCR)…"
+msgstr "Reconnaître le &texte (OCR)…"
+
+msgid "&Keyboard Shortcuts"
+msgstr "&Raccourcis clavier"
+
+msgid "&User Guide"
+msgstr "&Guide de l'utilisateur"
+
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "Inspector"
+msgstr "Inspecteur"
+
+msgid "Pages"
+msgstr "Pages"
+
+msgid "Bookmarks"
+msgstr "Signets"
+
+msgid "Page"
+msgstr "Page"
+
+msgid "No document"
+msgstr "Aucun document"
+
+msgid "Open a PDF to get started."
+msgstr "Ouvrez un PDF pour commencer."
+
+msgid "Document"
+msgstr "Document"
+
+msgid "Selection"
+msgstr "Sélection"
+
+msgid "Geometry"
+msgstr "Géométrie"
+
+msgid "Fill & Stroke"
+msgstr "Remplissage et contour"
+
+msgid "Fill"
+msgstr "Remplissage"
+
+msgid "Stroke"
+msgstr "Contour"
+
+msgid "Stroke width"
+msgstr "Épaisseur du contour"
+
+msgid "Keep aspect"
+msgstr "Conserver les proportions"
+
+msgid "Rotate"
+msgstr "Rotation"
+
+msgid "Font"
+msgstr "Police"
+
+msgid "Size"
+msgstr "Taille"
+
+msgid "Colour"
+msgstr "Couleur"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "Apply"
+msgstr "Appliquer"
+
+msgid "Name"
+msgstr "Nom"
+
+msgid "Value"
+msgstr "Valeur"
+
+msgid "Options"
+msgstr "Options"
+
+msgid "Caption"
+msgstr "Libellé"
+
+msgid "Font size"
+msgstr "Taille de police"
+
+msgid "Text colour"
+msgstr "Couleur du texte"
+
+msgid "Background"
+msgstr "Arrière-plan"
+
+msgid "Border"
+msgstr "Bordure"
+
+msgid "Border width"
+msgstr "Épaisseur de bordure"
+
+msgid "Read-only"
+msgstr "Lecture seule"
+
+msgid "Required"
+msgstr "Obligatoire"
+
+msgid "Multiline"
+msgstr "Multiligne"
+
+msgid "Form field"
+msgstr "Champ de formulaire"
+
+msgid "Comment"
+msgstr "Commentaire"
+
+msgid "Author"
+msgstr "Auteur"
+
+msgid "Icon"
+msgstr "Icône"
+
+msgid "Opacity"
+msgstr "Opacité"
+
+msgid "New object style"
+msgstr "Style des nouveaux objets"
+
+msgid "Edit paragraph…"
+msgstr "Modifier le paragraphe…"
+
+msgid "Open PDF…"
+msgstr "Ouvrir un PDF…"
+
+msgid "New blank document"
+msgstr "Nouveau document vierge"
+
+msgid "You can also drop a PDF anywhere in this window."
+msgstr "Vous pouvez aussi déposer un PDF n'importe où dans cette fenêtre."
+
+msgid "RECENT FILES"
+msgstr "FICHIERS RÉCENTS"
+
+msgid "Find in document…"
+msgstr "Rechercher dans le document…"
+
+msgid "Match case"
+msgstr "Respecter la casse"
+
+msgid "No matches"
+msgstr "Aucun résultat"
+
+msgid "Unsaved changes"
+msgstr "Modifications non enregistrées"
+
+msgid "Do you want to save them?"
+msgstr "Voulez-vous les enregistrer ?"
+
+msgid "Open PDF"
+msgstr "Ouvrir un PDF"
+
+msgid "Save PDF as"
+msgstr "Enregistrer le PDF sous"
+
+msgid "Preferences"
+msgstr "Préférences"
+
+msgid "Theme"
+msgstr "Thème"
+
+msgid "Follow system"
+msgstr "Suivre le système"
+
+msgid "Light"
+msgstr "Clair"
+
+msgid "Dark"
+msgstr "Sombre"
+
+msgid "Units"
+msgstr "Unités"
+
+msgid "Language"
+msgstr "Langue"
+
+msgid "System language"
+msgstr "Langue du système"
+
+msgid "Your name"
+msgstr "Votre nom"
+
+msgid "Zoom when opening"
+msgstr "Zoom à l'ouverture"
+
+msgid "Grid spacing"
+msgstr "Pas de la grille"
+
+msgid "Snap distance"
+msgstr "Distance de magnétisme"
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Document properties"
+msgstr "Propriétés du document"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Details"
+msgstr "Détails"
+
+msgid "Title"
+msgstr "Titre"
+
+msgid "Subject"
+msgstr "Sujet"
+
+msgid "Keywords"
+msgstr "Mots-clés"
+
+msgid "Creator"
+msgstr "Créateur"
+
+msgid "Producer"
+msgstr "Producteur"
+
+msgid "Created"
+msgstr "Créé le"
+
+msgid "Modified"
+msgstr "Modifié le"
+
+msgid "Document security"
+msgstr "Sécurité du document"
+
+msgid "Keep the current security settings"
+msgstr "Conserver les paramètres de sécurité actuels"
+
+msgid "No password or restrictions"
+msgstr "Aucun mot de passe ni restriction"
+
+msgid "Protect with passwords and permissions"
+msgstr "Protéger par mots de passe et autorisations"
+
+msgid "Passwords"
+msgstr "Mots de passe"
+
+msgid "Open password"
+msgstr "Mot de passe d'ouverture"
+
+msgid "Owner password"
+msgstr "Mot de passe propriétaire"
+
+msgid "Show passwords"
+msgstr "Afficher les mots de passe"
+
+msgid "Encryption"
+msgstr "Chiffrement"
+
+msgid "Allow readers to"
+msgstr "Autoriser les lecteurs à"
+
+msgid "Print"
+msgstr "Imprimer"
+
+msgid "Document resources"
+msgstr "Ressources du document"
+
+msgid "Images"
+msgstr "Images"
+
+msgid "Fonts"
+msgstr "Polices"
+
+msgid "Attachments"
+msgstr "Pièces jointes"
+
+msgid "Recognize text (OCR)"
+msgstr "Reconnaître le texte (OCR)"
+
+msgid "Recognize"
+msgstr "Reconnaître"
+
+msgid "Keyboard shortcuts"
+msgstr "Raccourcis clavier"
+
+msgid "Command"
+msgstr "Commande"
+
+msgid "Shortcut"
+msgstr "Raccourci"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "The new language is used after you restart the application."
+msgstr "La nouvelle langue sera utilisée après le redémarrage de l'application."
+
+msgid "(not set)"
+msgstr "(non défini)"
+
+msgid "A document must keep at least one page."
+msgstr "Un document doit conserver au moins une page."
+
+msgid "A free and open-source PDF editor combining vector object editing with page management.\n\nLicensed under the GNU Affero General Public License v3.0 or later.\nBuilt with PySide6 (Qt) and PyMuPDF (MuPDF)."
+msgstr "Un éditeur PDF libre et open source combinant l'édition d'objets vectoriels et la gestion des pages.\n\nSous licence GNU Affero General Public License v3.0 ou ultérieure.\nConstruit avec PySide6 (Qt) et PyMuPDF (MuPDF)."
+
+msgid "AES 128-bit"
+msgstr "AES 128 bits"
+
+msgid "AES 256-bit (recommended)"
+msgstr "AES 256 bits (recommandé)"
+
+msgid "Actual size"
+msgstr "Taille réelle"
+
+msgid "Add a bookmark for the current page"
+msgstr "Ajouter un signet pour la page courante"
+
+msgid "Add a child bookmark under the selected one"
+msgstr "Ajouter un signet enfant sous le signet sélectionné"
+
+msgid "Add bookmark here"
+msgstr "Ajouter un signet ici"
+
+msgid "Add child bookmark"
+msgstr "Ajouter un signet enfant"
+
+msgid "Add page numbers"
+msgstr "Ajouter des numéros de page"
+
+msgid "Add rule"
+msgstr "Ajouter une règle"
+
+msgid "Add watermark"
+msgstr "Ajouter un filigrane"
+
+msgid "Adds an invisible, searchable text layer over scanned pages. The page image is not changed. Pages that already contain text are skipped unless you choose otherwise."
+msgstr "Ajoute une couche de texte invisible et consultable sur les pages numérisées. L'image de la page n'est pas modifiée. Les pages contenant déjà du texte sont ignorées, sauf indication contraire."
+
+msgid "All pages"
+msgstr "Toutes les pages"
+
+msgid "All pages (one file each)"
+msgstr "Toutes les pages (un fichier par page)"
+
+msgid "Apply to"
+msgstr "Appliquer à"
+
+msgid "At the beginning"
+msgstr "Au début"
+
+msgid "At the end"
+msgstr "À la fin"
+
+msgid "Attach files"
+msgstr "Joindre des fichiers"
+
+msgid "Attach file…"
+msgstr "Joindre un fichier…"
+
+msgid "Back (Alt+Left)"
+msgstr "Précédent (Alt+Gauche)"
+
+msgid "Browse and extract images, fonts and attachments"
+msgstr "Parcourir et extraire les images, polices et pièces jointes"
+
+msgid "Browse…"
+msgstr "Parcourir…"
+
+msgid "Calculate"
+msgstr "Calcul"
+
+msgid "Calculation & format"
+msgstr "Calcul et format"
+
+msgid "Cannot delete"
+msgstr "Suppression impossible"
+
+msgid "Checked"
+msgstr "Coché"
+
+msgid "Choose PDF"
+msgstr "Choisir un PDF"
+
+msgid "Choose a PDF…"
+msgstr "Choisir un PDF…"
+
+msgid "Choose folder"
+msgstr "Choisir un dossier"
+
+msgid "Choose folder for fonts"
+msgstr "Choisir un dossier pour les polices"
+
+msgid "Choose folder for images"
+msgstr "Choisir un dossier pour les images"
+
+msgid "Choose folder for page images"
+msgstr "Choisir un dossier pour les images de pages"
+
+msgid "Choose output folder"
+msgstr "Choisir le dossier de sortie"
+
+msgid "Click an object to inspect and edit it. Drag to move, use the handles to resize, double-click text to edit a line, double-click a shape to edit its nodes. Use the drawing tools to add shapes, text and form fields."
+msgstr "Cliquez sur un objet pour l'inspecter et le modifier. Faites-le glisser pour le déplacer, utilisez les poignées pour le redimensionner, double-cliquez sur un texte pour modifier une ligne, double-cliquez sur une forme pour modifier ses nœuds. Utilisez les outils de dessin pour ajouter des formes, du texte et des champs de formulaire."
+
+msgid "Click for corners, click-and-drag for curves · double-click or Enter finishes · click the first point to close · Esc cancels"
+msgstr "Clic pour un sommet, cliquer-glisser pour une courbe · double-clic ou Entrée termine · clic sur le premier point ferme · Échap annule"
+
+msgid "Click on the page to add a sticky note, then type its text in the Inspector"
+msgstr "Cliquez sur la page pour ajouter une note, puis saisissez son texte dans l'inspecteur"
+
+msgid "Click text to edit the line · Ctrl+E edits the paragraph · click or drag on empty space for new text · Enter applies · Esc cancels"
+msgstr "Clic sur un texte modifie la ligne · Ctrl+E modifie le paragraphe · clic ou glissement sur une zone vide pour un nouveau texte · Entrée applique · Échap annule"
+
+msgid "Click to add a comment"
+msgstr "Cliquez pour ajouter un commentaire"
+
+msgid "Click to select · drag to move · Shift+click to add · handles resize · double-click text to edit, a shape for nodes, a group to enter it"
+msgstr "Clic pour sélectionner · glisser pour déplacer · Maj+clic pour ajouter · poignées pour redimensionner · double-clic sur un texte pour le modifier, une forme pour ses nœuds, un groupe pour y entrer"
+
+msgid "Close (Esc)"
+msgstr "Fermer (Échap)"
+
+msgid "Combine languages with +, e.g. eng+deu"
+msgstr "Combinez des langues avec +, p. ex. fra+eng"
+
+msgid "Combine the selected objects into a group (a form XObject)"
+msgstr "Combiner les objets sélectionnés en un groupe (un XObject de formulaire)"
+
+msgid "Comment text"
+msgstr "Texte du commentaire"
+
+msgid "Convert all form fields and comments into fixed page content? They can no longer be edited afterwards (undo is available)."
+msgstr "Convertir tous les champs de formulaire et commentaires en contenu fixe de page ? Ils ne pourront plus être modifiés ensuite (l'annulation reste possible)."
+
+msgid "Copy the selected text to the clipboard"
+msgstr "Copier le texte sélectionné dans le presse-papiers"
+
+msgid "Create a new document with one blank page"
+msgstr "Créer un nouveau document avec une page vierge"
+
+msgid "Crop page margins"
+msgstr "Recadrer les marges de la page"
+
+msgid "Crop pages"
+msgstr "Recadrer les pages"
+
+msgid "Currency"
+msgstr "Devise"
+
+msgid "Currency symbol (optional)"
+msgstr "Symbole monétaire (facultatif)"
+
+msgid "Current page"
+msgstr "Page courante"
+
+msgid "Date format"
+msgstr "Format de date"
+
+msgid "Decimals"
+msgstr "Décimales"
+
+msgid "Delete selected objects"
+msgstr "Supprimer les objets sélectionnés"
+
+msgid "Delete the selected bookmark"
+msgstr "Supprimer le signet sélectionné"
+
+msgid "Delete the selected page(s)"
+msgstr "Supprimer la ou les pages sélectionnées"
+
+msgid "Drag a rectangle to crop the page to it (C)"
+msgstr "Tracez un rectangle pour y recadrer la page (C)"
+
+msgid "Drag a rectangle to crop the page to that area (content outside is hidden, not deleted)"
+msgstr "Tracez un rectangle pour recadrer la page sur cette zone (le contenu extérieur est masqué, pas supprimé)"
+
+msgid "Drag a rectangle to permanently remove everything inside it"
+msgstr "Tracez un rectangle pour en supprimer définitivement tout le contenu"
+
+msgid "Drag a rectangle to permanently remove its content"
+msgstr "Tracez un rectangle pour en supprimer définitivement le contenu"
+
+msgid "Drag anchors (squares) and control points (circles) · Esc returns to Select"
+msgstr "Faites glisser les ancres (carrés) et les points de contrôle (cercles) · Échap revient à la sélection"
+
+msgid "Drag on the page to add a {field}"
+msgstr "Tracez sur la page pour ajouter : {field}"
+
+msgid "Drag on the page to place the field · select a field to edit it in the Inspector"
+msgstr "Tracez sur la page pour placer le champ · sélectionnez un champ pour le modifier dans l'inspecteur"
+
+msgid "Drag onto the page to create a guide"
+msgstr "Faites glisser sur la page pour créer un guide"
+
+msgid "Drag over text to highlight it"
+msgstr "Faites glisser sur le texte pour le surligner"
+
+msgid "Drag over text to strike it out"
+msgstr "Faites glisser sur le texte pour le barrer"
+
+msgid "Drag over text to underline it"
+msgstr "Faites glisser sur le texte pour le souligner"
+
+msgid "Drag over words to mark them up · select a comment to edit it in the Inspector"
+msgstr "Faites glisser sur les mots pour les annoter · sélectionnez un commentaire pour le modifier dans l'inspecteur"
+
+msgid "Drag to draw a line · Shift snaps to 45°"
+msgstr "Glissez pour tracer une ligne · Maj contraint à 45°"
+
+msgid "Drag to draw a rectangle · Shift for a square"
+msgstr "Glissez pour tracer un rectangle · Maj pour un carré"
+
+msgid "Drag to draw an ellipse · Shift for a circle"
+msgstr "Glissez pour tracer une ellipse · Maj pour un cercle"
+
+msgid "Drag to pan · Ctrl+wheel zooms"
+msgstr "Glissez pour déplacer la vue · Ctrl+molette zoome"
+
+msgid "Draw a polyline: click points, Enter or double-click to finish (P)"
+msgstr "Tracer une polyligne : cliquez les points, Entrée ou double-clic pour terminer (P)"
+
+msgid "Draw a rectangle (R)"
+msgstr "Tracer un rectangle (R)"
+
+msgid "Draw a straight line (L)"
+msgstr "Tracer une ligne droite (L)"
+
+msgid "Draw an ellipse (E)"
+msgstr "Tracer une ellipse (E)"
+
+msgid "Duplicate the selected objects"
+msgstr "Dupliquer les objets sélectionnés"
+
+msgid "Duplicate the selected page(s)"
+msgstr "Dupliquer la ou les pages sélectionnées"
+
+msgid "Each rule numbers pages from its start page until the next rule. For example a rule starting at page 1 with lower-case roman numerals and a second rule starting at page 5 with decimal numbers gives i, ii, iii, iv, 1, 2, …"
+msgstr "Chaque règle numérote les pages depuis sa page de départ jusqu'à la règle suivante. Par exemple, une règle commençant à la page 1 en chiffres romains minuscules et une seconde à la page 5 en chiffres décimaux donne i, ii, iii, iv, 1, 2, …"
+
+msgid "Edit all lines of this paragraph with word wrapping (Ctrl+E)"
+msgstr "Modifier toutes les lignes de ce paragraphe avec retour à la ligne (Ctrl+E)"
+
+msgid "Edit or add text (T)"
+msgstr "Modifier ou ajouter du texte (T)"
+
+msgid "Edit path nodes (N)"
+msgstr "Modifier les nœuds du tracé (N)"
+
+msgid "Edit the objects inside the selected group or form XObject"
+msgstr "Modifier les objets à l'intérieur du groupe ou XObject sélectionné"
+
+msgid "Edit the whole paragraph around the selected text with word wrapping"
+msgstr "Modifier tout le paragraphe autour du texte sélectionné avec retour à la ligne"
+
+msgid "Editing paragraph: Ctrl+Enter applies, Esc cancels"
+msgstr "Modification du paragraphe : Ctrl+Entrée applique, Échap annule"
+
+msgid "Encryption will be applied when you save. Keep the password somewhere safe."
+msgstr "Le chiffrement sera appliqué à l'enregistrement. Conservez le mot de passe en lieu sûr."
+
+msgid "Export page"
+msgstr "Exporter la page"
+
+msgid "Export page as image"
+msgstr "Exporter la page en image"
+
+msgid "Export text"
+msgstr "Exporter le texte"
+
+msgid "Extract all embedded…"
+msgstr "Extraire toutes les polices incorporées…"
+
+msgid "Extract all…"
+msgstr "Tout extraire…"
+
+msgid "Extract fonts"
+msgstr "Extraire les polices"
+
+msgid "Extract images"
+msgstr "Extraire les images"
+
+msgid "Extract pages"
+msgstr "Extraire des pages"
+
+msgid "Extract pages to"
+msgstr "Extraire les pages vers"
+
+msgid "Extract selected…"
+msgstr "Extraire la sélection…"
+
+msgid "Field names, comma separated (e.g. a, b, c)"
+msgstr "Noms de champs, séparés par des virgules (p. ex. a, b, c)"
+
+msgid "File"
+msgstr "Fichier"
+
+msgid "Find text in the document"
+msgstr "Rechercher du texte dans le document"
+
+msgid "Fit page"
+msgstr "Page entière"
+
+msgid "Fit page width"
+msgstr "Ajuster à la largeur"
+
+msgid "Fit the whole page"
+msgstr "Afficher la page entière"
+
+msgid "Fit width"
+msgstr "Largeur de page"
+
+msgid "Flatten"
+msgstr "Aplatir"
+
+msgid "Format"
+msgstr "Format"
+
+msgid "Forward (Alt+Right)"
+msgstr "Suivant (Alt+Droite)"
+
+msgid "From"
+msgstr "Depuis"
+
+msgid "Guide removed"
+msgstr "Guide supprimé"
+
+msgid "How pages are numbered in viewers (i, ii, 1, 2, A-1 …)"
+msgstr "Numérotation des pages dans les lecteurs (i, ii, 1, 2, A-1 …)"
+
+msgid "Include annotations and form fields"
+msgstr "Inclure les annotations et champs de formulaire"
+
+msgid "Insert"
+msgstr "Insérer"
+
+msgid "Insert a blank page"
+msgstr "Insérer une page vierge"
+
+msgid "Insert blank page"
+msgstr "Insérer une page vierge"
+
+msgid "Insert image"
+msgstr "Insérer une image"
+
+msgid "Insert pages"
+msgstr "Insérer des pages"
+
+msgid "Insert pages from file"
+msgstr "Insérer des pages depuis un fichier"
+
+msgid "JavaScript run by the viewer (Acrobat AF* helpers available)"
+msgstr "JavaScript exécuté par le lecteur (fonctions Acrobat AF* disponibles)"
+
+msgid "Main"
+msgstr "Principale"
+
+msgid "Make scanned pages searchable and selectable"
+msgstr "Rendre les pages numérisées consultables et sélectionnables"
+
+msgid "Margin"
+msgstr "Marge"
+
+msgid "Name shown on comments you add"
+msgstr "Nom affiché sur les commentaires que vous ajoutez"
+
+msgid "New document with one blank page"
+msgstr "Nouveau document avec une page vierge"
+
+msgid "New objects need a fill or a stroke colour (see the Inspector)."
+msgstr "Les nouveaux objets nécessitent une couleur de remplissage ou de contour (voir l'inspecteur)."
+
+msgid "Next match (Enter)"
+msgstr "Résultat suivant (Entrée)"
+
+msgid "No bookmarks. Use + to add one for the current page."
+msgstr "Aucun signet. Utilisez + pour en ajouter un pour la page courante."
+
+msgid "No colour / unknown colour space"
+msgstr "Aucune couleur / espace colorimétrique inconnu"
+
+msgid "No pages matched the given range."
+msgstr "Aucune page ne correspond à la plage indiquée."
+
+msgid "No recent files"
+msgstr "Aucun fichier récent"
+
+msgid "No text in that area."
+msgstr "Aucun texte dans cette zone."
+
+msgid "One option per line"
+msgstr "Une option par ligne"
+
+msgid "Only embedded fonts can be extracted. Font files are usually subsets and remain subject to the font's licence."
+msgstr "Seules les polices incorporées peuvent être extraites. Les fichiers de police sont généralement des sous-ensembles et restent soumis à la licence de la police."
+
+msgid "Only page content can be duplicated."
+msgstr "Seul le contenu de page peut être dupliqué."
+
+msgid "Open a PDF"
+msgstr "Ouvrir un PDF"
+
+msgid "Open the guide in your default Markdown viewer"
+msgstr "Ouvrir le guide dans votre lecteur Markdown par défaut"
+
+msgid "Orientation"
+msgstr "Orientation"
+
+msgid "Page labels"
+msgstr "Étiquettes de pages"
+
+msgid "Page number (Ctrl+G)"
+msgstr "Numéro de page (Ctrl+J)"
+
+msgid "Pages per file"
+msgstr "Pages par fichier"
+
+msgid "Pan the page (H)"
+msgstr "Déplacer la vue (H)"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Password required"
+msgstr "Mot de passe requis"
+
+msgid "Passwords and permissions"
+msgstr "Mots de passe et autorisations"
+
+msgid "Permanently remove all text and images inside the rectangle and paint it black?"
+msgstr "Supprimer définitivement tout le texte et les images dans le rectangle et le peindre en noir ?"
+
+msgid "Place an image on the page"
+msgstr "Placer une image sur la page"
+
+msgid "Please choose an existing PDF file."
+msgstr "Veuillez choisir un fichier PDF existant."
+
+msgid "Position"
+msgstr "Position"
+
+msgid "Previous match (Shift+Enter)"
+msgstr "Résultat précédent (Maj+Entrée)"
+
+msgid "Print the document"
+msgstr "Imprimer le document"
+
+msgid "RC4 128-bit (legacy)"
+msgstr "RC4 128 bits (obsolète)"
+
+msgid "Range…"
+msgstr "Plage…"
+
+msgid "Redact"
+msgstr "Caviarder"
+
+msgid "Remove"
+msgstr "Retirer"
+
+msgid "Remove all labels"
+msgstr "Supprimer toutes les étiquettes"
+
+msgid "Remove rule"
+msgstr "Supprimer la règle"
+
+msgid "Rename bookmark"
+msgstr "Renommer le signet"
+
+msgid "Rename the selected bookmark"
+msgstr "Renommer le signet sélectionné"
+
+msgid "Rename…"
+msgstr "Renommer…"
+
+msgid "Require a value between"
+msgstr "Exiger une valeur entre"
+
+msgid "Required to change permissions"
+msgstr "Requis pour modifier les autorisations"
+
+msgid "Required to open the document (optional)"
+msgstr "Requis pour ouvrir le document (facultatif)"
+
+msgid "Resolution"
+msgstr "Résolution"
+
+msgid "Rotate page(s) 90° clockwise"
+msgstr "Pivoter la ou les pages de 90° dans le sens horaire"
+
+msgid "Rotate page(s) 90° counter-clockwise"
+msgstr "Pivoter la ou les pages de 90° dans le sens antihoraire"
+
+msgid "Rotation"
+msgstr "Rotation"
+
+msgid "Rulers in your preferred units; drag from a ruler to add a guide"
+msgstr "Règles dans vos unités préférées ; faites glisser depuis une règle pour ajouter un guide"
+
+msgid "Save attachment"
+msgstr "Enregistrer la pièce jointe"
+
+msgid "Save font"
+msgstr "Enregistrer la police"
+
+msgid "Save image"
+msgstr "Enregistrer l'image"
+
+msgid "Save reduced size copy"
+msgstr "Enregistrer une copie réduite"
+
+msgid "Save selected…"
+msgstr "Enregistrer la sélection…"
+
+msgid "Save the chosen pages to a new PDF. The current document is not changed."
+msgstr "Enregistrer les pages choisies dans un nouveau PDF. Le document courant n'est pas modifié."
+
+msgid "Save the document"
+msgstr "Enregistrer le document"
+
+msgid "Scale Stroke &Width with Objects"
+msgstr "Mettre à l'échelle l'épaisseur du &contour avec les objets"
+
+msgid "Scale stroke width when resizing objects"
+msgstr "Adapter l'épaisseur du contour lors du redimensionnement"
+
+msgid "Script"
+msgstr "Script"
+
+msgid "Scripts are stored as PDF JavaScript actions (Acrobat-compatible). Sum/product/average/min/max are also evaluated here when you fill in values."
+msgstr "Les scripts sont stockés comme actions JavaScript PDF (compatibles Acrobat). Somme/produit/moyenne/min/max sont aussi évalués ici lorsque vous saisissez des valeurs."
+
+msgid "Search the guide…  (Enter: next, Shift+Enter: previous)"
+msgstr "Rechercher dans le guide…  (Entrée : suivant, Maj+Entrée : précédent)"
+
+msgid "Security will be removed when you save."
+msgstr "La sécurité sera retirée à l'enregistrement."
+
+msgid "Select a group (form XObject) to ungroup."
+msgstr "Sélectionnez un groupe (XObject) à dégrouper."
+
+msgid "Select an attachment first."
+msgstr "Sélectionnez d'abord une pièce jointe."
+
+msgid "Select and transform objects (S)"
+msgstr "Sélectionner et transformer les objets (S)"
+
+msgid "Select one or more embedded fonts first."
+msgstr "Sélectionnez d'abord une ou plusieurs polices incorporées."
+
+msgid "Select one or more images first."
+msgstr "Sélectionnez d'abord une ou plusieurs images."
+
+msgid "Selected"
+msgstr "Sélectionné"
+
+msgid "Sent to printer"
+msgstr "Envoyé à l'imprimante"
+
+msgid "Set to current page"
+msgstr "Définir sur la page courante"
+
+msgid "Show all pages in one scrolling column"
+msgstr "Afficher toutes les pages dans une colonne défilante"
+
+msgid "Skip pages that already have text"
+msgstr "Ignorer les pages contenant déjà du texte"
+
+msgid "Snap to page edges, guides and other objects while dragging (hold Alt to disable temporarily)"
+msgstr "Aimanter aux bords de page, guides et autres objets pendant le glissement (maintenez Alt pour désactiver temporairement)"
+
+msgid "Some characters are not available in the chosen font."
+msgstr "Certains caractères ne sont pas disponibles dans la police choisie."
+
+msgid "Some characters are not in the original font; a built-in font was substituted."
+msgstr "Certains caractères manquent dans la police d'origine ; une police intégrée a été substituée."
+
+msgid "Split document"
+msgstr "Scinder le document"
+
+msgid "Split the selected group back into its objects"
+msgstr "Décomposer le groupe sélectionné en ses objets"
+
+msgid "Start at"
+msgstr "Commencer à"
+
+msgid "Text content (Enter applies)"
+msgstr "Contenu du texte (Entrée applique)"
+
+msgid "Text could not be encoded."
+msgstr "Le texte n'a pas pu être encodé."
+
+msgid "Text markup annotations follow the text and cannot be moved."
+msgstr "Les annotations de texte suivent le texte et ne peuvent pas être déplacées."
+
+msgid "Text size"
+msgstr "Taille du texte"
+
+msgid "The password was not accepted."
+msgstr "Le mot de passe n'a pas été accepté."
+
+msgid "Thousands separator"
+msgstr "Séparateur de milliers"
+
+msgid "Title, author, keywords and file details"
+msgstr "Titre, auteur, mots-clés et détails du fichier"
+
+msgid "Title:"
+msgstr "Titre :"
+
+msgid "Trim margins (in points) from the visible page area. Content outside the crop box is hidden, not deleted."
+msgstr "Rogner les marges (en points) de la zone visible de la page. Le contenu hors du cadre est masqué, pas supprimé."
+
+msgid "Type text…"
+msgstr "Saisissez du texte…"
+
+msgid "Type text… (Ctrl+Enter applies, Esc cancels)"
+msgstr "Saisissez du texte… (Ctrl+Entrée applique, Échap annule)"
+
+msgid "Used for shapes, lines and text you create."
+msgstr "Utilisé pour les formes, lignes et textes que vous créez."
+
+msgid "Validate"
+msgstr "Validation"
+
+msgid "Write a smaller copy with recompressed images"
+msgstr "Écrire une copie plus légère avec des images recompressées"
+
+msgid "Write the document as several files, each with the given number of pages."
+msgstr "Écrire le document en plusieurs fichiers de ce nombre de pages chacun."
+
+msgid "Wrong password"
+msgstr "Mot de passe incorrect"
+
+msgid "all, or e.g. 1-3, 5"
+msgstr "toutes, ou p. ex. 1-3, 5"
+
+msgid "and"
+msgstr "et"
+
+msgid "e.g. 2-5, 8"
+msgstr "p. ex. 2-5, 8"
+
+msgid "{n} = number, {total} = count of numbered pages, {page} = physical page number"
+msgstr "{n} = numéro, {total} = nombre de pages numérotées, {page} = numéro physique de page"
+
+msgid "{n} comments"
+msgstr "{n} commentaires"
+
+msgid "{n} form fields"
+msgstr "{n} champs de formulaire"
+
+msgid "Current page ({n})"
+msgstr "Page courante ({n})"
+
+msgid "Selected pages ({n})"
+msgstr "Pages sélectionnées ({n})"
+
+msgid "Ungroup"
+msgstr "Dégrouper"
+
+
+msgid "Create a signing certificate"
+msgstr "Créer un certificat de signature"
+
+msgid "Creates a self-signed certificate for signing documents. Readers will see your name and that the document has not been changed since signing, but a self-signed certificate is not vouched for by a certificate authority. For legally recognised signatures use a certificate issued by a trusted provider."
+msgstr "Crée un certificat auto-signé pour signer des documents. Les lecteurs verront votre nom et que le document n'a pas été modifié depuis la signature, mais un certificat auto-signé n'est garanti par aucune autorité de certification. Pour des signatures à valeur légale, utilisez un certificat délivré par un fournisseur de confiance."
+
+msgid "Full name"
+msgstr "Nom complet"
+
+msgid "E-mail"
+msgstr "E-mail"
+
+msgid "Organisation"
+msgstr "Organisation"
+
+msgid "Repeat password"
+msgstr "Répéter le mot de passe"
+
+msgid "years"
+msgstr "ans"
+
+msgid "Valid for"
+msgstr "Valide pendant"
+
+msgid "Save as"
+msgstr "Enregistrer sous"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "Save certificate"
+msgstr "Enregistrer le certificat"
+
+msgid "Create certificate"
+msgstr "Créer le certificat"
+
+msgid "Please enter your name."
+msgstr "Veuillez saisir votre nom."
+
+msgid "The passwords do not match."
+msgstr "Les mots de passe ne correspondent pas."
+
+msgid "Sign document"
+msgstr "Signer le document"
+
+msgid "Certificate"
+msgstr "Certificat"
+
+msgid "PKCS#12 file (.p12 / .pfx)"
+msgstr "Fichier PKCS#12 (.p12 / .pfx)"
+
+msgid "Create new…"
+msgstr "Créer…"
+
+msgid "Check certificate"
+msgstr "Vérifier le certificat"
+
+msgid "Details (optional)"
+msgstr "Détails (facultatif)"
+
+msgid "e.g. I approve this document"
+msgstr "p. ex. J'approuve ce document"
+
+msgid "Reason"
+msgstr "Motif"
+
+msgid "Location"
+msgstr "Lieu"
+
+msgid "Contact"
+msgstr "Contact"
+
+msgid "Certify: mark the document so that further changes invalidate the signature"
+msgstr "Certifier : marquer le document pour que toute modification ultérieure invalide la signature"
+
+msgid "Appearance"
+msgstr "Apparence"
+
+msgid "Invisible signature (no stamp on the page)"
+msgstr "Signature invisible (sans tampon sur la page)"
+
+msgid "Visible stamp on the current page"
+msgstr "Tampon visible sur la page courante"
+
+msgid "Sign an existing signature field"
+msgstr "Signer un champ de signature existant"
+
+msgid "Bottom left"
+msgstr "En bas à gauche"
+
+msgid "Bottom right"
+msgstr "En bas à droite"
+
+msgid "Top left"
+msgstr "En haut à gauche"
+
+msgid "Top right"
+msgstr "En haut à droite"
+
+msgid "The signed document is written to a new file. Signing is the final step: any later edit that is saved rewrites the file and invalidates the signature."
+msgstr "Le document signé est écrit dans un nouveau fichier. La signature est la dernière étape : toute modification enregistrée ensuite réécrit le fichier et invalide la signature."
+
+msgid "Sign and save as…"
+msgstr "Signer et enregistrer sous…"
+
+msgid "Choose certificate"
+msgstr "Choisir un certificat"
+
+msgid "Cannot read the certificate: {error}"
+msgstr "Impossible de lire le certificat : {error}"
+
+msgid "self-signed"
+msgstr "auto-signé"
+
+msgid "issued by {issuer}"
+msgstr "délivré par {issuer}"
+
+msgid "valid"
+msgstr "valide"
+
+msgid "Signatures"
+msgstr "Signatures"
+
+msgid "Status"
+msgstr "État"
+
+msgid "Signed by"
+msgstr "Signé par"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Field"
+msgstr "Champ"
+
+msgid "This document has no digital signatures."
+msgstr "Ce document ne contient aucune signature numérique."
+
+msgid "Trust a certificate…"
+msgstr "Faire confiance à un certificat…"
+
+msgid "Add a certificate file (.pem/.cer/.crt) to your trust store so signatures made with it show as trusted"
+msgstr "Ajouter un fichier de certificat (.pem/.cer/.crt) à votre magasin de confiance pour que les signatures faites avec lui soient reconnues"
+
+msgid "issued by"
+msgstr "délivré par"
+
+msgid "Certificate valid"
+msgstr "Certificat valide"
+
+msgid "Document intact"
+msgstr "Document intact"
+
+msgid "yes"
+msgstr "oui"
+
+msgid "no"
+msgstr "non"
+
+msgid "Covers whole document"
+msgstr "Couvre tout le document"
+
+msgid "no, later changes were appended"
+msgstr "non, des modifications ont été ajoutées ensuite"
+
+msgid "Trusted"
+msgstr "De confiance"
+
+msgid "Si&gn Document…"
+msgstr "Si&gner le document…"
+
+msgid "Add a digital signature with a certificate"
+msgstr "Ajouter une signature numérique avec un certificat"
+
+msgid "Si&gnatures…"
+msgstr "Si&gnatures…"
+
+msgid "Show and verify the document's signatures"
+msgstr "Afficher et vérifier les signatures du document"
+
+msgid "Signature field"
+msgstr "Champ de signature"
+
+msgid "The document has unsaved changes. Save it first?"
+msgstr "Le document a des modifications non enregistrées. L'enregistrer d'abord ?"
+
+msgid "Save signed document as"
+msgstr "Enregistrer le document signé sous"
+
+msgid "Signing failed:\n\n{error}"
+msgstr "Échec de la signature :\n\n{error}"
+
+msgid "Signed document saved as {name}"
+msgstr "Document signé enregistré sous {name}"
+
+msgid "Choose certificate to trust"
+msgstr "Choisir le certificat de confiance"
+
+msgid "Certificate added to the trust store. Reopen the Signatures dialog to re-check."
+msgstr "Certificat ajouté au magasin de confiance. Rouvrez la boîte de dialogue Signatures pour revérifier."
+
+msgid "This document is digitally signed. Saving any edit will invalidate the signature (Document › Signatures to verify)."
+msgstr "Ce document est signé numériquement. Enregistrer une modification invalidera la signature (Document › Signatures pour vérifier)."
+
+msgid "Signed document"
+msgstr "Document signé"
+
+msgid "This document is digitally signed. Saving your changes will invalidate the signature. Save anyway?"
+msgstr "Ce document est signé numériquement. Enregistrer vos modifications invalidera la signature. Enregistrer quand même ?"
+
+msgid "VALID"
+msgstr "VALIDE"
+
+msgid "INVALID"
+msgstr "INVALIDE"
+
+msgid "VALID (document modified after signing)"
+msgstr "VALIDE (document modifié après signature)"
+
+msgid "VALID (signer not in trust store)"
+msgstr "VALIDE (signataire absent du magasin de confiance)"
+
+msgid "Signature Field"
+msgstr "Champ de signature"
+
+msgid "Drag or click on the page to add a visible signature field (G)"
+msgstr "Tracez ou cliquez sur la page pour ajouter un champ de signature visible (G)"
+
+msgid "Drag or click to place a signature field · then Document › Sign Document, or the Inspector's Sign this field…"
+msgstr "Tracez ou cliquez pour placer un champ de signature · puis Document › Signer le document, ou « Signer ce champ… » dans l'inspecteur"
+
+msgid "Sign this field…"
+msgstr "Signer ce champ…"
+
+msgid "Sign the document with a certificate, placing the signature in this field"
+msgstr "Signer le document avec un certificat en plaçant la signature dans ce champ"
+
+msgid "This field is signed. Use Document › Signatures to verify it."
+msgstr "Ce champ est signé. Utilisez Document › Signatures pour le vérifier."
+
+msgid "Unsigned. The caption and colours set how the placeholder looks until it is signed."
+msgstr "Non signé. Le libellé et les couleurs définissent l'aspect de l'emplacement jusqu'à la signature."

@@ -1,7 +1,7 @@
-from pdfeditor.core.content.interpreter import interpret
-from pdfeditor.core.content.model import Color
-from pdfeditor.core.content.writer import ContentEditor, fmt, fmt_string
-from pdfeditor.core.geometry import Matrix
+from quirewright.core.content.interpreter import interpret
+from quirewright.core.content.model import Color
+from quirewright.core.content.writer import ContentEditor, fmt, fmt_string
+from quirewright.core.geometry import Matrix
 
 SAMPLE = b"""q 1 0 0 rg 10 10 m 50 10 l 50 50 l h f Q
 q 2 0 0 2 100 100 cm 0 0 1 RG 3 w 0 0 m 10 10 l S Q

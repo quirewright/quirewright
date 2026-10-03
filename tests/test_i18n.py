@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 
-from pdfeditor import i18n
+from quirewright import i18n
 
 
 def test_language_switching():
@@ -23,7 +23,7 @@ def test_extractor_and_compiler_run(tmp_path):
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     out = subprocess.run([sys.executable, os.path.join(root, "scripts", "extract_strings.py")], capture_output=True, text=True, check=True)
     assert "strings" in out.stdout
-    pot = open(os.path.join(root, "src", "pdfeditor", "locale", "pdfeditor.pot"), encoding="utf-8").read()
+    pot = open(os.path.join(root, "src", "quirewright", "locale", "quirewright.pot"), encoding="utf-8").read()
     assert 'msgid "&File"' in pot and 'msgid "Rectangle"' in pot
     out = subprocess.run([sys.executable, os.path.join(root, "scripts", "compile_catalogs.py")], capture_output=True, text=True, check=True)
     assert "de:" in out.stdout
@@ -36,7 +36,7 @@ def test_ui_in_german(tmp_path):
     QApplication.instance() or QApplication([])
     i18n.set_language("de")
     try:
-        from pdfeditor.ui.main_window import MainWindow
+        from quirewright.ui.main_window import MainWindow
 
         win = MainWindow()
         titles = [a.text() for a in win.menuBar().actions()]

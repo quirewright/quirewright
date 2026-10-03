@@ -1,13 +1,15 @@
-# PDF Editor (working title)
+# Quirewright
+
+<img src="src/quirewright/assets/quirewright.svg" width="96" align="right" alt="Quirewright icon">
 
 A free and open-source PDF editor that combines **vector-level editing of page
 content** (in the spirit of Inkscape) with **page management** (rotate, reorder,
 delete, insert, extract, split, crop). Linux native, built on cross-platform
 libraries so Windows and macOS ports are straightforward.
 
-> The name "PDF Editor" / package `pdfeditor` is a placeholder. The final name
-> is set in one place: `APP_NAME` in `src/pdfeditor/__init__.py` (plus the
-> package directory and `pyproject.toml`).
+> **Quirewright**: a *quire* is a gathering of folded sheets, the basic unit of
+> a bound book; a *wright* is a maker. A craftsman who assembles gathered
+> pages, which is what this tool does.
 
 ## Features (first pass)
 
@@ -71,7 +73,7 @@ Requires Python 3.11+.
 ```bash
 python -m venv .venv
 .venv/bin/pip install -e ".[dev]"
-.venv/bin/pdfeditor some-file.pdf
+.venv/bin/quirewright some-file.pdf
 ```
 
 On Arch Linux the Qt bindings are also available as the `pyside6` package;
@@ -86,7 +88,7 @@ Run the tests (the UI tests run headless with the `offscreen` Qt platform):
 ## Architecture
 
 ```
-src/pdfeditor/
+src/quirewright/
 ├── core/                 Qt-free: all PDF logic, fully unit-tested
 │   ├── content/
 │   │   ├── lexer.py      tokenizer for content streams and PDF object syntax
@@ -155,8 +157,8 @@ already follow platform conventions.
 ## Translating
 
 ```bash
-python scripts/extract_strings.py      # refresh src/pdfeditor/locale/pdfeditor.pot
-cp src/pdfeditor/locale/pdfeditor.pot src/pdfeditor/locale/fr/LC_MESSAGES/pdfeditor.po   # new language
+python scripts/extract_strings.py      # refresh src/quirewright/locale/quirewright.pot
+cp src/quirewright/locale/quirewright.pot src/quirewright/locale/fr/LC_MESSAGES/quirewright.po   # new language
 python scripts/compile_catalogs.py     # build .mo files
 ```
 
@@ -173,15 +175,15 @@ are AGPL-licensed; Qt via PySide6 is LGPL.
 
 ```bash
 pip install pyinstaller
-packaging/build-appimage.sh          # -> dist/PDFEditor-<version>-<arch>.AppImage
+packaging/build-appimage.sh          # -> dist/Quirewright-<version>-<arch>.AppImage
 ```
 
 **Flatpak** (manifest in `packaging/flatpak`, built on Flathub's PySide base app):
 
 ```bash
 flatpak install flathub org.flatpak.Builder org.kde.Platform//6.11 org.kde.Sdk//6.11 io.qt.PySide.BaseApp//6.11
-flatpak run org.flatpak.Builder --user --install --force-clean build-dir packaging/flatpak/io.github.pdfeditor.PDFEditor.yml
-flatpak run io.github.pdfeditor.PDFEditor
+flatpak run org.flatpak.Builder --user --install --force-clean build-dir packaging/flatpak/io.github.quirewright.Quirewright.yml
+flatpak run io.github.quirewright.Quirewright
 ```
 
 **Desktop entry** for a source checkout: `packaging/install-desktop.sh`

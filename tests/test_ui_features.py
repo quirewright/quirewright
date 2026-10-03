@@ -6,8 +6,8 @@ from PySide6.QtCore import QPoint, QPointF, Qt
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
-from pdfeditor.ui import theme
-from pdfeditor.ui.canvas import TOOL_CROP, TOOL_MARKUP, TOOL_NOTE, TOOL_REDACT, TOOL_SELECT
+from quirewright.ui import theme
+from quirewright.ui.canvas import TOOL_CROP, TOOL_MARKUP, TOOL_NOTE, TOOL_REDACT, TOOL_SELECT
 
 
 @pytest.fixture(scope="session")
@@ -36,7 +36,7 @@ def pdf_path(tmp_path):
 
 @pytest.fixture
 def window(app, pdf_path):
-    from pdfeditor.ui.main_window import MainWindow
+    from quirewright.ui.main_window import MainWindow
 
     win = MainWindow()
     win.resize(1300, 850)
@@ -192,7 +192,7 @@ def test_outline_panel(app, window):
 
 
 def test_dialogs_apply(app, window):
-    from pdfeditor.ui.doc_dialogs import (
+    from quirewright.ui.doc_dialogs import (
         ExportImageDialog,
         PageNumbersDialog,
         PropertiesDialog,

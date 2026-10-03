@@ -6,10 +6,10 @@ import pytest
 from PySide6.QtCore import QPointF, Qt
 from PySide6.QtWidgets import QApplication
 
-from pdfeditor.core.geometry import Matrix
-from pdfeditor.ui import theme
-from pdfeditor.ui.canvas import TOOL_NODE, TOOL_SELECT
-from pdfeditor.ui.dialogs import parse_page_ranges
+from quirewright.core.geometry import Matrix
+from quirewright.ui import theme
+from quirewright.ui.canvas import TOOL_NODE, TOOL_SELECT
+from quirewright.ui.dialogs import parse_page_ranges
 
 
 @pytest.fixture(scope="session")
@@ -37,7 +37,7 @@ def pdf_path(tmp_path):
 
 @pytest.fixture
 def window(app, pdf_path):
-    from pdfeditor.ui.main_window import MainWindow
+    from quirewright.ui.main_window import MainWindow
 
     win = MainWindow()
     win.resize(1200, 800)
@@ -121,7 +121,7 @@ def test_node_tool(app, window):
     ov = c.node_overlay
     key = (0, 1, 0)  # the 'l' endpoint
     ov.move_point(key, ov.scene_point(150, 100) + QPointF(0, 0))
-    from pdfeditor.core.content.writer import ContentEditor
+    from quirewright.core.content.writer import ContentEditor
 
     ed = ContentEditor(window.doc.content(0))
     ed.set_path_geometry(line_id, ov.subpaths)

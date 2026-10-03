@@ -4,9 +4,9 @@
 import pymupdf
 import pytest
 
-from pdfeditor.core.docinfo import ALL_PERMISSIONS, SecuritySettings, pdf_date_to_datetime
-from pdfeditor.core.document import Document
-from pdfeditor.core.geometry import Matrix, Rect
+from quirewright.core.docinfo import ALL_PERMISSIONS, SecuritySettings, pdf_date_to_datetime
+from quirewright.core.document import Document
+from quirewright.core.geometry import Matrix, Rect
 
 
 @pytest.fixture
@@ -86,7 +86,7 @@ def test_attachments(doc, tmp_path):
 
 
 def test_outline(doc):
-    from pdfeditor.core.docinfo import OutlineItem
+    from quirewright.core.docinfo import OutlineItem
 
     assert doc.outline() == []
     doc.set_outline([OutlineItem(1, "Intro", 1), OutlineItem(2, "Detail", 2), OutlineItem(1, "End", 3)])

@@ -2,10 +2,10 @@
 
 import pymupdf
 
-from pdfeditor.core.content.model import Color
-from pdfeditor.core.content.writer import ContentEditor
-from pdfeditor.core.document import Document
-from pdfeditor.core.geometry import Matrix, Rect
+from quirewright.core.content.model import Color
+from quirewright.core.content.writer import ContentEditor
+from quirewright.core.document import Document
+from quirewright.core.geometry import Matrix, Rect
 
 
 def make_doc(tmp_path, stream=b"0 0 1 rg 10 10 20 20 re f", rotate=0, n=1):
@@ -76,7 +76,7 @@ def test_append_text(tmp_path):
 
 
 def test_substitute_font_name():
-    from pdfeditor.core.fonts import FontInfo
+    from quirewright.core.fonts import FontInfo
 
     d = Document()
     assert d.substitute_font_name(FontInfo.fallback("F", "Arial-BoldMT")) == "hebo"
@@ -151,7 +151,7 @@ def test_radio_buttons(tmp_path):
 
 
 def test_append_text_block_wraps(tmp_path):
-    from pdfeditor.core.content.writer import wrap_text
+    from quirewright.core.content.writer import wrap_text
 
     doc = Document(make_doc(tmp_path))
     name, fi = doc.ensure_substitute_font(0, "helv")

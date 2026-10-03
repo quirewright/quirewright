@@ -2,10 +2,10 @@ import os
 
 import pymupdf
 
-from pdfeditor.core.content.model import Color
-from pdfeditor.core.content.writer import ContentEditor
-from pdfeditor.core.document import Document
-from pdfeditor.core.geometry import Matrix
+from quirewright.core.content.model import Color
+from quirewright.core.content.writer import ContentEditor
+from quirewright.core.document import Document
+from quirewright.core.geometry import Matrix
 
 
 def make_doc(tmp_path, n=3):

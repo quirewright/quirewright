@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Quirewright
+GenericName=Quirewright
+Comment=Edit PDF content, pages, forms and comments
+Exec=quirewright %f
+Icon=quirewright
+Terminal=false
+Categories=Office;Graphics;VectorGraphics;Viewer;
+MimeType=application/pdf;
+Keywords=pdf;editor;vector;pages;forms;
+StartupNotify=true

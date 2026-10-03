@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile every locale/<lang>/LC_MESSAGES/pdfeditor.po into a .mo file (pure Python, no msgfmt needed)."""
+"""Compile every locale/<lang>/LC_MESSAGES/quirewright.po into a .mo file (pure Python, no msgfmt needed)."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import os
 import struct
 import sys
 
-ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src", "pdfeditor", "locale")
+ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src", "quirewright", "locale")
 
 
 def parse_po(path: str) -> dict[str, str]:
@@ -69,7 +69,7 @@ def write_mo(msgs: dict[str, str], path: str) -> None:
 def main() -> int:
     count = 0
     for lang in sorted(os.listdir(ROOT)) if os.path.isdir(ROOT) else []:
-        po = os.path.join(ROOT, lang, "LC_MESSAGES", "pdfeditor.po")
+        po = os.path.join(ROOT, lang, "LC_MESSAGES", "quirewright.po")
         if os.path.exists(po):
             parsed = parse_po(po)
             msgs = {k: v for k, v in parsed.items() if k and v}
@@ -77,7 +77,7 @@ def main() -> int:
             msgs[""] = parsed.get("", "") or "Content-Type: text/plain; charset=UTF-8\n"
             if "charset=" not in msgs[""]:
                 msgs[""] += "Content-Type: text/plain; charset=UTF-8\n"
-            write_mo(msgs, os.path.join(ROOT, lang, "LC_MESSAGES", "pdfeditor.mo"))
+            write_mo(msgs, os.path.join(ROOT, lang, "LC_MESSAGES", "quirewright.mo"))
             print(f"{lang}: {len(msgs) - 1} translated strings")
             count += 1
     print(f"compiled {count} catalogue(s)")

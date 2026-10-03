@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extract tr("...") strings from the UI sources into a gettext template (pdfeditor.pot)."""
+"""Extract tr("...") strings from the UI sources into a gettext template (quirewright.pot)."""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ import os
 import sys
 import time
 
-ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src", "pdfeditor")
-OUT = os.path.join(ROOT, "locale", "pdfeditor.pot")
+ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src", "quirewright")
+OUT = os.path.join(ROOT, "locale", "quirewright.pot")
 
 
 def extract(path: str) -> list[tuple[str, int]]:
@@ -39,7 +39,7 @@ def main() -> int:
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as fh:
         stamp = time.strftime("%Y-%m-%d %H:%M%z")
-        fh.write(f'msgid ""\nmsgstr ""\n"Project-Id-Version: pdfeditor\\n"\n"POT-Creation-Date: {stamp}\\n"\n"MIME-Version: 1.0\\n"\n"Content-Type: text/plain; charset=UTF-8\\n"\n"Content-Transfer-Encoding: 8bit\\n"\n\n')
+        fh.write(f'msgid ""\nmsgstr ""\n"Project-Id-Version: quirewright\\n"\n"POT-Creation-Date: {stamp}\\n"\n"MIME-Version: 1.0\\n"\n"Content-Type: text/plain; charset=UTF-8\\n"\n"Content-Transfer-Encoding: 8bit\\n"\n\n')
         for text in sorted(entries):
             fh.write("#: " + " ".join(entries[text][:4]) + "\n")
             fh.write(f'msgid "{escape(text)}"\nmsgstr ""\n\n')

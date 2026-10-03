@@ -3,9 +3,9 @@
 import pymupdf
 import pytest
 
-from pdfeditor.core import signing
-from pdfeditor.core.document import Document
-from pdfeditor.core.geometry import Rect
+from quirewright.core import signing
+from quirewright.core.document import Document
+from quirewright.core.geometry import Rect
 
 
 @pytest.fixture
