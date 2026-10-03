@@ -529,13 +529,21 @@ class PropertiesPanel(QScrollArea):
             if texts:
                 t = texts[0]
                 ids = [o.id for o in texts]
-                self.text_edit.setText(self.canvas._line_text(ids) if len(texts) >= 1 else "")
+                baselines = {round(o.tm.f, 1) for o in texts}
+                multi_line = len(baselines) > 1
+                self.text_edit.setEnabled(not multi_line)
+                if multi_line:
+                    self.text_edit.setText("")
+                    self.text_edit.setPlaceholderText(f"{len(baselines)} lines selected — use Edit paragraph")
+                else:
+                    self.text_edit.setPlaceholderText("Text content (Enter applies)")
+                    self.text_edit.setText(self.canvas._line_text(sorted(ids, key=lambda i: self.canvas.items_by_id[i].obj.tm.e)))
                 fi = t.font_info
                 self.font_label.setText(fi.display_name if fi else t.font)
                 self.font_size.setValue(t.state.font_size)
                 self.text_color.set_color(_to_qcolor(t.state.fill_color))
                 notes = []
-                if len(texts) > 1:
+                if len(texts) > 1 and not multi_line:
                     notes.append(f"{len(texts)} runs selected; applying text merges them into one.")
                 if fi is not None and fi.is_subset:
                     notes.append("Subset font: characters not already used in the document fall back to a built-in font.")

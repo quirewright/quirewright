@@ -1633,8 +1633,8 @@ class PageCanvas(QGraphicsView):
             edit.setStyleSheet(
                 f"QPlainTextEdit {{ background: {t.panel}; color: {t.text}; border: 1px solid {t.accent}; border-radius: 2px; padding: 0 2px; }}"
             )
-            edit.setMinimumWidth(int(max(rect.width() + 24, 120)))
-            edit.setFixedHeight(int(max(rect.height() + 12, size_pt * 1.3 * max(lines_hint, 2) + 12)))
+            edit.setMinimumWidth(int(max(rect.width() * 1.15 + 48, 160)))
+            edit.setFixedHeight(int(max(rect.height() * 1.1 + 16, size_pt * 1.35 * max(lines_hint, 2) + 16)))
             edit.setPlaceholderText("Type text… (Ctrl+Enter applies, Esc cancels)")
             edit.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
         else:
@@ -1709,10 +1709,29 @@ class PageCanvas(QGraphicsView):
             if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
                 self._end_text_edit(commit=True)
                 return True
-        if event.type() == QEvent.Type.FocusOut and self.text_proxy is not None and obj is self.text_proxy.widget():
-            QTimer.singleShot(0, lambda: self._end_text_edit(commit=True) if self.text_proxy is not None and not self.text_proxy.widget().hasFocus() else None)
+        if event.type() == QEvent.Type.FocusOut and self.text_proxy is not None:
+            try:
+                is_editor = obj is self.text_proxy.widget()
+            except RuntimeError:  # proxy already destroyed
+                self.text_proxy = None
+                return False
+            if is_editor:
+                QTimer.singleShot(0, self._commit_if_unfocused)
             return False
         return super().eventFilter(obj, event)
+
+    def _commit_if_unfocused(self) -> None:
+        proxy = self.text_proxy
+        if proxy is None:
+            return
+        try:
+            w = proxy.widget()
+            focused = w is not None and w.hasFocus()
+        except RuntimeError:
+            self.text_proxy = None
+            return
+        if not focused:
+            self._end_text_edit(commit=True)
 
     # -- creation --------------------------------------------------------------
     def create_path_scene(self, subpaths_scene: list[list[tuple]], closed: bool, label: str) -> None:
