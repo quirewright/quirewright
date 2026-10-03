@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 - 2026-10-03
+
+First public pre-release. See the notice in the README: this software was developed by AI with very limited human testing and review.
 
 ### Changed
 - The user guide opens with an annotated screenshot of the window instead of a text diagram; images in the help viewer scale to fit

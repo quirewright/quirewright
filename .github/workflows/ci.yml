@@ -69,6 +69,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.AppImage
+          prerelease: true
+          generate_release_notes: true
 
   flatpak:
     name: Flatpak
