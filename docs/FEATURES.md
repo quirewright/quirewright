@@ -28,7 +28,7 @@ Checked items are implemented and covered by tests.
 - [x] Nudge with arrow keys, delete, undo/redo for everything
 - [x] Multi-line text boxes with wrapping; paragraph editing with re-wrap
 - [x] Curves in the Pen tool (click-drag for handles)
-- [ ] Grouping; editing inside form XObjects
+- [x] Grouping (as form XObjects) and editing inside any form XObject, nested
 - [x] Snapping to page, objects, guides and grid; rulers; draggable guides
 
 ## Pages

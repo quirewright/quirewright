@@ -75,6 +75,21 @@ Use the **Select** tool (S):
 
 Everything is undoable (Ctrl+Z / Ctrl+Shift+Z).
 
+### Groups
+
+Select several objects and press Ctrl+G to **group** them. A group is stored
+as a PDF *form XObject*, so it is a real part of the file and survives in any
+viewer. Groups move, resize and duplicate as one object. Ctrl+Shift+G
+**ungroups** (the objects are placed back into the page).
+
+To change something *inside* a group, or inside any form XObject that a
+document already contains (logos, imported drawings, headers and footers),
+double-click it or press Ctrl+Enter to **enter** it. The rest of the page is
+dimmed, the Inspector and all tools now work on the group's own objects, and
+you can even add new shapes or text to it. Press Esc, double-click empty
+space, or use Object › Exit Group to leave. Note that a form XObject reused
+on several pages changes everywhere it is used.
+
 ### Editing text
 
 Double-click a line of text, press Enter or F2 with it selected, or use the
@@ -206,12 +221,15 @@ Help › Keyboard Shortcuts lists everything. The most used:
 | R, E, L, P | Rectangle, Ellipse, Line, Pen tools |
 | F, C | Form field, Crop tools |
 | Ctrl+F | find |
-| Ctrl+G | go to page; PgUp / PgDn previous / next page |
+| PgUp / PgDn | previous / next page |
 | Ctrl+0 / Ctrl+1 / Ctrl+2 | fit page / actual size / fit width |
 | Ctrl+I | document properties |
 | Ctrl+Shift+O | resources (images, fonts, attachments) |
 | Ctrl+/ | keyboard shortcut reference |
 | Ctrl+Shift+D | duplicate selection |
+| Ctrl+G / Ctrl+Shift+G | group / ungroup |
+| Ctrl+Enter / Ctrl+Shift+Enter | enter / exit a group |
+| Ctrl+J | go to page |
 | Ctrl+E | edit paragraph |
 | Ctrl+Shift+C | toggle continuous scrolling |
 | Ctrl+Tab / Ctrl+Shift+Tab | next / previous document tab |

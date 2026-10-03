@@ -203,6 +203,7 @@ class XObjectRef(GObject):
     subtype: str = "Image"  # or "Form"
     form_bbox: Rect | None = None  # /BBox of form xobjects (form space)
     form_matrix: Matrix = field(default_factory=Matrix)
+    xref: int = 0
 
     def unit_rect(self) -> Rect:
         return Rect(0, 0, 1, 1)

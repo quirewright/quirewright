@@ -76,12 +76,13 @@ class _Frame:
 
 
 class Interpreter:
-    def __init__(self, stream: bytes, resources: ResourceProvider | None = None, page_box: Rect | None = None):
+    def __init__(self, stream: bytes, resources: ResourceProvider | None = None, page_box: Rect | None = None,
+                 initial_state: GraphicsState | None = None):
         self.stream = stream
         self.res = resources or NullResources()
         self.page_box = page_box
         self.content = PageContent(stream=stream)
-        self.state = GraphicsState()
+        self.state = initial_state.copy() if initial_state is not None else GraphicsState()
         self.stack: list[_Frame] = []
         self._fonts: dict[str, FontInfo | None] = {}
         self._seq = 0
@@ -555,7 +556,7 @@ class Interpreter:
             bbox = fb.transformed(fm * st.ctm) if fb is not None else None
             obj = XObjectRef(
                 id=0, kind="form", span=(start, end), state=st.copy(), base_state=st.copy(),
-                bbox=bbox, name=name, subtype="Form", form_bbox=fb, form_matrix=fm,
+                bbox=bbox, name=name, subtype="Form", form_bbox=fb, form_matrix=fm, xref=int(getattr(info, "xref", 0) or 0),
             )
         else:
             bbox = Rect(0, 0, 1, 1).transformed(st.ctm)
@@ -598,5 +599,6 @@ def _initial_components(space: str) -> tuple[float, ...]:
     return (0.0,)
 
 
-def interpret(stream: bytes, resources: ResourceProvider | None = None, page_box: Rect | None = None) -> PageContent:
-    return Interpreter(stream, resources, page_box).run()
+def interpret(stream: bytes, resources: ResourceProvider | None = None, page_box: Rect | None = None,
+              initial_state: GraphicsState | None = None) -> PageContent:
+    return Interpreter(stream, resources, page_box, initial_state).run()

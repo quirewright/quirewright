@@ -32,6 +32,7 @@ from pdfeditor.core.pdfobj import Ref, Resolver, as_float
 log = logging.getLogger(__name__)
 
 Listener = Callable[[str, Any], None]
+EditPath = tuple  # tuple[tuple[int, Matrix], ...]
 
 
 @dataclass
@@ -44,11 +45,14 @@ class XObjectInfo:
 
 
 class PageResources:
-    """Resolves font and XObject resources for one page (with inheritance)."""
+    """Resolves font and XObject resources for one page (with inheritance),
+    or for a form XObject (falling back to the page's resources)."""
 
-    def __init__(self, doc: "Document", page_index: int):
+    def __init__(self, doc: "Document", page_index: int, form_xref: int = 0, parent: "PageResources | None" = None):
         self.doc = doc
         self.page_index = page_index
+        self.form_xref = form_xref
+        self.parent = parent
         self.resolver = Resolver(doc.pdf)
         self._fonts: dict[str, FontInfo | None] = {}
         self._xobjects: dict[str, XObjectInfo | None] = {}
@@ -62,21 +66,31 @@ class PageResources:
     def resources(self) -> dict:
         if self._resources is None:
             res: dict = {}
-            d = self._page_dict()
-            depth = 0
-            while isinstance(d, dict) and depth < 64:
-                r = self.resolver.resolve(d.get("Resources"))
-                if isinstance(r, dict):
-                    res = r
-                    break
-                d = self.resolver.resolve(d.get("Parent"))
-                depth += 1
+            if self.form_xref:
+                d = self.resolver.get(self.form_xref)
+                r = self.resolver.resolve(d.get("Resources")) if isinstance(d, dict) else None
+                res = r if isinstance(r, dict) else {}
+            else:
+                d = self._page_dict()
+                depth = 0
+                while isinstance(d, dict) and depth < 64:
+                    r = self.resolver.resolve(d.get("Resources"))
+                    if isinstance(r, dict):
+                        res = r
+                        break
+                    d = self.resolver.resolve(d.get("Parent"))
+                    depth += 1
             self._resources = res
         return self._resources
 
     def _category(self, key: str) -> dict:
         cat = self.resolver.resolve(self.resources().get(key))
-        return cat if isinstance(cat, dict) else {}
+        out = dict(cat) if isinstance(cat, dict) else {}
+        if self.parent is not None:
+            base = self.parent._category(key)
+            for k, v in base.items():
+                out.setdefault(k, v)
+        return out
 
     def font(self, name: str) -> FontInfo | None:
         if name in self._fonts:
@@ -375,6 +389,183 @@ class _DocumentExtras:
 
         self._structure_op("Delete field(s)", action)
 
+    # -- grouping (form XObjects) ---------------------------------------------------
+    def _resources_owner(self, index: int, path: EditPath) -> tuple[int, str]:
+        """(xref, key prefix) of the dictionary holding the resources for a context."""
+        if path:
+            form_xref = path[-1][0]
+            kind, val = self.pdf.xref_get_key(form_xref, "Resources")
+            if kind == "xref":
+                return int(val.split()[0]), ""
+            if kind == "dict":
+                return form_xref, "Resources/"
+            # no resources on the form: point it at the page's resources
+            pkind, pval = self.pdf.xref_get_key(self.pdf[index].xref, "Resources")
+            if pkind == "xref":
+                self.pdf.xref_set_key(form_xref, "Resources", pval)
+                return int(pval.split()[0]), ""
+            self.pdf.xref_set_key(form_xref, "Resources", "<< >>")
+            return form_xref, "Resources/"
+        page_xref = self.pdf[index].xref
+        kind, val = self.pdf.xref_get_key(page_xref, "Resources")
+        if kind == "xref":
+            return int(val.split()[0]), ""
+        if kind != "dict":
+            self.pdf.xref_set_key(page_xref, "Resources", "<< >>")
+        return page_xref, "Resources/"
+
+    def _register_resource(self, owner: int, prefix: str, category: str, base_name: str, value: str) -> str:
+        """Add ``value`` under Resources/<category>/<unique name>; returns the name."""
+        kind, cat = self.pdf.xref_get_key(owner, prefix + category)
+        existing = ""
+        if kind == "xref":
+            owner, prefix, cat_kind, existing = int(cat.split()[0]), "", "dict", self.pdf.xref_object(int(cat.split()[0]))
+            cat_path = ""
+        elif kind == "dict":
+            existing = cat
+            cat_path = prefix + category + "/"
+        else:
+            self.pdf.xref_set_key(owner, prefix + category, "<< >>")
+            cat_path = prefix + category + "/"
+        name = base_name
+        n = 1
+        while f"/{name} " in existing or f"/{name}\n" in existing:
+            n += 1
+            name = f"{base_name}{n}"
+        if cat_path:
+            self.pdf.xref_set_key(owner, cat_path + name, value)
+        else:
+            self.pdf.xref_set_key(owner, name, value)
+        return name
+
+    def group_objects(self, index: int, path: EditPath, ids: Sequence[int]) -> None:
+        """Move the given objects of a context into a new form XObject placed on top."""
+        from pdfeditor.core.content.writer import ContentEditor
+
+        ids = [i for i in ids]
+        if not ids:
+            return
+
+        def action(doc: "Document") -> None:
+            pc = doc.content(index, path)
+            ed = ContentEditor(pc)
+            base = pc.end_base_state
+            parts: list[bytes] = []
+            boxes = []
+            for oid in sorted(ids):
+                obj = pc.objects[oid]
+                data = ed._standalone_bytes(obj)
+                if data is None:
+                    continue
+                parts.append(data)
+                if obj.bbox is not None:
+                    boxes.append(obj.bbox.transformed(base.ctm.inverted()))
+            if not parts:
+                return
+            bbox = boxes[0]
+            for b in boxes[1:]:
+                bbox = bbox.union(b)
+            bbox = bbox.expanded(1.0)
+            owner, prefix = doc._resources_owner(index, path)
+            res_ref = f"{owner} 0 R" if prefix == "" else None
+            xref = doc.pdf.get_new_xref()
+            res_entry = f" /Resources {res_ref}" if res_ref else ""
+            doc.pdf.update_object(xref, f"<< /Type /XObject /Subtype /Form /BBox [{bbox.x0:.4f} {bbox.y0:.4f} {bbox.x1:.4f} {bbox.y1:.4f}]{res_entry} >>")
+            doc.pdf.update_stream(xref, b"\n".join(parts))
+            if not res_ref:
+                # resources are a direct dict on the owner: copy it by value
+                kind, val = doc.pdf.xref_get_key(owner, prefix.rstrip("/"))
+                if kind == "dict":
+                    doc.pdf.xref_set_key(xref, "Resources", val)
+            name = doc._register_resource(owner, prefix, "XObject", "Group", f"{xref} 0 R")
+            ed.delete(ids)
+            ed._appends.append(b"q /" + name.encode() + b" Do Q")
+            doc._write_stream(index, ed.build(), path[-1][0] if path else 0)
+
+        self._structure_op("Group", action)
+
+    def ungroup_object(self, index: int, path: EditPath, oid: int) -> None:
+        """Inline a form XObject's content into its parent stream."""
+        from pdfeditor.core.content.model import XObjectRef
+        from pdfeditor.core.content.writer import fmt, fmt_matrix
+
+        def action(doc: "Document") -> None:
+            pc = doc.content(index, path)
+            obj = pc.objects[oid]
+            if not isinstance(obj, XObjectRef) or obj.subtype != "Form" or not obj.xref:
+                return
+            inner = doc.pdf.xref_stream(obj.xref) or b""
+            inner = doc._merge_form_resources(index, path, obj.xref, inner)
+            ops: list[bytes] = [b"q"]
+            if not obj.form_matrix.is_identity():
+                ops.append(fmt_matrix(obj.form_matrix) + b" cm")
+            if obj.form_bbox is not None:
+                b = obj.form_bbox
+                ops.append(b" ".join(fmt(v) for v in (b.x0, b.y0, b.width, b.height)) + b" re W n")
+            body = b"\n".join(ops) + b"\n" + inner + b"\nQ"
+            start, end = obj.span  # keep any wrapper's state ops, replace only the Do
+            stream = pc.stream[:start] + body + pc.stream[end:]
+            doc._write_stream(index, stream, path[-1][0] if path else 0)
+
+        self._structure_op("Ungroup", action)
+
+    def _merge_form_resources(self, index: int, path: EditPath, form_xref: int, stream: bytes) -> bytes:
+        """Copy a form's resources into the parent's, renaming on conflicts; returns the adjusted stream."""
+        from pdfeditor.core.content.lexer import Lexer, Name
+
+        owner, prefix = self._resources_owner(index, path)
+        kind, val = self.pdf.xref_get_key(form_xref, "Resources")
+        if kind == "null":
+            return stream
+        if kind == "xref" and prefix == "" and int(val.split()[0]) == owner:
+            return stream  # same dictionary: nothing to merge
+        resolver = Resolver(self.pdf)
+        fres = resolver.resolve(resolver.get(form_xref).get("Resources")) if isinstance(resolver.get(form_xref), dict) else None
+        if not isinstance(fres, dict):
+            return stream
+        rename: dict[tuple[str, str], str] = {}
+        categories = {"Font": ("Tf",), "XObject": ("Do",), "ExtGState": ("gs",), "ColorSpace": ("cs", "CS"), "Pattern": ("scn", "SCN"), "Shading": ("sh",), "Properties": ("BDC", "DP")}
+        for cat in categories:
+            entries = resolver.resolve(fres.get(cat))
+            if not isinstance(entries, dict):
+                continue
+            for name, value in entries.items():
+                if isinstance(value, Ref):
+                    text = f"{value.num} {value.gen} R"
+                else:
+                    text = self.pdf.xref_get_key(form_xref, f"Resources/{cat}/{name}")[1] if kind == "dict" else None
+                    if text is None:
+                        rkind, rval = self.pdf.xref_get_key(int(val.split()[0]), f"{cat}/{name}")
+                        text = rval
+                new = self._register_resource(owner, prefix, cat, name, text)
+                if new != name:
+                    rename[(cat, name)] = new
+        if not rename:
+            return stream
+        # rewrite operand names in the stream
+        ops_to_cat = {op: cat for cat, ops in categories.items() for op in ops}
+        lx = Lexer(stream)
+        out = bytearray()
+        pos = 0
+        pending: list = []
+        while True:
+            tok = lx.next_token()
+            if tok is None:
+                break
+            if tok.kind != "op":
+                pending.append(tok)
+                continue
+            cat = ops_to_cat.get(str(tok.value))
+            if cat and pending:
+                target = pending[0] if cat != "Pattern" else pending[-1]
+                if target.kind == "name" and (cat, str(target.value)) in rename:
+                    out += stream[pos:target.start]
+                    out += b"/" + rename[(cat, str(target.value))].encode()
+                    pos = target.end
+            pending = []
+        out += stream[pos:]
+        return bytes(out)
+
     def transform_widgets(self, index: int, xrefs: Iterable[int], m_scene: Matrix) -> None:
         """Apply a scene-space transform to widget rectangles (move/scale)."""
         xs = list(xrefs)
@@ -482,49 +673,123 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
         return page.get_pixmap(**kw)
 
     # -- content ---------------------------------------------------------
-    def resources(self, index: int) -> PageResources:
-        res = self._resources_cache.get(index)
+    def resources(self, index: int, path: "EditPath" = ()) -> PageResources:
+        key = (index, tuple(x for x, _m in path))
+        res = self._resources_cache.get(key)
         if res is None:
-            res = PageResources(self, index)
-            self._resources_cache[index] = res
+            if path:
+                parent = self.resources(index, path[:-1])
+                res = PageResources(self, index, form_xref=path[-1][0], parent=parent)
+            else:
+                res = PageResources(self, index)
+            self._resources_cache[key] = res
         return res
 
-    def content(self, index: int) -> PageContent:
-        pc = self._content_cache.get(index)
+    def content(self, index: int, path: "EditPath" = ()) -> PageContent:
+        """Parsed content of a page, or of a form XObject reached through ``path``.
+
+        ``path`` is a tuple of ``(xobject xref, base matrix)`` pairs, outermost first;
+        the base matrix maps the form's content space to page (device) space.
+        """
+        key = (index, tuple(path))
+        pc = self._content_cache.get(key)
         if pc is None:
             page = self.pdf[index]
-            stream = page.read_contents() or b""
             mb = page.mediabox
-            pc = interpret(stream, self.resources(index), Rect(mb.x0, mb.y0, mb.x1, mb.y1))
-            self._content_cache[index] = pc
+            page_box = Rect(mb.x0, mb.y0, mb.x1, mb.y1)
+            if path:
+                xref, base = path[-1]
+                stream = self.pdf.xref_stream(xref) or b""
+                from pdfeditor.core.content.model import GraphicsState
+
+                init = GraphicsState(ctm=base)
+                info = self.form_info(xref)
+                if info.bbox is not None:
+                    init.clip_bbox = info.bbox.transformed(base)
+                pc = interpret(stream, self.resources(index, path), page_box, initial_state=init)
+            else:
+                stream = page.read_contents() or b""
+                pc = interpret(stream, self.resources(index), page_box)
+            self._content_cache[key] = pc
         return pc
+
+    def form_info(self, xref: int) -> XObjectInfo:
+        resolver = Resolver(self.pdf)
+        d = resolver.get(xref)
+        info = XObjectInfo(name="", subtype="Form", xref=xref)
+        if isinstance(d, dict):
+            bbox = resolver.dict_get(d, "BBox")
+            if isinstance(bbox, list) and len(bbox) == 4:
+                info.bbox = Rect.normalized(*[as_float(resolver.resolve(v)) for v in bbox])
+            mtx = resolver.dict_get(d, "Matrix")
+            if isinstance(mtx, list) and len(mtx) == 6:
+                info.matrix = Matrix(*[as_float(resolver.resolve(v)) for v in mtx])
+        return info
 
     def invalidate(self, index: int | None = None) -> None:
         if index is None:
             self._content_cache.clear()
             self._resources_cache.clear()
         else:
-            self._content_cache.pop(index, None)
-            self._resources_cache.pop(index, None)
+            for key in [k for k in self._content_cache if k[0] == index]:
+                self._content_cache.pop(key, None)
+            for key in [k for k in self._resources_cache if k[0] == index]:
+                self._resources_cache.pop(key, None)
 
-    def apply_content_edit(self, index: int, new_stream: bytes, label: str = "Edit") -> None:
-        old = self.content(index).stream
+    def apply_content_edit(self, index: int, new_stream: bytes, label: str = "Edit", path: "EditPath" = ()) -> None:
+        old = self.content(index, path).stream
         if new_stream == old:
             return
-        cmd = ContentEditCommand(label=label, page_index=index, old_stream=old, new_stream=new_stream)
+        xref = path[-1][0] if path else 0
+        bbox_old = bbox_new = None
+        if path:
+            bbox_old, bbox_new = self._grown_form_bbox(index, path, new_stream)
+        cmd = ContentEditCommand(label=label, page_index=index, old_stream=old, new_stream=new_stream, page_xref=xref,
+                                 bbox_old=bbox_old, bbox_new=bbox_new)
         self.undo_stack.push(cmd)
 
-    def _write_stream(self, index: int, data: bytes) -> None:
+    def _grown_form_bbox(self, index: int, path: "EditPath", new_stream: bytes) -> tuple[str | None, str | None]:
+        """If the edited content extends beyond the form's /BBox, return (old, grown) BBox strings."""
+        from pdfeditor.core.content.model import GraphicsState
+
+        xref, base = path[-1]
+        info = self.form_info(xref)
+        try:
+            tmp = interpret(new_stream, self.resources(index, path), None, initial_state=GraphicsState(ctm=base))
+            inv = base.inverted()
+        except Exception:
+            return None, None
+        union = info.bbox
+        for o in tmp.objects:
+            if o.bbox is None or o.kind not in ("path", "text", "image", "form", "inline_image"):
+                continue
+            b = o.bbox.transformed(inv)
+            union = b if union is None else union.union(b)
+        if union is None or union == info.bbox:
+            return None, None
+        old = self.pdf.xref_get_key(xref, "BBox")[1]
+        new = f"[{union.x0:.4f} {union.y0:.4f} {union.x1:.4f} {union.y1:.4f}]"
+        return (old if old and old != "null" else None), new
+
+    def _write_stream(self, index: int, data: bytes, xref: int = 0) -> None:
+        if xref:
+            # a form XObject may be used on several pages: drop every cached parse and resource info
+            self.pdf.update_stream(xref, data)
+            self._content_cache.clear()
+            self._resources_cache.clear()
+            self._emit("page_content", index)
+            return
         page = self.pdf[index]
         xrefs = page.get_contents()
         if len(xrefs) == 1:
             self.pdf.update_stream(xrefs[0], data)
         else:
-            xref = self.pdf.get_new_xref()
-            self.pdf.update_object(xref, "<<>>")
-            self.pdf.update_stream(xref, data)
-            page.set_contents(xref)
-        self._content_cache.pop(index, None)
+            new_xref = self.pdf.get_new_xref()
+            self.pdf.update_object(new_xref, "<<>>")
+            self.pdf.update_stream(new_xref, data)
+            page.set_contents(new_xref)
+        for key in [k for k in self._content_cache if k[0] == index]:
+            self._content_cache.pop(key, None)
         self._emit("page_content", index)
 
     def ensure_substitute_font(self, index: int, fontname: str = "helv") -> tuple[str, FontInfo]:

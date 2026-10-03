@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Group / ungroup (groups are form XObjects) and editing inside form XObjects, nested
 - Document tabs
 - Rulers, draggable guides, grid, and smart snapping to page edges, objects, guides and grid (Alt bypasses)
 - Continuous multi-page scrolling view (toggle in the View menu)

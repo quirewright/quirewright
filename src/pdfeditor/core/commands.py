@@ -34,12 +34,18 @@ class ContentEditCommand(Command):
     old_stream: bytes
     new_stream: bytes
     page_xref: int = 0
+    bbox_old: str | None = None  # form XObject /BBox before and after (grown to fit edits)
+    bbox_new: str | None = None
 
     def redo(self, doc: "Document") -> None:
-        doc._write_stream(self.page_index, self.new_stream)
+        if self.page_xref and self.bbox_new:
+            doc.pdf.xref_set_key(self.page_xref, "BBox", self.bbox_new)
+        doc._write_stream(self.page_index, self.new_stream, self.page_xref)
 
     def undo(self, doc: "Document") -> None:
-        doc._write_stream(self.page_index, self.old_stream)
+        if self.page_xref and self.bbox_old:
+            doc.pdf.xref_set_key(self.page_xref, "BBox", self.bbox_old)
+        doc._write_stream(self.page_index, self.old_stream, self.page_xref)
 
 
 @dataclass

@@ -215,6 +215,10 @@ class MainWindow(QMainWindow):
         self.act_scale_stroke = self._act("Scale Stroke &Width with Objects", None, None, self._toggle_scale_stroke, checkable=True)
         self.act_scale_stroke.setChecked(True)
         # arrange
+        self.act_group = self._act("&Group", None, "Ctrl+G", lambda: self.canvas.group_selection(), tip="Combine the selected objects into a group (a form XObject)")
+        self.act_ungroup = self._act("&Ungroup", None, "Ctrl+Shift+G", lambda: self.canvas.ungroup_selection(), tip="Split the selected group back into its objects")
+        self.act_enter_group = self._act("&Enter Group", None, "Ctrl+Return", lambda: self.canvas.enter_form(), tip="Edit the objects inside the selected group or form XObject")
+        self.act_exit_group = self._act("E&xit Group", None, "Ctrl+Shift+Return", lambda: self.canvas.exit_form())
         self.act_front = self._act("Bring to &Front", "front", "Ctrl+Shift+]", lambda: self.canvas.bring_to_front())
         self.act_back = self._act("Send to &Back", "back", "Ctrl+Shift+[", lambda: self.canvas.send_to_back())
         self.act_flip_h = self._act("Flip &Horizontal", "flip-h", None, lambda: self.canvas.flip_selection(True))
@@ -270,7 +274,7 @@ class MainWindow(QMainWindow):
         self.act_next = self._act("&Next Page", "chevron-right", "PgDown", lambda: self.go_to_page(self.canvas.page_index + 1))
         self.act_first = self._act("&First Page", None, "Ctrl+Home", lambda: self.go_to_page(0))
         self.act_last = self._act("&Last Page", None, "Ctrl+End", lambda: self.go_to_page(10**9))
-        self.act_goto = self._act("&Go to Page…", None, "Ctrl+G", self.focus_page_entry)
+        self.act_goto = self._act("&Go to Page…", None, "Ctrl+J", self.focus_page_entry)
         self.act_continuous = self._act("&Continuous Scrolling", None, "Ctrl+Shift+C", self._toggle_continuous, checkable=True, tip="Show all pages in one scrolling column")
         self.act_continuous.setChecked(True)
         self.act_rulers = self._act("Show &Rulers", None, "Ctrl+Shift+U", lambda on: self._apply_view_option("rulers", on), checkable=True, tip="Rulers in your preferred units; drag from a ruler to add a guide")
@@ -347,6 +351,8 @@ class MainWindow(QMainWindow):
         m.addAction(self.act_prefs)
 
         m = mb.addMenu("&Object")
+        m.addActions([self.act_group, self.act_ungroup, self.act_enter_group, self.act_exit_group])
+        m.addSeparator()
         m.addActions([self.act_front, self.act_back])
         m.addSeparator()
         m.addActions([self.act_flip_h, self.act_flip_v, self.act_rot_sel_cw, self.act_rot_sel_ccw])
@@ -555,6 +561,10 @@ class MainWindow(QMainWindow):
         content_sel = bool(objs)
         for a in (self.act_duplicate, self.act_front, self.act_back, self.act_flip_h, self.act_flip_v, self.act_rot_sel_cw, self.act_rot_sel_ccw, *self.align_actions):
             a.setEnabled(content_sel)
+        self.act_group.setEnabled(bool(objs))
+        self.act_ungroup.setEnabled(len(objs) == 1 and objs[0].kind == "form")
+        self.act_enter_group.setEnabled(len(objs) == 1 and objs[0].kind == "form")
+        self.act_exit_group.setEnabled(has and self.canvas.in_group)
         self.act_dist_h.setEnabled(len(objs) >= 3)
         self.act_dist_v.setEnabled(len(objs) >= 3)
         self.act_copy_text.setEnabled(any(o.kind == "text" for o in objs))
@@ -621,7 +631,7 @@ class MainWindow(QMainWindow):
                     self.comment_button.setDefaultAction(a)
         self.act_tool_field.setChecked(tool.startswith(TOOL_FIELD))
         hints = {
-            TOOL_SELECT: "Click to select · drag to move · Shift+click to add · handles resize · double-click text to edit · Ctrl+wheel zooms",
+            TOOL_SELECT: "Click to select · drag to move · Shift+click to add · handles resize · double-click text to edit, a shape for nodes, a group to enter it",
             TOOL_NODE: "Drag anchors (squares) and control points (circles) · Esc returns to Select",
             TOOL_TEXT: "Click text to edit the line · Ctrl+E edits the paragraph · click or drag on empty space for new text · Enter applies · Esc cancels",
             TOOL_HAND: "Drag to pan · Ctrl+wheel zooms",

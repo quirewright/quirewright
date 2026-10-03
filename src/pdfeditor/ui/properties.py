@@ -769,7 +769,7 @@ def _to_color(c: QColor) -> Color:
 
 def _kind_label(o: GObject) -> str:
     return {
-        "path": "Path", "text": "Text", "image": "Image", "form": "Form XObject",
+        "path": "Path", "text": "Text", "image": "Image", "form": "Group",
         "inline_image": "Inline image", "shading": "Shading",
     }.get(o.kind, o.kind)
 
@@ -787,6 +787,8 @@ def _describe(o: GObject) -> str:
         fi = o.font_info
         return f"“{o.text[:60]}” · {fi.display_name if fi else o.font} {o.state.font_size:g} pt"
     if isinstance(o, XObjectRef):
+        if o.subtype == "Form":
+            return f"/{o.name} (group / form XObject) · double-click or Ctrl+Enter to edit inside, Ctrl+Shift+G to ungroup"
         return f"/{o.name} ({o.subtype})"
     if o.kind == "inline_image":
         return "Inline image"

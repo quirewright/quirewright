@@ -577,6 +577,8 @@ class PageCanvas(QGraphicsView):
         self.scale_stroke = True
         self.draw_style = DrawStyle()
         self._select_new_after_rebuild = False
+        self.edit_path: list[tuple[int, Matrix, str]] = []  # (form xref, base matrix, name) when editing inside a form
+        self.context_items: list[QGraphicsItem] = []
         # snapping & guides
         self.snap_enabled = True
         self.snap_objects = True
@@ -629,6 +631,7 @@ class PageCanvas(QGraphicsView):
         self.selection = []
         self.widget_selection = []
         self.annot_selection = []
+        self.edit_path = []
         self.highlights = []
         self.current_highlight = None
         if doc is not None:
@@ -661,6 +664,7 @@ class PageCanvas(QGraphicsView):
         self.selection = []
         self.widget_selection = []
         self.annot_selection = []
+        self.edit_path = []
         if self.continuous and self.page_items:
             self._activate_page(index)
             if scroll:
@@ -729,6 +733,7 @@ class PageCanvas(QGraphicsView):
             self.selection = []
             self.widget_selection = []
             self.annot_selection = []
+            self.edit_path = []
             self._activate_page(i)
             self.selectionChanged.emit([])
             self.pageChanged.emit(i)
@@ -884,13 +889,14 @@ class PageCanvas(QGraphicsView):
         if self.node_overlay is not None:
             self._scene.removeItem(self.node_overlay)
             self.node_overlay = None
-        for it in self.guide_items + self.smart_items:
+        for it in self.guide_items + self.smart_items + self.context_items:
             try:
                 self._scene.removeItem(it)
             except RuntimeError:
                 pass
         self.guide_items = []
         self.smart_items = []
+        self.context_items = []
         if self.grid_item is not None:
             try:
                 self._scene.removeItem(self.grid_item)
@@ -918,6 +924,7 @@ class PageCanvas(QGraphicsView):
         self._build_highlights()
         self._build_guides()
         self._build_grid()
+        self._build_context_overlay()
         if self._select_new_after_rebuild and self.items_by_id:
             self._select_new_after_rebuild = False
             self.selection = [max(self.items_by_id)]
@@ -934,10 +941,11 @@ class PageCanvas(QGraphicsView):
     def _build_overlay(self) -> None:
         assert self.doc is not None
         try:
-            content = self.doc.content(self.page_index)
+            content = self.doc.content(self.page_index, self.doc_path())
         except Exception as exc:  # pragma: no cover
             self.statusMessage.emit(f"Could not parse page content: {exc}")
-            return
+            self.edit_path = []
+            content = self.doc.content(self.page_index)
         S = qmatrix(self.pdf_to_scene)
         for obj in content.objects:
             if not obj.selectable or obj.visible_bbox is None:
@@ -1469,10 +1477,13 @@ class PageCanvas(QGraphicsView):
         self.frame.set_rect(QRectF(), self.zoom)
 
     # -- editing helpers --------------------------------------------------
+    def doc_path(self) -> tuple:
+        return tuple((x, m) for x, m, _n in self.edit_path)
+
     def _editor(self) -> ContentEditor | None:
         if self.doc is None:
             return None
-        return ContentEditor(self.doc.content(self.page_index))
+        return ContentEditor(self.doc.content(self.page_index, self.doc_path()))
 
     def _commit(self, editor: ContentEditor, label: str, select_new: bool = False) -> None:
         assert self.doc is not None
@@ -1482,7 +1493,7 @@ class PageCanvas(QGraphicsView):
             self.statusMessage.emit(f"Edit failed: {exc}")
             return
         self._select_new_after_rebuild = select_new
-        self.doc.apply_content_edit(self.page_index, data, label)
+        self.doc.apply_content_edit(self.page_index, data, label, self.doc_path())
         self._select_new_after_rebuild = False
         self.pageEdited.emit(self.page_index)
         if select_new:
@@ -1541,6 +1552,105 @@ class PageCanvas(QGraphicsView):
         self.selection = []
         self._commit(ed, "Delete")
         self.selectionChanged.emit([])
+
+    # -- groups / form XObjects --------------------------------------------------------
+    @property
+    def in_group(self) -> bool:
+        return bool(self.edit_path)
+
+    def enter_form(self, oid: int | None = None) -> bool:
+        """Start editing inside the selected (or given) form XObject."""
+        if oid is None:
+            oid = self.selection[0] if len(self.selection) == 1 else None
+        if oid is None:
+            return False
+        item = self.items_by_id.get(oid)
+        if item is None or not isinstance(item.obj, XObjectRef) or item.obj.subtype != "Form" or not item.obj.xref:
+            return False
+        obj = item.obj
+        base = obj.form_matrix * obj.state.ctm
+        self.edit_path.append((obj.xref, base, obj.name))
+        self.selection = []
+        self.widget_selection = []
+        self.annot_selection = []
+        self._activate_page(self.page_index)
+        self.selectionChanged.emit([])
+        self.statusMessage.emit(f"Editing inside /{obj.name} · Esc or Object › Exit Group to leave")
+        return True
+
+    def exit_form(self) -> bool:
+        if not self.edit_path:
+            return False
+        self.edit_path.pop()
+        self.selection = []
+        self.widget_selection = []
+        self.annot_selection = []
+        self._activate_page(self.page_index)
+        self.selectionChanged.emit([])
+        return True
+
+    def exit_all_forms(self) -> None:
+        if self.edit_path:
+            self.edit_path = []
+            self._activate_page(self.page_index)
+            self.selectionChanged.emit([])
+
+    def group_selection(self) -> None:
+        if self.doc is None or not self.selection:
+            return
+        ids = list(self.selection)
+        self.selection = []
+        self._select_new_after_rebuild = True
+        self.doc.group_objects(self.page_index, self.doc_path(), ids)
+        self._select_new_after_rebuild = False
+        self.pageEdited.emit(self.page_index)
+        self.selectionChanged.emit(list(self.selection))
+
+    def ungroup_selection(self) -> None:
+        if self.doc is None or len(self.selection) != 1:
+            return
+        obj = self.items_by_id[self.selection[0]].obj
+        if not isinstance(obj, XObjectRef) or obj.subtype != "Form":
+            self.statusMessage.emit("Select a group (form XObject) to ungroup.")
+            return
+        self.selection = []
+        self.doc.ungroup_object(self.page_index, self.doc_path(), obj.id)
+        self.pageEdited.emit(self.page_index)
+        self.selectionChanged.emit([])
+
+    def _build_context_overlay(self) -> None:
+        for it in self.context_items:
+            try:
+                self._scene.removeItem(it)
+            except RuntimeError:
+                pass
+        self.context_items = []
+        if not self.edit_path or self.doc is None:
+            return
+        xref, base, name = self.edit_path[-1]
+        info = self.doc.form_info(xref)
+        t = theme.current()
+        if info.bbox is not None:
+            r = rect_to_qrect(info.bbox.transformed(base * self.pdf_to_scene))
+            dim = QPainterPath()
+            dim.addRect(self.page_rect)
+            hole = QPainterPath()
+            hole.addRect(r)
+            shade = QGraphicsPathItem(dim.subtracted(hole))
+            c = QColor(t.canvas)
+            c.setAlpha(150)
+            shade.setBrush(QBrush(c))
+            shade.setPen(Qt.PenStyle.NoPen)
+            shade.setZValue(2)
+            self._scene.addItem(shade)
+            self.context_items.append(shade)
+            outline = QGraphicsRectItem(r)
+            pen = QPen(QColor(t.accent), 0, Qt.PenStyle.DashLine)
+            pen.setCosmetic(True)
+            outline.setPen(pen)
+            outline.setZValue(2.5)
+            self._scene.addItem(outline)
+            self.context_items.append(outline)
 
     # -- arrangement -----------------------------------------------------------------
     def duplicate_selection(self, offset: float = 10.0) -> None:
@@ -2226,6 +2336,7 @@ class PageCanvas(QGraphicsView):
                 self.selection = []
                 self.widget_selection = []
                 self.annot_selection = []
+                self.edit_path = []
                 self._activate_page(target)
                 self.selectionChanged.emit([])
                 self.pageChanged.emit(target)
@@ -2583,6 +2694,13 @@ class PageCanvas(QGraphicsView):
             self.select([item.obj.id])
             self.set_tool(TOOL_NODE)
             return
+        if isinstance(item, ObjectItem) and isinstance(item.obj, XObjectRef) and item.obj.subtype == "Form" and self.tool == TOOL_SELECT:
+            self.select([item.obj.id])
+            self.enter_form(item.obj.id)
+            return
+        if item is None and self.edit_path and self.tool == TOOL_SELECT:
+            self.exit_form()
+            return
         super().mouseDoubleClickEvent(event)
 
     def _scale_transform(self, d: DragState, pos: QPointF, modifiers) -> QTransform:
@@ -2633,8 +2751,10 @@ class PageCanvas(QGraphicsView):
                 self._finish_pen(closed=False)
             elif self.tool != TOOL_SELECT:
                 self.set_tool(TOOL_SELECT)
-            else:
+            elif self.selection or self.widget_selection or self.annot_selection:
                 self.clear_selection()
+            elif self.edit_path:
+                self.exit_form()
             return
         if key in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and self.tool == TOOL_PEN and self.pen_points:
             self._finish_pen(closed=bool(mods & Qt.KeyboardModifier.ShiftModifier))
