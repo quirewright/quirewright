@@ -167,3 +167,14 @@ def test_annotations(doc):
     for _ in range(5):
         doc.undo_stack.undo()
     assert len(doc.annotations(0)) == 1
+
+
+def test_page_labels(doc):
+    assert doc.page_label_rules() == []
+    doc.set_page_label_rules([{"startpage": 0, "style": "r", "prefix": "", "firstpagenum": 1}, {"startpage": 2, "style": "D", "prefix": "A-", "firstpagenum": 1}])
+    assert [doc.page_label(i) for i in range(3)] == ["i", "ii", "A-1"]
+    assert doc.page_label_rules()[1]["prefix"] == "A-"
+    doc.set_page_label_rules([])
+    assert [doc.page_label(i) for i in range(3)] == ["1", "2", "3"]
+    doc.undo_stack.undo()
+    assert doc.page_label(0) == "i"

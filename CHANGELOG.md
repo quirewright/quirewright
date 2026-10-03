@@ -3,6 +3,12 @@
 ## Unreleased
 
 ### Added
+- Continuous multi-page scrolling view (toggle in the View menu)
+- In-app help viewer with contents and search (F1)
+- Paragraph editing with re-wrapping (Ctrl+E) and multi-line text boxes (drag with the Text tool)
+- Curves in the Pen tool (click-drag for handles)
+- Page labels dialog
+- Radio buttons
 - Document properties dialog (metadata editing, file details)
 - Security dialog: passwords, permissions, AES-256; remove security
 - Resources dialog: browse and extract images, fonts and attachments; attach / remove files

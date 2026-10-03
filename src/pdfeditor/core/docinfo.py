@@ -316,6 +316,27 @@ class DocInfoMixin:
 
         self._structure_op(label, action)
 
+    # -- page labels -----------------------------------------------------------------
+    def page_label_rules(self) -> list[dict]:
+        try:
+            return list(self.pdf.get_page_labels())
+        except Exception:
+            return []
+
+    def set_page_label_rules(self, rules: list[dict]) -> None:
+        """``rules``: list of {startpage, prefix, style, firstpagenum}; empty list removes labels."""
+        clean = []
+        for r in sorted(rules, key=lambda r: int(r.get("startpage", 0))):
+            clean.append({
+                "startpage": int(r.get("startpage", 0)), "prefix": str(r.get("prefix", "") or ""),
+                "style": str(r.get("style", "D") or ""), "firstpagenum": int(r.get("firstpagenum", 1)),
+            })
+
+        def action(doc) -> None:
+            doc.pdf.set_page_labels(clean)
+
+        self._structure_op("Edit page labels", action)
+
     # -- page decorations ------------------------------------------------------------
     def add_page_numbers(
         self, pages: Iterable[int], position: str = "bottom-center", fmt: str = "{n}", start: int = 1,

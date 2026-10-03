@@ -22,8 +22,10 @@ PDF tool does. This guide walks through the interface and every feature.
 
 * **Navigation** (left): page thumbnails you can multi-select and drag to
   reorder, and a Bookmarks tab for the document outline.
-* **Canvas** (centre): one page at a time, rendered exactly as other viewers
-  render it. Everything on it can be selected.
+* **Canvas** (centre): all pages in one scrolling column (or one page at a
+  time with View › Continuous Scrolling off), rendered exactly as other
+  viewers render it. Everything on it can be selected; the page you click or
+  scroll to becomes the active page for editing.
 * **Inspector** (right): shows details for whatever is selected and lets you
   change them. With nothing selected it shows page and document information,
   or the style for new objects when a drawing tool is active.
@@ -76,6 +78,11 @@ line (PDFs often split lines into several pieces; the editor merges them).
 Enter applies, Esc cancels. The Inspector also offers a text field, size and
 colour.
 
+**Paragraphs.** Select any line and press Ctrl+E (or Edit › Edit Paragraph,
+or the *Edit paragraph…* button in the Inspector) to edit all the lines of
+the paragraph at once in a multi-line editor. Ctrl+Enter applies: the text
+is re-wrapped to the paragraph's original width and line spacing.
+
 Text is re-encoded with the document's own font whenever possible. Embedded
 fonts are usually *subsets* that only contain the glyphs already used in the
 file; if you type a character the subset lacks, the editor substitutes a
@@ -94,8 +101,8 @@ them. Esc returns to the Select tool.
 | Rectangle | R | drag; Shift for a square |
 | Ellipse | E | drag; Shift for a circle |
 | Line | L | drag; Shift snaps to 45° |
-| Pen | P | click to add points; Enter or double-click finishes, clicking the first point closes the shape; Esc cancels |
-| Text | T | click on empty space, type, Enter |
+| Pen | P | click for corner points, click-and-drag for smooth curves (the drag sets the handle); Enter or double-click finishes, clicking the first point closes the shape; Esc cancels |
+| Text | T | click on empty space for a single line (Enter applies), or drag a box for wrapped multi-line text (Ctrl+Enter applies) |
 | Image | Ctrl+Shift+M | choose a file; it is placed in the middle of the view, then move/resize it |
 
 With a drawing tool active and nothing selected, the Inspector shows the
@@ -114,6 +121,9 @@ Right-click a thumbnail or use the Page menu:
 * **Crop**: use the Crop tool (C) and drag a rectangle, or Crop by Margins.
   Cropping hides content outside the box; **Reset Crop** restores it.
 * **Add Page Numbers** and **Add Watermark** stamp text on a range of pages.
+* **Page Labels** sets how viewers number pages (for example i, ii, iii for
+  the front matter and 1, 2, 3 afterwards, or a prefix such as A-1). Labels
+  are shown under the thumbnails.
 * **Export › Page as Image** writes PNG, JPEG or SVG; **Export › Text**
   writes the plain text of all pages.
 
@@ -182,6 +192,8 @@ Help › Keyboard Shortcuts lists everything. The most used:
 | Ctrl+Shift+O | resources (images, fonts, attachments) |
 | Ctrl+/ | keyboard shortcut reference |
 | Ctrl+Shift+D | duplicate selection |
+| Ctrl+E | edit paragraph |
+| Ctrl+Shift+C | toggle continuous scrolling |
 | Ctrl+Shift+] / [ | bring to front / send to back |
 | Ctrl+R / Ctrl+Shift+R | rotate page clockwise / counter-clockwise |
 | Esc | cancel editing, or back to the Select tool |

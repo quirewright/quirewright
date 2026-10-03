@@ -554,6 +554,85 @@ class WatermarkDialog(_Base, _ScopeMixin):
         self.add_buttons("Add watermark")
 
 
+LABEL_STYLES = [
+    ("Decimal (1, 2, 3)", "D"), ("Roman upper (I, II, III)", "R"), ("Roman lower (i, ii, iii)", "r"),
+    ("Letters upper (A, B, C)", "A"), ("Letters lower (a, b, c)", "a"), ("Prefix only (no number)", ""),
+]
+
+
+class PageLabelsDialog(_Base):
+    """Edit the page-label ranges (how pages are numbered in viewers)."""
+
+    def __init__(self, page_count: int, rules: list[dict], parent=None):
+        super().__init__("Page labels", parent, 560)
+        info = QLabel("Each rule numbers pages from its start page until the next rule. For example a rule "
+                      "starting at page 1 with lower-case roman numerals and a second rule starting at page 5 with "
+                      "decimal numbers gives i, ii, iii, iv, 1, 2, …")
+        info.setWordWrap(True)
+        info.setProperty("role", "muted")
+        self.body.addWidget(info)
+        self.page_count = page_count
+        self.table = QTableWidget(0, 4)
+        self.table.setHorizontalHeaderLabels(["Start page", "Style", "Prefix", "First number"])
+        self.table.verticalHeader().setVisible(False)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.body.addWidget(self.table)
+        row = QHBoxLayout()
+        add = QPushButton("Add rule")
+        add.clicked.connect(lambda: self._add_row())
+        rem = QPushButton("Remove rule")
+        rem.clicked.connect(self._remove_row)
+        clear = QPushButton("Remove all labels")
+        clear.clicked.connect(lambda: self.table.setRowCount(0))
+        row.addWidget(add)
+        row.addWidget(rem)
+        row.addStretch()
+        row.addWidget(clear)
+        self.body.addLayout(row)
+        for r in rules:
+            self._add_row(r)
+        if not rules:
+            self._add_row({"startpage": 0, "style": "D", "prefix": "", "firstpagenum": 1})
+        self.add_buttons("Apply")
+
+    def _add_row(self, rule: dict | None = None) -> None:
+        rule = rule or {"startpage": min(self.page_count - 1, self.table.rowCount()), "style": "D", "prefix": "", "firstpagenum": 1}
+        r = self.table.rowCount()
+        self.table.insertRow(r)
+        start = QSpinBox()
+        start.setRange(1, max(1, self.page_count))
+        start.setValue(int(rule.get("startpage", 0)) + 1)
+        style = QComboBox()
+        for label, key in LABEL_STYLES:
+            style.addItem(label, key)
+        style.setCurrentIndex(max(style.findData(rule.get("style", "D") or ""), 0))
+        prefix = QLineEdit(str(rule.get("prefix", "") or ""))
+        first = QSpinBox()
+        first.setRange(1, 100000)
+        first.setValue(int(rule.get("firstpagenum", 1) or 1))
+        self.table.setCellWidget(r, 0, start)
+        self.table.setCellWidget(r, 1, style)
+        self.table.setCellWidget(r, 2, prefix)
+        self.table.setCellWidget(r, 3, first)
+
+    def _remove_row(self) -> None:
+        rows = sorted({i.row() for i in self.table.selectedIndexes()}, reverse=True) or ([self.table.rowCount() - 1] if self.table.rowCount() else [])
+        for r in rows:
+            self.table.removeRow(r)
+
+    def rules(self) -> list[dict]:
+        out = []
+        for r in range(self.table.rowCount()):
+            out.append({
+                "startpage": self.table.cellWidget(r, 0).value() - 1,
+                "style": self.table.cellWidget(r, 1).currentData(),
+                "prefix": self.table.cellWidget(r, 2).text(),
+                "firstpagenum": self.table.cellWidget(r, 3).value(),
+            })
+        return out
+
+
 class ExportImageDialog(_Base):
     def __init__(self, page_count: int, current: int, parent=None):
         super().__init__("Export page as image", parent)

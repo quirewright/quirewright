@@ -12,7 +12,7 @@ Checked items are implemented and covered by tests.
 - [x] Find text (Ctrl+F) with hit highlighting and next/previous across pages
 - [x] Light and dark themes, system theme detection
 - [x] Welcome screen when no document is open
-- [ ] Continuous (multi-page) scrolling view
+- [x] Continuous (multi-page) scrolling view (single-page mode available)
 - [ ] Tabs for several open documents
 
 ## Content editing (Inkscape-like)
@@ -26,8 +26,8 @@ Checked items are implemented and covered by tests.
 - [x] Align (left/centre/right/top/middle/bottom) and distribute multiple objects
 - [x] Copy selected text to the clipboard
 - [x] Nudge with arrow keys, delete, undo/redo for everything
-- [ ] Multi-line text boxes with wrapping
-- [ ] Curves in the Pen tool (drag for handles)
+- [x] Multi-line text boxes with wrapping; paragraph editing with re-wrap
+- [x] Curves in the Pen tool (click-drag for handles)
 - [ ] Grouping; editing inside form XObjects
 - [ ] Snapping / guides / rulers
 
@@ -39,7 +39,7 @@ Checked items are implemented and covered by tests.
 - [x] Add page numbers (position, format, start value, range)
 - [x] Add a text watermark (opacity, rotation, size, colour)
 - [x] Export a page as PNG / JPEG / SVG
-- [ ] Page labels (roman numerals, prefixes)
+- [x] Page labels (roman numerals, letters, prefixes)
 - [ ] N-up / booklet imposition
 
 ## Forms
@@ -47,7 +47,8 @@ Checked items are implemented and covered by tests.
 - [x] Move, resize, delete fields; edit name, value, options, fonts, colours, flags
 - [x] Fill forms (set values)
 - [x] Flatten forms and annotations into page content
-- [ ] Radio button groups, calculation/validation scripts
+- [x] Radio buttons (shared name = group; created via a checkbox workaround for a PyMuPDF limitation)
+- [ ] Calculation/validation scripts
 
 ## Annotations (comments)
 - [x] Highlight, underline, strike-out text (drag over words)
@@ -67,7 +68,7 @@ Checked items are implemented and covered by tests.
 - [ ] OCR
 
 ## Quality of life
-- [x] Keyboard shortcuts for every tool; shortcut reference dialog
+- [x] Keyboard shortcuts for every tool; shortcut reference dialog; in-app help viewer (F1)
 - [x] Preferences: theme, units (pt / mm / in), stroke scaling
 - [x] Status bar hints per tool, unsaved-changes guard, save-in-place safety (atomic write)
 - [x] Desktop integration files (launcher, icon)

@@ -37,12 +37,13 @@ from PySide6.QtWidgets import (
     QGraphicsScene,
     QGraphicsView,
     QLineEdit,
+    QPlainTextEdit,
     QStyleOptionGraphicsItem,
     QWidget,
 )
 
 from pdfeditor.core.content.model import Color, GObject, PathObject, TextRun, XObjectRef
-from pdfeditor.core.content.writer import ContentEditor
+from pdfeditor.core.content.writer import ContentEditor, wrap_text
 from pdfeditor.core.annotations import AnnotInfo
 from pdfeditor.core.document import Document, WidgetInfo
 from pdfeditor.core.geometry import Matrix, Rect
@@ -525,6 +526,9 @@ class PageCanvas(QGraphicsView):
         self.text_proxy: QGraphicsProxyWidget | None = None
         self.text_edit_ids: list[int] = []
         self.text_edit_new: QPointF | None = None
+        self.text_box: QRectF | None = None  # new text box being created (scene)
+        self.paragraph: dict | None = None  # paragraph being edited
+        self.pen_handles: list[QPointF | None] = []  # out-handle per pen point (None = corner)
         self.rubber: QGraphicsRectItem | None = None
         self.preview: QGraphicsItem | None = None
         self.pen_points: list[QPointF] = []
@@ -1465,6 +1469,138 @@ class PageCanvas(QGraphicsView):
             prev = r
         return out
 
+    # -- paragraphs ---------------------------------------------------------------
+    def paragraph_line_ids(self, oid: int) -> list[list[int]]:
+        """Lines (each a list of run ids) forming the paragraph around ``oid``."""
+        start = self.text_line_ids(oid)
+        if not start:
+            return [[oid]]
+        first = self.items_by_id[start[0]].obj
+        size = max(first.state.font_size, 1e-6)
+        lines: dict[int, list[int]] = {}
+        seen: set[int] = set()
+        for i, it in self.items_by_id.items():
+            o = it.obj
+            if not isinstance(o, TextRun) or i in seen or o.state.ctm != first.state.ctm:
+                continue
+            if abs(o.state.font_size - size) > 0.2 * size:
+                continue
+            if abs(o.tm.b - first.tm.b) > 1e-6 or abs(o.tm.c - first.tm.c) > 1e-6:
+                continue
+            ids = self.text_line_ids(i)
+            seen.update(ids)
+            lines[ids[0]] = ids
+
+        def span(ids: list[int]) -> tuple[float, float, float]:
+            runs = [self.items_by_id[j].obj for j in ids]
+            return (min(r.tm.e for r in runs), max(r.end_tm.e for r in runs), runs[0].tm.f)
+
+        ordered = sorted(lines.values(), key=lambda ids: -span(ids)[2])
+        idx = next(k for k, ids in enumerate(ordered) if start[0] in ids)
+        x0, x1, _ = span(start)
+
+        def joins(a: list[int], b: list[int]) -> bool:
+            ax0, ax1, ay = span(a)
+            bx0, bx1, by = span(b)
+            gap = abs(ay - by)
+            overlap = min(ax1, bx1) - max(ax0, bx0)
+            return 0 < gap <= 1.9 * size and overlap > 0.2 * min(ax1 - ax0, bx1 - bx0)
+
+        para = [ordered[idx]]
+        k = idx
+        while k > 0 and joins(ordered[k - 1], ordered[k]):
+            para.insert(0, ordered[k - 1])
+            k -= 1
+        k = idx
+        while k + 1 < len(ordered) and joins(ordered[k], ordered[k + 1]):
+            para.append(ordered[k + 1])
+            k += 1
+        return para
+
+    def begin_paragraph_edit(self, oid: int) -> None:
+        item = self.items_by_id.get(oid)
+        if item is None or not isinstance(item.obj, TextRun):
+            return
+        lines = self.paragraph_line_ids(oid)
+        runs = [self.items_by_id[ids[0]].obj for ids in lines]
+        text = "\n".join(self._line_text(ids) for ids in lines)
+        rect = QRectF()
+        for ids in lines:
+            for i in ids:
+                r = self.items_by_id[i].sceneBoundingRect()
+                rect = r if rect.isNull() else rect.united(r)
+        first = runs[0]
+        gaps = [abs(runs[k].tm.f - runs[k + 1].tm.f) for k in range(len(runs) - 1)]
+        leading = (sorted(gaps)[len(gaps) // 2] if gaps else first.state.font_size * 1.2)
+        self.paragraph = {
+            "lines": lines, "font": first.font, "font_info": first.font_info, "size": first.state.font_size,
+            "color": first.state.fill_color, "tm": first.tm, "ctm": first.state.ctm, "leading": leading,
+            "width": max(self.items_by_id[i].obj.end_tm.e for ids in lines for i in ids) - min(self.items_by_id[i].obj.tm.e for ids in lines for i in ids),
+        }
+        self.select([i for ids in lines for i in ids])
+        size_pt = first.state.font_size * first.state.ctm.expansion() * self.pdf_to_scene.expansion()
+        self._open_text_editor(text, rect, size_pt, multiline=True, lines_hint=len(lines))
+
+    def begin_text_box(self, rect: QRectF) -> None:
+        self.text_box = QRectF(rect)
+        size = self.draw_style.font_size
+        self._open_text_editor("", rect, size, multiline=True, lines_hint=max(2, int(rect.height() / (size * 1.2))))
+
+    def _commit_paragraph(self, text: str) -> None:
+        p = self.paragraph
+        self.paragraph = None
+        if p is None or self.doc is None:
+            return
+        old = "\n".join(self._line_text(ids) for ids in p["lines"])
+        if text == old:
+            return
+        ed = self._editor()
+        if ed is None:
+            return
+        all_ids = [i for ids in p["lines"] for i in ids]
+        font_name, fi = p["font"], p["font_info"]
+        if fi is None or fi.encode(text.replace("\n", "")) is None:
+            try:
+                font_name, fi = self.doc.ensure_substitute_font(self.page_index, self.doc.substitute_font_name(fi))
+                self.statusMessage.emit("Some characters are not in the original font; a built-in font was substituted.")
+            except Exception as exc:
+                self.statusMessage.emit(f"Could not add font: {exc}")
+                return
+        ed.delete(all_ids)
+        tm = p["tm"] * p["ctm"]  # text origin in device space
+        x, y = tm.e, tm.f
+        angle = math.degrees(math.atan2(tm.b, tm.a))
+        width = max(p["width"] * 1.02, p["size"] * 2)
+        if not ed.append_text_block(x, y, width, text, font_name, fi, p["size"], p["color"], leading=p["leading"], rotation=angle):
+            self.statusMessage.emit("Text could not be encoded.")
+            return
+        self.selection = []
+        self._commit(ed, "Edit paragraph")
+
+    def _commit_text_box(self, rect: QRectF, text: str) -> None:
+        self.text_box = None
+        if self.doc is None or not text.strip():
+            return
+        ed = self._editor()
+        if ed is None:
+            return
+        style = self.draw_style
+        try:
+            name, fi = self.doc.ensure_substitute_font(self.page_index, style.font)
+        except Exception as exc:
+            self.statusMessage.emit(f"Could not add font: {exc}")
+            return
+        inv = self.scene_to_pdf()
+        k = inv.expansion()
+        size = style.font_size * k
+        top_left = QPointF(rect.left(), rect.top() + style.font_size)
+        x, y = inv.apply(top_left.x(), top_left.y())
+        angle = -math.degrees(math.atan2(inv.b, inv.a))
+        if not ed.append_text_block(x, y, rect.width() * k, text, name, fi, size, style.text_color, rotation=angle):
+            self.statusMessage.emit("Some characters are not available in the chosen font.")
+            return
+        self._commit(ed, "Add text box", select_new=True)
+
     # -- inline text editing -----------------------------------------------
     def begin_text_edit(self, oid: int) -> None:
         item = self.items_by_id.get(oid)
@@ -1484,18 +1620,31 @@ class PageCanvas(QGraphicsView):
         rect = QRectF(pos.x(), pos.y() - size, 120, size * 1.2)
         self._open_text_editor("", rect, size, new_at=pos)
 
-    def _open_text_editor(self, text: str, rect: QRectF, size_pt: float, ids: list[int] | None = None, new_at: QPointF | None = None) -> None:
+    def _open_text_editor(self, text: str, rect: QRectF, size_pt: float, ids: list[int] | None = None, new_at: QPointF | None = None,
+                          multiline: bool = False, lines_hint: int = 1) -> None:
         self._end_text_edit(commit=False)
-        edit = QLineEdit(text)
         t = theme.current()
         font = QFont()
         font.setPixelSize(int(round(max(size_pt, 4.0))))
-        edit.setFont(font)
-        edit.setStyleSheet(
-            f"QLineEdit {{ background: {t.panel}; color: {t.text}; border: 1px solid {t.accent}; border-radius: 2px; padding: 0 2px; }}"
-        )
-        edit.setMinimumWidth(int(max(rect.width() + 24, 80)))
-        edit.setPlaceholderText("Type text…")
+        if multiline:
+            edit = QPlainTextEdit()
+            edit.setPlainText(text)
+            edit.setFont(font)
+            edit.setStyleSheet(
+                f"QPlainTextEdit {{ background: {t.panel}; color: {t.text}; border: 1px solid {t.accent}; border-radius: 2px; padding: 0 2px; }}"
+            )
+            edit.setMinimumWidth(int(max(rect.width() + 24, 120)))
+            edit.setFixedHeight(int(max(rect.height() + 12, size_pt * 1.3 * max(lines_hint, 2) + 12)))
+            edit.setPlaceholderText("Type text… (Ctrl+Enter applies, Esc cancels)")
+            edit.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
+        else:
+            edit = QLineEdit(text)
+            edit.setFont(font)
+            edit.setStyleSheet(
+                f"QLineEdit {{ background: {t.panel}; color: {t.text}; border: 1px solid {t.accent}; border-radius: 2px; padding: 0 2px; }}"
+            )
+            edit.setMinimumWidth(int(max(rect.width() + 24, 80)))
+            edit.setPlaceholderText("Type text…")
         proxy = self._scene.addWidget(edit)
         proxy.setZValue(5000)
         proxy.setPos(rect.left() - 3, rect.top() - 2)
@@ -1503,15 +1652,16 @@ class PageCanvas(QGraphicsView):
         self.text_proxy = proxy
         self.text_edit_ids = list(ids or [])
         self.text_edit_new = new_at
-        edit.returnPressed.connect(lambda: self._end_text_edit(commit=True))
+        if isinstance(edit, QLineEdit):
+            edit.returnPressed.connect(lambda: self._end_text_edit(commit=True))
         edit.installEventFilter(self)
         self.setFocus(Qt.FocusReason.OtherFocusReason)
         self._scene.setFocusItem(proxy, Qt.FocusReason.OtherFocusReason)
         proxy.setFocus(Qt.FocusReason.OtherFocusReason)
         edit.setFocus(Qt.FocusReason.OtherFocusReason)
-        if text:
+        if text and isinstance(edit, QLineEdit):
             edit.selectAll()
-        self.statusMessage.emit("Editing text: Enter applies, Esc cancels")
+        self.statusMessage.emit("Editing paragraph: Ctrl+Enter applies, Esc cancels" if multiline else "Editing text: Enter applies, Esc cancels")
 
     def _end_text_edit(self, commit: bool) -> None:
         proxy = self.text_proxy
@@ -1520,10 +1670,18 @@ class PageCanvas(QGraphicsView):
         ids = self.text_edit_ids
         new_at = self.text_edit_new
         widget = proxy.widget()
-        text = widget.text() if isinstance(widget, QLineEdit) else None
+        if isinstance(widget, QLineEdit):
+            text = widget.text()
+        elif isinstance(widget, QPlainTextEdit):
+            text = widget.toPlainText()
+        else:
+            text = None
+        box = self.text_box
+        para = self.paragraph
         self.text_proxy = None
         self.text_edit_ids = []
         self.text_edit_new = None
+        self.text_box = None
         try:
             self._scene.removeItem(proxy)
         except RuntimeError:
@@ -1531,8 +1689,13 @@ class PageCanvas(QGraphicsView):
         proxy.deleteLater()
         self.setFocus()
         if not commit or text is None:
+            self.paragraph = None
             return
-        if new_at is not None:
+        if box is not None:
+            self._commit_text_box(box, text)
+        elif para is not None:
+            self._commit_paragraph(text)
+        elif new_at is not None:
             if text.strip():
                 self.create_text(new_at, text)
         elif ids:
@@ -1542,6 +1705,9 @@ class PageCanvas(QGraphicsView):
         if event.type() == QEvent.Type.KeyPress and isinstance(event, QKeyEvent):
             if event.key() == Qt.Key.Key_Escape:
                 self._end_text_edit(commit=False)
+                return True
+            if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+                self._end_text_edit(commit=True)
                 return True
         if event.type() == QEvent.Type.FocusOut and self.text_proxy is not None and obj is self.text_proxy.widget():
             QTimer.singleShot(0, lambda: self._end_text_edit(commit=True) if self.text_proxy is not None and not self.text_proxy.widget().hasFocus() else None)
@@ -1651,6 +1817,7 @@ class PageCanvas(QGraphicsView):
     # -- pen tool --------------------------------------------------------------
     def _cancel_pen(self) -> None:
         self.pen_points = []
+        self.pen_handles = []
         if self.pen_preview is not None:
             try:
                 self._scene.removeItem(self.pen_preview)
@@ -1658,11 +1825,31 @@ class PageCanvas(QGraphicsView):
                 pass
             self.pen_preview = None
 
+    def _pen_subpath(self, pts: list[QPointF], handles: list[QPointF | None], closed: bool) -> list[tuple]:
+        """Build segments: straight where both ends are corners, cubic otherwise (symmetric handles)."""
+        sp: list[tuple] = [("m", pts[0].x(), pts[0].y())]
+        n = len(pts)
+        pairs = list(range(n - 1)) + ([n - 1] if closed and n > 2 else [])
+        for i in pairs:
+            a, b = pts[i], pts[(i + 1) % n]
+            ha, hb = handles[i], handles[(i + 1) % n]
+            if ha is None and hb is None:
+                sp.append(("l", b.x(), b.y()))
+                continue
+            c1 = ha if ha is not None else a
+            c2 = (b - (hb - b)) if hb is not None else b  # mirrored in-handle
+            sp.append(("c", c1.x(), c1.y(), c2.x(), c2.y(), b.x(), b.y()))
+        if closed:
+            sp.append(("h",))
+        return sp
+
     def _finish_pen(self, closed: bool = False) -> None:
         pts = list(self.pen_points)
+        handles = list(self.pen_handles) + [None] * (len(pts) - len(self.pen_handles))
         self._cancel_pen()
         if len(pts) >= 2:
-            self.create_polyline(pts, closed)
+            sp = self._pen_subpath(pts, handles, closed)
+            self.create_path_scene([sp], closed, "Draw path")
 
     def _update_pen_preview(self, cursor: QPointF | None) -> None:
         if not self.pen_points:
@@ -1672,11 +1859,18 @@ class PageCanvas(QGraphicsView):
             self.pen_preview.setZValue(3000)
             self.pen_preview.setPen(self._preview_pen())
             self._scene.addItem(self.pen_preview)
-        path = QPainterPath(self.pen_points[0])
-        for p in self.pen_points[1:]:
-            path.lineTo(p)
-        if cursor is not None:
-            path.lineTo(cursor)
+        pts = list(self.pen_points)
+        handles = list(self.pen_handles) + [None] * (len(pts) - len(self.pen_handles))
+        if cursor is not None and (pts and (cursor - pts[-1]).manhattanLength() > 1e-6):
+            pts.append(cursor)
+            handles.append(None)
+        path = subpaths_to_qpath([self._pen_subpath(pts, handles, False)], QTransform()) if len(pts) >= 2 else QPainterPath(pts[0])
+        # show handle lines of the last point
+        if self.pen_handles and self.pen_handles[-1] is not None and self.pen_points:
+            a = self.pen_points[-1]
+            h = self.pen_handles[-1]
+            path.moveTo(a - (h - a))
+            path.lineTo(h)
         self.pen_preview.setPath(path)
 
     def _preview_pen(self) -> QPen:
@@ -1724,6 +1918,8 @@ class PageCanvas(QGraphicsView):
                 self._finish_pen(closed=True)
                 return
             self.pen_points.append(pos)
+            self.pen_handles.append(None)
+            self.drag = DragState("penhandle", pos, pos)
             self._update_pen_preview(pos)
             return
         if self.tool in (TOOL_RECT, TOOL_ELLIPSE, TOOL_LINE) or self.tool in AREA_TOOLS or self.is_field_tool or self.is_markup_tool:
@@ -1760,7 +1956,7 @@ class PageCanvas(QGraphicsView):
                 self.begin_text_edit(item.obj.id)
             elif self.page_rect.contains(pos):
                 self.clear_selection()
-                self.begin_new_text(pos)
+                self.drag = DragState("textbox", pos, pos)
             return
         if item is None:
             if not shift:
@@ -1836,7 +2032,7 @@ class PageCanvas(QGraphicsView):
         if d.mode == "rubber" and self.rubber is not None:
             self.rubber.setRect(QRectF(d.start, pos).normalized())
             d.moved = True
-        elif d.mode == "create":
+        elif d.mode in ("create", "textbox"):
             d.moved = True
             self._update_create_preview(d, pos, shift)
         elif d.mode == "move":
@@ -1856,6 +2052,11 @@ class PageCanvas(QGraphicsView):
         elif d.mode == "node" and self.node_overlay is not None and d.node_key is not None:
             d.moved = True
             self.node_overlay.move_point(d.node_key, pos)
+        elif d.mode == "penhandle":
+            if (pos - d.start).manhattanLength() * self.zoom >= 4:
+                d.moved = True
+                self.pen_handles[-1] = pos
+                self._update_pen_preview(None)
 
     def _create_geometry(self, d: DragState, pos: QPointF, shift: bool) -> QRectF | tuple[QPointF, QPointF]:
         if self.tool == TOOL_LINE:
@@ -1908,6 +2109,11 @@ class PageCanvas(QGraphicsView):
             return
         pos = self.mapToScene(event.position().toPoint())
         shift = bool(event.modifiers() & Qt.KeyboardModifier.ShiftModifier)
+        if d.mode == "penhandle":
+            if not d.moved:
+                self.pen_handles[-1] = None
+            self._update_pen_preview(pos)
+            return
         if d.mode == "rubber":
             rect = QRectF(d.start, pos).normalized()
             if self.rubber is not None:
@@ -1925,6 +2131,16 @@ class PageCanvas(QGraphicsView):
                         self.select_widgets(xs)
                     else:
                         self.select_annots([x for x, it in self.annot_items.items() if rect.contains(it.sceneBoundingRect())])
+            return
+        if d.mode == "textbox":
+            if self.preview is not None:
+                self._scene.removeItem(self.preview)
+                self.preview = None
+            r = QRectF(d.start, pos).normalized()
+            if d.moved and r.width() * self.zoom > 12 and r.height() * self.zoom > 8:
+                self.begin_text_box(r)
+            else:
+                self.begin_new_text(d.start)
             return
         if d.mode == "create":
             if self.preview is not None:

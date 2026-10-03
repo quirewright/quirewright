@@ -58,6 +58,7 @@ from pdfeditor.ui.dialogs import (
 )
 from pdfeditor.ui.doc_dialogs import (
     ExportImageDialog,
+    PageLabelsDialog,
     PageNumbersDialog,
     PreferencesDialog,
     PropertiesDialog,
@@ -181,7 +182,8 @@ class MainWindow(QMainWindow):
         self.act_deselect = self._act("D&eselect", None, "Ctrl+Shift+A", self.canvas.clear_selection)
         self.act_copy_text = self._act("&Copy Text", "copy", S.StandardKey.Copy, self.copy_text, tip="Copy the selected text to the clipboard")
         self.act_duplicate = self._act("D&uplicate", "duplicate", "Ctrl+Shift+D", self.canvas.duplicate_selection, tip="Duplicate the selected objects")
-        self.act_edit_text = self._act("Edit &Text", "edit", "F2", self.edit_selected_text)
+        self.act_edit_text = self._act("Edit &Text Line", "edit", "F2", self.edit_selected_text)
+        self.act_edit_para = self._act("Edit &Paragraph", None, "Ctrl+E", self.edit_selected_paragraph, tip="Edit the whole paragraph around the selected text with word wrapping")
         self.act_find = self._act("&Find…", "find", S.StandardKey.Find, self.show_find, tip="Find text in the document")
         self.act_find_next = self._act("Find &Next", None, S.StandardKey.FindNext, self.findbar.next)
         self.act_find_prev = self._act("Find &Previous", None, S.StandardKey.FindPrevious, self.findbar.previous)
@@ -268,6 +270,7 @@ class MainWindow(QMainWindow):
         self.act_crop = self._act("Crop by &Margins…", "crop", None, self.crop_pages, tip="Crop page margins")
         self.act_uncrop = self._act("Reset Cr&op", None, None, self.reset_crop)
         self.act_numbers = self._act("Add Page &Numbers…", "page-number", None, self.add_page_numbers)
+        self.act_labels = self._act("Page &Labels…", None, None, self.edit_page_labels, tip="How pages are numbered in viewers (i, ii, 1, 2, A-1 …)")
         self.act_watermark = self._act("Add &Watermark…", "watermark", None, self.add_watermark)
         # document
         self.act_properties = self._act("&Properties…", "info", "Ctrl+I", self.show_properties, tip="Title, author, keywords and file details")
@@ -301,7 +304,7 @@ class MainWindow(QMainWindow):
         m.addSeparator()
         m.addActions([self.act_copy_text, self.act_duplicate, self.act_delete, self.act_select_all, self.act_deselect])
         m.addSeparator()
-        m.addAction(self.act_edit_text)
+        m.addActions([self.act_edit_text, self.act_edit_para])
         m.addSeparator()
         m.addActions([self.act_find, self.act_find_next, self.act_find_prev])
         m.addSeparator()
@@ -349,7 +352,7 @@ class MainWindow(QMainWindow):
         m.addSeparator()
         m.addActions([self.act_tool_crop, self.act_crop, self.act_uncrop])
         m.addSeparator()
-        m.addActions([self.act_numbers, self.act_watermark])
+        m.addActions([self.act_numbers, self.act_watermark, self.act_labels])
 
         m = mb.addMenu("&Document")
         m.addActions([self.act_properties, self.act_security, self.act_resources, self.act_attach])
@@ -500,6 +503,8 @@ class MainWindow(QMainWindow):
         self.act_dist_v.setEnabled(len(objs) >= 3)
         self.act_copy_text.setEnabled(any(o.kind == "text" for o in objs))
         self.act_edit_text.setEnabled(len(objs) >= 1 and all(o.kind == "text" for o in objs))
+        self.act_edit_para.setEnabled(len(objs) >= 1 and all(o.kind == "text" for o in objs))
+        self.act_labels.setEnabled(has)
         self.act_del_page.setEnabled(has and n > 1)
         self.act_move_up.setEnabled(has and self.canvas.page_index > 0)
         self.act_move_down.setEnabled(has and self.canvas.page_index < n - 1)
@@ -552,12 +557,12 @@ class MainWindow(QMainWindow):
         hints = {
             TOOL_SELECT: "Click to select · drag to move · Shift+click to add · handles resize · double-click text to edit · Ctrl+wheel zooms",
             TOOL_NODE: "Drag anchors (squares) and control points (circles) · Esc returns to Select",
-            TOOL_TEXT: "Click text to edit the line · click empty space to add new text · Enter applies · Esc cancels",
+            TOOL_TEXT: "Click text to edit the line · Ctrl+E edits the paragraph · click or drag on empty space for new text · Enter applies · Esc cancels",
             TOOL_HAND: "Drag to pan · Ctrl+wheel zooms",
             TOOL_RECT: "Drag to draw a rectangle · Shift for a square",
             TOOL_ELLIPSE: "Drag to draw an ellipse · Shift for a circle",
             TOOL_LINE: "Drag to draw a line · Shift snaps to 45°",
-            TOOL_PEN: "Click to add points · double-click or Enter to finish · click the first point to close · Esc cancels",
+            TOOL_PEN: "Click for corners, click-and-drag for curves · double-click or Enter finishes · click the first point to close · Esc cancels",
             TOOL_NOTE: "Click on the page to add a sticky note, then type its text in the Inspector",
             TOOL_CROP: "Drag a rectangle to crop the page to that area (content outside is hidden, not deleted)",
             TOOL_REDACT: "Drag a rectangle to permanently remove everything inside it",
@@ -1125,6 +1130,17 @@ class MainWindow(QMainWindow):
     def edit_selected_text(self) -> None:
         if len(self.canvas.selection) >= 1:
             self.canvas.begin_text_edit(self.canvas.selection[0])
+
+    def edit_selected_paragraph(self) -> None:
+        if len(self.canvas.selection) >= 1:
+            self.canvas.begin_paragraph_edit(self.canvas.selection[0])
+
+    def edit_page_labels(self) -> None:
+        if not self.doc:
+            return
+        dlg = PageLabelsDialog(self.doc.page_count, self.doc.page_label_rules(), self)
+        if dlg.exec() == PageLabelsDialog.DialogCode.Accepted:
+            self.doc.set_page_label_rules(dlg.rules())
 
     def _toggle_scale_stroke(self, on: bool) -> None:
         self.canvas.scale_stroke = on
