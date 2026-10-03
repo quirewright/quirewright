@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feature checklist · Quirewright</title>
+<meta name="description" content="Quirewright is a free and open-source PDF editor for Linux that edits page content as vector objects and manages pages, forms and comments.">
+<meta property="og:title" content="Feature checklist · Quirewright">
+<meta property="og:description" content="Quirewright is a free and open-source PDF editor for Linux that edits page content as vector objects and manages pages, forms and comments.">
+<meta property="og:image" content="https://quirewright.github.io/quirewright/static/img/hero-light.png">
+<meta property="og:type" content="website">
+<link rel="icon" href="static/img/quirewright.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500..700,0..100&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=0.1.0">
+<script>
+  try { var t = localStorage.getItem('qw-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="static/img/quirewright.svg" alt="" width="34" height="34">Quirewright</a>
+    <button class="theme-btn nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <nav class="nav-links" id="navLinks">
+      <a href="./#features">Features</a>
+      <a href="download.html">Download</a>
+      <a href="guide.html">User guide</a>
+      <a href="features.html">Checklist</a>
+      <a href="https://github.com/quirewright/quirewright">GitHub</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle light or dark theme" title="Toggle theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<main id="main">
+<div class="wrap doc">
+  <aside class="toc">
+    <div class="toc-title">On this page</div>
+    <div class="toc">
+<ul>
+<li><a href="#viewing-navigation">Viewing &amp; navigation</a></li>
+<li><a href="#content-editing-inkscape-like">Content editing (Inkscape-like)</a></li>
+<li><a href="#pages">Pages</a></li>
+<li><a href="#forms">Forms</a></li>
+<li><a href="#annotations-comments">Annotations (comments)</a></li>
+<li><a href="#document">Document</a></li>
+<li><a href="#quality-of-life">Quality of life</a></li>
+</ul>
+</div>
+
+  </aside>
+  <article class="prose">
+    <h1 id="feature-checklist">Feature checklist</h1><p class="doc-meta">Quirewright 0.1.0 · updated 2026-10-03</p>
+<p>What people expect from a desktop PDF editor, and where this project stands.
+Checked items are implemented and covered by tests.</p>
+<h2 id="viewing-navigation">Viewing &amp; navigation</h2>
+<ul>
+<li><span class="check" aria-label="done">✓</span> Open PDFs (including password-protected), drag-and-drop, recent files</li>
+<li><span class="check" aria-label="done">✓</span> Zoom (in/out/fit page/fit width/actual size, Ctrl+wheel), pan (Hand tool, middle mouse)</li>
+<li><span class="check" aria-label="done">✓</span> Page thumbnails with multi-select and drag-to-reorder</li>
+<li><span class="check" aria-label="done">✓</span> Go to page by number, first/previous/next/last</li>
+<li><span class="check" aria-label="done">✓</span> Outline (bookmarks) panel with add/rename/delete</li>
+<li><span class="check" aria-label="done">✓</span> Find text (Ctrl+F) with hit highlighting and next/previous across pages</li>
+<li><span class="check" aria-label="done">✓</span> Light and dark themes, system theme detection</li>
+<li><span class="check" aria-label="done">✓</span> Welcome screen when no document is open</li>
+<li><span class="check" aria-label="done">✓</span> Continuous (multi-page) scrolling view (single-page mode available)</li>
+<li><span class="check" aria-label="done">✓</span> Tabs for several open documents</li>
+</ul>
+<h2 id="content-editing-inkscape-like">Content editing (Inkscape-like)</h2>
+<ul>
+<li><span class="check" aria-label="done">✓</span> Select objects on the rendered page (click, Shift+click, rubber band)</li>
+<li><span class="check" aria-label="done">✓</span> Move, resize with handles, rotate, exact geometry in the Inspector</li>
+<li><span class="check" aria-label="done">✓</span> Edit path nodes and bezier handles</li>
+<li><span class="check" aria-label="done">✓</span> Fill / stroke colour, stroke width, toggle fill or stroke</li>
+<li><span class="check" aria-label="done">✓</span> Edit text in place (whole visual line), size, colour; font substitution when glyphs are missing</li>
+<li><span class="check" aria-label="done">✓</span> Draw rectangles, ellipses, lines, polylines; add text; insert images</li>
+<li><span class="check" aria-label="done">✓</span> Duplicate, bring to front / send to back, flip horizontal / vertical</li>
+<li><span class="check" aria-label="done">✓</span> Align (left/centre/right/top/middle/bottom) and distribute multiple objects</li>
+<li><span class="check" aria-label="done">✓</span> Copy selected text to the clipboard</li>
+<li><span class="check" aria-label="done">✓</span> Nudge with arrow keys, delete, undo/redo for everything</li>
+<li><span class="check" aria-label="done">✓</span> Multi-line text boxes with wrapping; paragraph editing with re-wrap</li>
+<li><span class="check" aria-label="done">✓</span> Curves in the Pen tool (click-drag for handles)</li>
+<li><span class="check" aria-label="done">✓</span> Grouping (as form XObjects) and editing inside any form XObject, nested</li>
+<li><span class="check" aria-label="done">✓</span> Snapping to page, objects, guides and grid; rulers; draggable guides</li>
+</ul>
+<h2 id="pages">Pages</h2>
+<ul>
+<li><span class="check" aria-label="done">✓</span> Rotate, delete, duplicate, move, reverse order</li>
+<li><span class="check" aria-label="done">✓</span> Insert blank pages (paper sizes) or pages from another PDF (ranges)</li>
+<li><span class="check" aria-label="done">✓</span> Extract pages to a file, split document into chunks</li>
+<li><span class="check" aria-label="done">✓</span> Crop by margins, crop to a dragged rectangle, reset crop</li>
+<li><span class="check" aria-label="done">✓</span> Add page numbers (position, format, start value, range)</li>
+<li><span class="check" aria-label="done">✓</span> Add a text watermark (opacity, rotation, size, colour)</li>
+<li><span class="check" aria-label="done">✓</span> Export a page as PNG / JPEG / SVG</li>
+<li><span class="check" aria-label="done">✓</span> Page labels (roman numerals, letters, prefixes)</li>
+<li><span class="todo" aria-label="planned">○</span> N-up / booklet imposition</li>
+</ul>
+<h2 id="forms">Forms</h2>
+<ul>
+<li><span class="check" aria-label="done">✓</span> Create text fields, checkboxes, radio buttons, dropdowns, list boxes, push buttons</li>
+<li><span class="check" aria-label="done">✓</span> Move, resize, delete fields; edit name, value, options, fonts, colours, flags</li>
+<li><span class="check" aria-label="done">✓</span> Fill forms (set values)</li>
+<li><span class="check" aria-label="done">✓</span> Flatten forms and annotations into page content</li>
+<li><span class="check" aria-label="done">✓</span> Radio buttons (shared name = group; created via a checkbox workaround for a PyMuPDF limitation)</li>
+<li><span class="check" aria-label="done">✓</span> Calculation, format and validation scripts (Acrobat-compatible), evaluated locally for preview</li>
+</ul>
+<h2 id="annotations-comments">Annotations (comments)</h2>
+<ul>
+<li><span class="check" aria-label="done">✓</span> Highlight, underline, strike-out text (drag over words)</li>
+<li><span class="check" aria-label="done">✓</span> Sticky notes with editable contents and colour</li>
+<li><span class="check" aria-label="done">✓</span> Select, move (notes), delete annotations; flatten</li>
+<li><span class="todo" aria-label="planned">○</span> Free-hand ink, shapes, free text, stamps, replies</li>
+</ul>
+<h2 id="document">Document</h2>
+<ul>
+<li><span class="check" aria-label="done">✓</span> Metadata editing (title, author, subject, keywords, creator, producer, dates)</li>
+<li><span class="check" aria-label="done">✓</span> Security: set user/owner passwords, permissions, AES-256; remove security</li>
+<li><span class="check" aria-label="done">✓</span> Resources browser: images, fonts, attachments — extract any of them</li>
+<li><span class="check" aria-label="done">✓</span> Attach files to the document, remove attachments</li>
+<li><span class="check" aria-label="done">✓</span> Reduce file size (garbage collection, stream compression, image recompression)</li>
+<li><span class="check" aria-label="done">✓</span> Redact an area (removes underlying text and images)</li>
+<li><span class="check" aria-label="done">✓</span> Print</li>
+<li><span class="check" aria-label="done">✓</span> Digital signatures: sign with PKCS#12 certificates (invisible, visible stamp, or existing field), create self-signed certificates, verify signatures, personal trust store</li>
+<li><span class="check" aria-label="done">✓</span> OCR via Tesseract (invisible text layer)</li>
+</ul>
+<h2 id="quality-of-life">Quality of life</h2>
+<ul>
+<li><span class="check" aria-label="done">✓</span> Keyboard shortcuts for every tool; shortcut reference dialog; in-app help viewer (F1)</li>
+<li><span class="check" aria-label="done">✓</span> Preferences: theme, units (pt / mm / in), stroke scaling</li>
+<li><span class="check" aria-label="done">✓</span> Status bar hints per tool, unsaved-changes guard, save-in-place safety (atomic write)</li>
+<li><span class="check" aria-label="done">✓</span> Desktop integration files (launcher, icon); AppImage and Flatpak packaging; CI with lint and cross-platform tests</li>
+<li><span class="todo" aria-label="planned">○</span> Autosave / crash recovery</li>
+<li><span class="check" aria-label="done">✓</span> Localisation (gettext; complete German, French and Spanish catalogues; Qt dialog translations)</li>
+</ul>
+  </article>
+</div>
+
+</main>
+<footer>
+  <div class="wrap">
+    <span>Quirewright 0.1.0 · GNU AGPL-3.0-or-later · built on PySide6 and MuPDF</span>
+    <span><a href="https://github.com/quirewright/quirewright">Source</a> · <a href="https://github.com/quirewright/quirewright/issues">Issues</a> · <a href="https://github.com/quirewright/quirewright/blob/main/CONTRIBUTING.md">Contributing</a> · <a href="https://github.com/quirewright/quirewright/blob/main/SECURITY.md">Security</a> · <a href="https://github.com/quirewright/quirewright/blob/main/CHANGELOG.md">Changelog</a></span>
+  </div>
+</footer>
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('themeBtn');
+    btn.addEventListener('click', function () {
+      var dark = root.getAttribute('data-theme') === 'dark' ||
+        (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+      var next = dark ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('qw-theme', next); } catch (e) {}
+    });
+    var tog = document.getElementById('navToggle'), links = document.getElementById('navLinks');
+    tog.addEventListener('click', function () {
+      var open = links.classList.toggle('open');
+      tog.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    var toc = document.querySelector('.toc');
+    if (toc && 'IntersectionObserver' in window) {
+      var map = {}, anchors = toc.querySelectorAll('a[href^="#"]');
+      anchors.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+      var heads = document.querySelectorAll('.prose h2[id], .prose h3[id]');
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) {
+            anchors.forEach(function (a) { a.classList.remove('active'); });
+            var a = map[en.target.id]; if (a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-80px 0px -70% 0px' });
+      heads.forEach(function (h) { obs.observe(h); });
+    }
+  })();
+</script>
+</body>
+</html>

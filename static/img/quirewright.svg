@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Quirewright: three offset folded sheets (a quire) with a bookbinder's awl. Oxblood / parchment / brass. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8A2634"/>
+      <stop offset="1" stop-color="#6A1A25"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E2B95A"/>
+      <stop offset="0.55" stop-color="#C08F2E"/>
+      <stop offset="1" stop-color="#8F651B"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F2EFE8"/>
+      <stop offset="1" stop-color="#AFA99C"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="26" fill="url(#bg)"/>
+  <!-- The quire: each sheet is 72 wide and 60 tall with a 12-deep fold, stepped up and to the right. The stack spans 18..110 x 16..108, centred on the tile. -->
+  <g stroke="#4E1119" stroke-width="2" stroke-linejoin="round">
+    <path d="M18 36 L54 48 L90 36 L90 96 L54 108 L18 96 Z" fill="#DCCBA5"/>
+    <path d="M28 26 L64 38 L100 26 L100 86 L64 98 L28 86 Z" fill="#EADBB9"/>
+    <path d="M38 16 L74 28 L110 16 L110 76 L74 88 L38 76 Z" fill="#F6ECD6"/>
+  </g>
+  <path d="M74 28 L74 88" stroke="#C4AE85" stroke-width="2" stroke-linecap="round"/>
+  <path d="M46 34 L68 41 M46 44 L68 51 M46 54 L68 61 M80 41 L102 34 M80 51 L102 44 M80 61 L102 54" stroke="#C4AE85" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
+  <!-- The awl lies across the lower right of the stack: a short steel point, a brass ferrule and a rounded handle. -->
+  <g transform="translate(-4 -4) rotate(40 84 92)">
+    <path d="M52 92 L68 86.5 L68 97.5 Z" fill="url(#steel)" stroke="#4E1119" stroke-width="1.5" stroke-linejoin="round"/>
+    <rect x="67" y="85" width="9" height="14" rx="2" fill="url(#brass)" stroke="#5F4414" stroke-width="1.5"/>
+    <rect x="75" y="83" width="38" height="18" rx="9" fill="url(#brass)" stroke="#5F4414" stroke-width="1.5"/>
+    <path d="M82 87.5 L106 87.5" stroke="#F3DC9A" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+  </g>
+</svg>

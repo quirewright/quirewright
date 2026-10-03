@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>User guide · Quirewright</title>
+<meta name="description" content="Quirewright is a free and open-source PDF editor for Linux that edits page content as vector objects and manages pages, forms and comments.">
+<meta property="og:title" content="User guide · Quirewright">
+<meta property="og:description" content="Quirewright is a free and open-source PDF editor for Linux that edits page content as vector objects and manages pages, forms and comments.">
+<meta property="og:image" content="https://quirewright.github.io/quirewright/static/img/hero-light.png">
+<meta property="og:type" content="website">
+<link rel="icon" href="static/img/quirewright.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500..700,0..100&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=0.1.0">
+<script>
+  try { var t = localStorage.getItem('qw-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="static/img/quirewright.svg" alt="" width="34" height="34">Quirewright</a>
+    <button class="theme-btn nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <nav class="nav-links" id="navLinks">
+      <a href="./#features">Features</a>
+      <a href="download.html">Download</a>
+      <a href="guide.html">User guide</a>
+      <a href="features.html">Checklist</a>
+      <a href="https://github.com/quirewright/quirewright">GitHub</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle light or dark theme" title="Toggle theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<main id="main">
+<div class="wrap doc">
+  <aside class="toc">
+    <div class="toc-title">On this page</div>
+    <div class="toc">
+<ul>
+<li><a href="#the-window">The window</a></li>
+<li><a href="#opening-saving-security">Opening, saving, security</a></li>
+<li><a href="#selecting-and-editing-objects">Selecting and editing objects</a><ul>
+<li><a href="#groups">Groups</a></li>
+<li><a href="#editing-text">Editing text</a></li>
+<li><a href="#editing-shapes-nodes">Editing shapes (nodes)</a></li>
+</ul>
+</li>
+<li><a href="#creating-objects">Creating objects</a></li>
+<li><a href="#pages">Pages</a></li>
+<li><a href="#forms">Forms</a></li>
+<li><a href="#comments">Comments</a></li>
+<li><a href="#snapping-guides-and-grid">Snapping, guides and grid</a></li>
+<li><a href="#find">Find</a></li>
+<li><a href="#resources-and-attachments">Resources and attachments</a></li>
+<li><a href="#digital-signatures">Digital signatures</a></li>
+<li><a href="#recognizing-text-in-scans-ocr">Recognizing text in scans (OCR)</a></li>
+<li><a href="#redaction">Redaction</a></li>
+<li><a href="#language">Language</a></li>
+<li><a href="#preferences">Preferences</a></li>
+<li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
+<li><a href="#installing-a-launcher-linux">Installing a launcher (Linux)</a></li>
+</ul>
+</div>
+
+  </aside>
+  <article class="prose">
+    <h1 id="user-guide">User guide</h1><p class="doc-meta">Quirewright 0.1.0 · updated 2026-10-03</p>
+<p>Quirewright edits the <em>content</em> of PDF pages the way a vector
+drawing program edits shapes, and manages pages, forms and comments the way a
+PDF tool does. This guide walks through the interface and every feature.</p>
+<h2 id="the-window">The window</h2>
+<p><img alt="The main window with its parts numbered" src="static/img/window.png" loading="lazy" /></p>
+<ol>
+<li><strong>Menu bar</strong>.</li>
+<li><strong>Toolbar</strong>: file, undo/redo, the selection, node, text and hand tools, drawing tools, form fields, comments, zoom and page navigation, and the panel and theme toggles.</li>
+<li><strong>Navigation</strong> panel with the Pages and Bookmarks tabs.</li>
+<li><strong>Document tabs</strong>, one per open file.</li>
+<li><strong>Find bar</strong> (Ctrl+F).</li>
+<li><strong>Rulers</strong>.</li>
+<li><strong>Page canvas</strong>.</li>
+<li><strong>Inspector</strong>.</li>
+<li><strong>Status bar</strong>.</li>
+</ol>
+<ul>
+<li><strong>Tabs</strong>: every open document has its own tab above the canvas. Ctrl+Tab
+  and Ctrl+Shift+Tab switch, the × closes (asking to save first), and files
+  dropped on the window open in new tabs.</li>
+<li><strong>Rulers</strong> frame the canvas in your preferred units (Preferences). Drag
+  from a ruler onto the page to create a guide.</li>
+<li><strong>Navigation</strong> (left): page thumbnails you can multi-select and drag to
+  reorder, and a Bookmarks tab for the document outline.</li>
+<li><strong>Canvas</strong> (centre): all pages in one scrolling column (or one page at a
+  time with View › Continuous Scrolling off), rendered exactly as other
+  viewers render it. Everything on it can be selected; the page you click or
+  scroll to becomes the active page for editing.</li>
+<li><strong>Inspector</strong> (right): shows details for whatever is selected and lets you
+  change them. With nothing selected it shows page and document information,
+  or the style for new objects when a drawing tool is active.</li>
+</ul>
+<p>Both side panels can be hidden from the View menu or the toolbar.</p>
+<h2 id="opening-saving-security">Opening, saving, security</h2>
+<ul>
+<li><strong>Open</strong>: File › Open, drag a PDF onto the window, the welcome screen, or
+  pass a path on the command line (<code>quirewright file.pdf</code>).</li>
+<li>Encrypted files ask for their password.</li>
+<li><strong>Save</strong> writes to the same file atomically (a temporary file is written
+  first and then swapped in). <strong>Save As</strong> writes elsewhere.</li>
+<li><strong>Save Reduced Size Copy</strong> rewrites images at up to 150 dpi, recompresses
+  streams and removes unused objects.</li>
+<li><strong>Document › Security</strong> sets an <em>open password</em> (needed to open the file),
+  an <em>owner password</em> (needed to change permissions) and the permissions
+  granted to readers. Choose "No password or restrictions" to remove existing
+  security. Changes take effect when you save.</li>
+<li><strong>Document › Properties</strong> edits title, author, subject, keywords, creator,
+  producer and dates, and shows file details (PDF version, size, encryption,
+  attachments, whether the file contains a form).</li>
+</ul>
+<h2 id="selecting-and-editing-objects">Selecting and editing objects</h2>
+<p>Use the <strong>Select</strong> tool (S):</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Select</td>
+<td>click an object; Shift+click adds or removes; drag on empty space for a rubber band; Ctrl+A selects all</td>
+</tr>
+<tr>
+<td>Move</td>
+<td>drag the selection, or use the arrow keys (Shift = 10 pt)</td>
+</tr>
+<tr>
+<td>Resize</td>
+<td>drag a handle; corners keep the aspect ratio, hold Shift to stretch freely</td>
+</tr>
+<tr>
+<td>Rotate</td>
+<td>enter an angle in the Inspector, or Object › Rotate Selection 90°</td>
+</tr>
+<tr>
+<td>Exact geometry</td>
+<td>type X, Y, W, H in the Inspector (units are configurable in Preferences)</td>
+</tr>
+<tr>
+<td>Colours</td>
+<td>Inspector › Fill &amp; Stroke: toggle fill/stroke, pick colours, set stroke width</td>
+</tr>
+<tr>
+<td>Duplicate</td>
+<td>Ctrl+Shift+D</td>
+</tr>
+<tr>
+<td>Order</td>
+<td>Object › Bring to Front / Send to Back</td>
+</tr>
+<tr>
+<td>Align / distribute</td>
+<td>Object › Align (a single object aligns to the page)</td>
+</tr>
+<tr>
+<td>Flip</td>
+<td>Object › Flip Horizontal / Vertical</td>
+</tr>
+<tr>
+<td>Copy text</td>
+<td>Ctrl+C copies the text of selected text objects</td>
+</tr>
+<tr>
+<td>Delete</td>
+<td>Delete or Backspace</td>
+</tr>
+</tbody>
+</table>
+<p>Everything is undoable (Ctrl+Z / Ctrl+Shift+Z).</p>
+<h3 id="groups">Groups</h3>
+<p>Select several objects and press Ctrl+G to <strong>group</strong> them. A group is stored
+as a PDF <em>form XObject</em>, so it is a real part of the file and survives in any
+viewer. Groups move, resize and duplicate as one object. Ctrl+Shift+G
+<strong>ungroups</strong> (the objects are placed back into the page).</p>
+<p>To change something <em>inside</em> a group, or inside any form XObject that a
+document already contains (logos, imported drawings, headers and footers),
+double-click it or press Ctrl+Enter to <strong>enter</strong> it. The rest of the page is
+dimmed, the Inspector and all tools now work on the group's own objects, and
+you can even add new shapes or text to it. Press Esc, double-click empty
+space, or use Object › Exit Group to leave. Note that a form XObject reused
+on several pages changes everywhere it is used.</p>
+<h3 id="editing-text">Editing text</h3>
+<p>Double-click a line of text, press Enter or F2 with it selected, or use the
+<strong>Text</strong> tool (T) and click it. An inline editor opens with the whole visual
+line (PDFs often split lines into several pieces; the editor merges them).
+Enter applies, Esc cancels. The Inspector also offers a text field, size and
+colour.</p>
+<p><strong>Paragraphs.</strong> Select any line and press Ctrl+E (or Edit › Edit Paragraph,
+or the <em>Edit paragraph…</em> button in the Inspector) to edit all the lines of
+the paragraph at once in a multi-line editor. Ctrl+Enter applies: the text
+is re-wrapped to the paragraph's original width and line spacing.</p>
+<p>Text is re-encoded with the document's own font whenever possible. Embedded
+fonts are usually <em>subsets</em> that only contain the glyphs already used in the
+file; if you type a character the subset lacks, the editor substitutes a
+built-in font with the same weight and style and tells you in the status bar.</p>
+<h3 id="editing-shapes-nodes">Editing shapes (nodes)</h3>
+<p>Double-click a shape, or select it and press N, to enter the <strong>Node</strong> tool.
+Square handles are anchor points, circles are bezier control points; drag
+them. Esc returns to the Select tool.</p>
+<h2 id="creating-objects">Creating objects</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Key</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rectangle</td>
+<td>R</td>
+<td>drag; Shift for a square</td>
+</tr>
+<tr>
+<td>Ellipse</td>
+<td>E</td>
+<td>drag; Shift for a circle</td>
+</tr>
+<tr>
+<td>Line</td>
+<td>L</td>
+<td>drag; Shift snaps to 45°</td>
+</tr>
+<tr>
+<td>Pen</td>
+<td>P</td>
+<td>click for corner points, click-and-drag for smooth curves (the drag sets the handle); Enter or double-click finishes, clicking the first point closes the shape; Esc cancels</td>
+</tr>
+<tr>
+<td>Text</td>
+<td>T</td>
+<td>click on empty space for a single line (Enter applies), or drag a box for wrapped multi-line text (Ctrl+Enter applies)</td>
+</tr>
+<tr>
+<td>Image</td>
+<td>Ctrl+Shift+M</td>
+<td>choose a file; it is placed in the middle of the view, then move/resize it</td>
+</tr>
+</tbody>
+</table>
+<p>With a drawing tool active and nothing selected, the Inspector shows the
+<strong>New object style</strong>: fill, stroke, width, font, size and text colour.</p>
+<h2 id="pages">Pages</h2>
+<p>Right-click a thumbnail or use the Page menu:</p>
+<ul>
+<li>Rotate 90°/180°, delete, duplicate, move up/down, reverse the order, or drag
+  thumbnails to reorder (multi-select works).</li>
+<li><strong>Insert Blank Page</strong> offers common paper sizes; <strong>Insert Pages from File</strong>
+  takes any page range from another PDF.</li>
+<li><strong>Extract Pages</strong> saves chosen pages to a new file; <strong>Split Document</strong>
+  writes the document as files of N pages each.</li>
+<li><strong>Crop</strong>: use the Crop tool (C) and drag a rectangle, or Crop by Margins.
+  Cropping hides content outside the box; <strong>Reset Crop</strong> restores it.</li>
+<li><strong>Add Page Numbers</strong> and <strong>Add Watermark</strong> stamp text on a range of pages.</li>
+<li><strong>Page Labels</strong> sets how viewers number pages (for example i, ii, iii for
+  the front matter and 1, 2, 3 afterwards, or a prefix such as A-1). Labels
+  are shown under the thumbnails.</li>
+<li><strong>Export › Page as Image</strong> writes PNG, JPEG or SVG; <strong>Export › Text</strong>
+  writes the plain text of all pages.</li>
+</ul>
+<h2 id="forms">Forms</h2>
+<p>Use the form-field toolbar button (F) or Insert › Form Field to add text
+fields, checkboxes, radio buttons, dropdowns, list boxes and push buttons:
+drag to size the field, or click for a default size. Fields are selected,
+moved, resized and deleted like other objects. The Inspector edits the field's
+name, value, options, caption, font size, colours, border and flags
+(read-only, required, multiline). Filling a form is just selecting a field
+and typing its value.</p>
+<p><strong>Calculations and formats.</strong> For text fields and dropdowns the Inspector has
+a <em>Calculation &amp; format</em> section: calculate the field as the sum, product,
+average, minimum or maximum of other fields (type their names), format it as
+a number (decimals, thousands separator, currency), a percentage or a date,
+require a value in a range, or write your own JavaScript. These are stored as
+standard Acrobat-compatible field actions so other viewers run them; the
+editor itself evaluates the built-in calculations as soon as you change a
+value, so the form previews correctly here too.</p>
+<p><strong>Document › Flatten</strong> bakes fields and comments into the page content.</p>
+<h2 id="comments">Comments</h2>
+<p>Insert › Comment (or the comment toolbar button): <strong>Highlight</strong>, <strong>Underline</strong>
+and <strong>Strike Out</strong> work by dragging a rectangle over words; <strong>Sticky Note</strong>
+places a note where you click. Select a comment to edit its author, text,
+icon, colour and opacity in the Inspector, move notes by dragging, and delete
+with the Delete key. Set your name under Edit › Preferences so new comments
+carry it.</p>
+<h2 id="snapping-guides-and-grid">Snapping, guides and grid</h2>
+<p>While you move, resize, draw or edit nodes, the editor snaps to the page
+edges and centre, to the edges and centres of other objects, to guides and,
+if enabled, to a grid. A red dashed line shows what you snapped to. Hold
+<strong>Alt</strong> to move freely. View › Snapping lets you switch snapping as a whole,
+snapping to objects, and snapping to the grid.</p>
+<ul>
+<li><strong>Guides</strong>: drag out of the top ruler for a horizontal guide or out of the
+  left ruler for a vertical one. Drag a guide to move it; drag it off the page
+  to delete it. View › Snapping › Clear Guides removes them all. Guides belong
+  to the page they were created on and are not saved in the PDF.</li>
+<li><strong>Grid</strong>: View › Show Grid draws it; Snap to Grid snaps to it. The spacing
+  and the snap distance are set in Preferences.</li>
+</ul>
+<h2 id="find">Find</h2>
+<p>Ctrl+F opens the find bar. Matches are highlighted on the page; Enter and
+Shift+Enter move between them across all pages.</p>
+<h2 id="resources-and-attachments">Resources and attachments</h2>
+<p><strong>Document › Resources</strong> lists every image (with preview), font (with its type
+and whether it is embedded) and attachment in the file. Select rows and
+extract them to disk; attach new files or remove attachments from the same
+dialog, or use Document › Attach File.</p>
+<h2 id="digital-signatures">Digital signatures</h2>
+<p>Document › Sign Document adds a digital signature. You need a certificate
+with its private key in a PKCS#12 file (.p12/.pfx); if you don't have one,
+<em>Create new…</em> makes a self-signed certificate (readers will see your name and
+that the file is unchanged since signing, but a self-signed certificate is not
+vouched for by a certificate authority, so use one from a trusted provider
+when legal weight matters). Choose a reason and location, and either an
+invisible signature, a visible stamp placed in a corner of the current page,
+or an existing signature field.</p>
+<p><strong>Signature fields.</strong> The Signature Field tool (G, on the toolbar next to the
+comment tools) places a visible "Sign here" box: drag it out or click for a
+default size. The Inspector sets its caption and colours, and <em>Sign this
+field…</em> signs the document into it; other viewers show the same placeholder
+and let their users sign there too. Once signed, the box shows the signature
+stamp instead. Signing
+writes a new file and opens it. Signing is always the last step: saving any
+later edit rewrites the file and invalidates the signature, and the editor
+warns you before that happens.</p>
+<p>Document › Signatures lists every signature with its status: whether the
+document is intact, whether later changes were appended, and whether the
+signer's certificate is trusted. <em>Trust a certificate…</em> adds a certificate
+file to your personal trust store so signatures made with it show as trusted.</p>
+<h2 id="recognizing-text-in-scans-ocr">Recognizing text in scans (OCR)</h2>
+<p>Document › Recognize Text runs the Tesseract engine on scanned pages and
+adds an invisible text layer on top of the image: the page looks exactly the
+same but becomes searchable, selectable and copyable, and the words show up
+as (dashed) text objects you can inspect. Choose the language(s) and
+resolution; pages that already contain text are skipped by default.
+Tesseract and its language packs must be installed on the system (the dialog
+explains how if they are missing).</p>
+<h2 id="redaction">Redaction</h2>
+<p>Document › Redact Area: drag a rectangle; after confirmation the text and
+images inside it are removed from the page (not just covered) and the area is
+painted black. This is destructive by design; undo is available until you
+save.</p>
+<h2 id="language">Language</h2>
+<p>Edit › Preferences › Language switches the interface language (restart to
+apply). Translations live in <code>quirewright/locale/&lt;lang&gt;/LC_MESSAGES</code>; run
+<code>scripts/extract_strings.py</code> to refresh the template and
+<code>scripts/compile_catalogs.py</code> after editing a <code>.po</code> file. German, French and
+Spanish catalogues are included; contributions for other languages are
+welcome.</p>
+<h2 id="preferences">Preferences</h2>
+<p>Edit › Preferences: theme (system, light, dark), units for the Inspector
+(points, millimetres, centimetres, inches), whether stroke widths scale when
+you resize objects, your name for comments, and the zoom used when a file is
+opened.</p>
+<h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
+<p>Help › Keyboard Shortcuts lists everything. The most used:</p>
+<table>
+<thead>
+<tr>
+<th>Keys</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ctrl+O / Ctrl+S / Ctrl+P</td>
+<td>open / save / print</td>
+</tr>
+<tr>
+<td>Ctrl+Z / Ctrl+Shift+Z</td>
+<td>undo / redo</td>
+</tr>
+<tr>
+<td>S, N, T, H</td>
+<td>Select, Node, Text, Hand tools</td>
+</tr>
+<tr>
+<td>R, E, L, P</td>
+<td>Rectangle, Ellipse, Line, Pen tools</td>
+</tr>
+<tr>
+<td>F, C, G</td>
+<td>Form field, Crop, Signature field tools</td>
+</tr>
+<tr>
+<td>Ctrl+F</td>
+<td>find</td>
+</tr>
+<tr>
+<td>PgUp / PgDn</td>
+<td>previous / next page</td>
+</tr>
+<tr>
+<td>Ctrl+0 / Ctrl+1 / Ctrl+2</td>
+<td>fit page / actual size / fit width</td>
+</tr>
+<tr>
+<td>Ctrl+I</td>
+<td>document properties</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+O</td>
+<td>resources (images, fonts, attachments)</td>
+</tr>
+<tr>
+<td>Ctrl+/</td>
+<td>keyboard shortcut reference</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+D</td>
+<td>duplicate selection</td>
+</tr>
+<tr>
+<td>Ctrl+G / Ctrl+Shift+G</td>
+<td>group / ungroup</td>
+</tr>
+<tr>
+<td>Ctrl+Enter / Ctrl+Shift+Enter</td>
+<td>enter / exit a group</td>
+</tr>
+<tr>
+<td>Ctrl+J</td>
+<td>go to page</td>
+</tr>
+<tr>
+<td>Ctrl+E</td>
+<td>edit paragraph</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+C</td>
+<td>toggle continuous scrolling</td>
+</tr>
+<tr>
+<td>Ctrl+Tab / Ctrl+Shift+Tab</td>
+<td>next / previous document tab</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+U</td>
+<td>show rulers</td>
+</tr>
+<tr>
+<td>Ctrl+'</td>
+<td>show grid</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+;</td>
+<td>snapping on/off (hold Alt to bypass while dragging)</td>
+</tr>
+<tr>
+<td>Ctrl+Shift+] / [</td>
+<td>bring to front / send to back</td>
+</tr>
+<tr>
+<td>Ctrl+R / Ctrl+Shift+R</td>
+<td>rotate page clockwise / counter-clockwise</td>
+</tr>
+<tr>
+<td>Esc</td>
+<td>cancel editing, or back to the Select tool</td>
+</tr>
+</tbody>
+</table>
+<h2 id="installing-a-launcher-linux">Installing a launcher (Linux)</h2>
+<pre><code class="language-bash">packaging/install-desktop.sh
+</code></pre>
+<p>installs a desktop entry and icon for the current user so the editor appears
+in application menus and can be chosen for PDF files.</p>
+  </article>
+</div>
+
+</main>
+<footer>
+  <div class="wrap">
+    <span>Quirewright 0.1.0 · GNU AGPL-3.0-or-later · built on PySide6 and MuPDF</span>
+    <span><a href="https://github.com/quirewright/quirewright">Source</a> · <a href="https://github.com/quirewright/quirewright/issues">Issues</a> · <a href="https://github.com/quirewright/quirewright/blob/main/CONTRIBUTING.md">Contributing</a> · <a href="https://github.com/quirewright/quirewright/blob/main/SECURITY.md">Security</a> · <a href="https://github.com/quirewright/quirewright/blob/main/CHANGELOG.md">Changelog</a></span>
+  </div>
+</footer>
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('themeBtn');
+    btn.addEventListener('click', function () {
+      var dark = root.getAttribute('data-theme') === 'dark' ||
+        (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+      var next = dark ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('qw-theme', next); } catch (e) {}
+    });
+    var tog = document.getElementById('navToggle'), links = document.getElementById('navLinks');
+    tog.addEventListener('click', function () {
+      var open = links.classList.toggle('open');
+      tog.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    var toc = document.querySelector('.toc');
+    if (toc && 'IntersectionObserver' in window) {
+      var map = {}, anchors = toc.querySelectorAll('a[href^="#"]');
+      anchors.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+      var heads = document.querySelectorAll('.prose h2[id], .prose h3[id]');
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) {
+            anchors.forEach(function (a) { a.classList.remove('active'); });
+            var a = map[en.target.id]; if (a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-80px 0px -70% 0px' });
+      heads.forEach(function (h) { obs.observe(h); });
+    }
+  })();
+</script>
+</body>
+</html>

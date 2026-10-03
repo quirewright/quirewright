@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download · Quirewright</title>
+<meta name="description" content="Quirewright is a free and open-source PDF editor for Linux that edits page content as vector objects and manages pages, forms and comments.">
+<meta property="og:title" content="Download · Quirewright">
+<meta property="og:description" content="Quirewright is a free and open-source PDF editor for Linux that edits page content as vector objects and manages pages, forms and comments.">
+<meta property="og:image" content="https://quirewright.github.io/quirewright/static/img/hero-light.png">
+<meta property="og:type" content="website">
+<link rel="icon" href="static/img/quirewright.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500..700,0..100&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=0.1.0">
+<script>
+  try { var t = localStorage.getItem('qw-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="static/img/quirewright.svg" alt="" width="34" height="34">Quirewright</a>
+    <button class="theme-btn nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <nav class="nav-links" id="navLinks">
+      <a href="./#features">Features</a>
+      <a href="download.html">Download</a>
+      <a href="guide.html">User guide</a>
+      <a href="features.html">Checklist</a>
+      <a href="https://github.com/quirewright/quirewright">GitHub</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle light or dark theme" title="Toggle theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<main id="main">
+<section id="install" class="install download">
+  <div class="wrap">
+    <div class="warning" role="note">
+      <strong>Please read before downloading.</strong> This software was fully developed by AI. Its human testing and human code review has been extremely limited. This software comes with no guarantees and no warranties and should not be relied upon for any critical applications. It is released to the public in hopes that it can be useful for others. Download and use is covered under the terms of the GNU AGPL License (see <a href="https://github.com/quirewright/quirewright/blob/main/LICENSE">LICENSE</a> for more info). We welcome bug reports and contributions. See <a href="https://github.com/quirewright/quirewright/blob/main/CONTRIBUTING.md">CONTRIBUTING</a> for more information.
+    </div>
+    <div class="section-head">
+      <h2>Download and install</h2>
+      <p>Quirewright is packaged for Linux. The libraries it uses also run on Windows and macOS and the source install should work there, but neither platform has been tested.</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>AppImage</h3>
+        <p>A single file for x86_64 Linux. Download it from the <a href="https://github.com/quirewright/quirewright/releases/latest">latest release</a>, then:</p>
+        <pre><code>chmod +x Quirewright-*.AppImage
+./Quirewright-*.AppImage</code></pre>
+      </div>
+      <div class="card">
+        <h3>Flatpak</h3>
+        <p>Build from the manifest in the repository (sandboxed, with the Qt base app from Flathub):</p>
+        <pre><code>flatpak run org.flatpak.Builder --user --install \
+  --force-clean build-dir \
+  packaging/flatpak/io.github.quirewright.Quirewright.yml
+flatpak run io.github.quirewright.Quirewright</code></pre>
+      </div>
+      <div class="card">
+        <h3>From source</h3>
+        <p>Python 3.11 or newer. Tesseract is optional and only needed for OCR.</p>
+        <pre><code>git clone https://github.com/quirewright/quirewright.git
+cd quirewright
+python -m venv .venv
+.venv/bin/pip install -e .
+.venv/bin/quirewright file.pdf</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <div class="wrap">
+    <span>Quirewright 0.1.0 · GNU AGPL-3.0-or-later · built on PySide6 and MuPDF</span>
+    <span><a href="https://github.com/quirewright/quirewright">Source</a> · <a href="https://github.com/quirewright/quirewright/issues">Issues</a> · <a href="https://github.com/quirewright/quirewright/blob/main/CONTRIBUTING.md">Contributing</a> · <a href="https://github.com/quirewright/quirewright/blob/main/SECURITY.md">Security</a> · <a href="https://github.com/quirewright/quirewright/blob/main/CHANGELOG.md">Changelog</a></span>
+  </div>
+</footer>
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('themeBtn');
+    btn.addEventListener('click', function () {
+      var dark = root.getAttribute('data-theme') === 'dark' ||
+        (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+      var next = dark ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('qw-theme', next); } catch (e) {}
+    });
+    var tog = document.getElementById('navToggle'), links = document.getElementById('navLinks');
+    tog.addEventListener('click', function () {
+      var open = links.classList.toggle('open');
+      tog.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    var toc = document.querySelector('.toc');
+    if (toc && 'IntersectionObserver' in window) {
+      var map = {}, anchors = toc.querySelectorAll('a[href^="#"]');
+      anchors.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+      var heads = document.querySelectorAll('.prose h2[id], .prose h3[id]');
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) {
+            anchors.forEach(function (a) { a.classList.remove('active'); });
+            var a = map[en.target.id]; if (a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-80px 0px -70% 0px' });
+      heads.forEach(function (h) { obs.observe(h); });
+    }
+  })();
+</script>
+</body>
+</html>
