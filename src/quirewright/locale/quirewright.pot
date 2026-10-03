@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: quirewright\n"
-"POT-Creation-Date: 2026-10-03 12:54-0400\n"
+"POT-Creation-Date: 2026-10-03 13:03-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -322,7 +322,7 @@ msgstr ""
 msgid "Author"
 msgstr ""
 
-#: ui/help.py:70
+#: ui/help.py:123
 msgid "Back (Alt+Left)"
 msgstr ""
 
@@ -970,7 +970,7 @@ msgstr ""
 msgid "Format"
 msgstr ""
 
-#: ui/help.py:73
+#: ui/help.py:126
 msgid "Forward (Alt+Right)"
 msgstr ""
 
@@ -1002,7 +1002,7 @@ msgstr ""
 msgid "How pages are numbered in viewers (i, ii, 1, 2, A-1 …)"
 msgstr ""
 
-#: ui/dialogs.py:348
+#: ui/dialogs.py:349
 msgid "I understand"
 msgstr ""
 
@@ -1238,7 +1238,7 @@ msgstr ""
 msgid "Open password"
 msgstr ""
 
-#: ui/help.py:91
+#: ui/help.py:144
 msgid "Open the guide in your default Markdown viewer"
 msgstr ""
 
@@ -1330,7 +1330,7 @@ msgstr ""
 msgid "Please enter your name."
 msgstr ""
 
-#: ui/dialogs.py:326
+#: ui/dialogs.py:327
 msgid "Please read before using {app}"
 msgstr ""
 
@@ -1566,7 +1566,7 @@ msgstr ""
 msgid "Scripts are stored as PDF JavaScript actions (Acrobat-compatible). Sum/product/average/min/max are also evaluated here when you fill in values."
 msgstr ""
 
-#: ui/help.py:78
+#: ui/help.py:131
 msgid "Search the guide…  (Enter: next, Shift+Enter: previous)"
 msgstr ""
 
@@ -1846,7 +1846,7 @@ msgstr ""
 msgid "This field is signed. Use Document › Signatures to verify it."
 msgstr ""
 
-#: ui/dialogs.py:343
+#: ui/dialogs.py:344
 msgid "This notice is shown once. The same text is in the README."
 msgstr ""
 

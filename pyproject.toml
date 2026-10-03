@@ -33,7 +33,7 @@ quirewright = "quirewright.app:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-quirewright = ["assets/*.svg", "help/*.md", "locale/*.pot", "locale/*/LC_MESSAGES/*.po", "locale/*/LC_MESSAGES/*.mo"]
+quirewright = ["assets/*.svg", "help/*.md", "help/*.png", "locale/*.pot", "locale/*/LC_MESSAGES/*.po", "locale/*/LC_MESSAGES/*.mo"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

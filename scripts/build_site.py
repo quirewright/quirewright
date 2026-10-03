@@ -102,7 +102,12 @@ def build(out: str) -> None:
     doc_tpl = read(os.path.join(SITE, "templates", "doc.html"))
     stamp = f'<p class="doc-meta">Quirewright {html.escape(ver)} · updated {git_date()}</p>'
 
-    body, toc = md_to_html(read(os.path.join(ROOT, "src", "quirewright", "help", "USER_GUIDE.md")))
+    help_dir = os.path.join(ROOT, "src", "quirewright", "help")
+    for name in os.listdir(help_dir):
+        if name.endswith((".png", ".jpg", ".svg")):
+            shutil.copy(os.path.join(help_dir, name), os.path.join(out, "static", "img", name))
+    body, toc = md_to_html(read(os.path.join(help_dir, "USER_GUIDE.md")))
+    body = re.sub(r'<img alt="([^"]*)" src="(?!https?://|static/)([^"]+)"', r'<img alt="\1" src="static/img/\2" loading="lazy"', body)
     body = body.replace("</h1>", "</h1>" + stamp, 1)
     page("guide.html", "User guide · Quirewright", render(doc_tpl, body=body, toc=toc))
 

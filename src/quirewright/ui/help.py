@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 
 from PySide6.QtCore import QSize, Qt, QUrl
-from PySide6.QtGui import QDesktopServices, QFont, QKeySequence, QShortcut, QTextCursor, QTextDocument
+from PySide6.QtGui import QDesktopServices, QFont, QImage, QKeySequence, QShortcut, QTextCursor, QTextDocument
 from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
@@ -23,7 +23,60 @@ from quirewright import APP_NAME
 from quirewright.i18n import tr
 from quirewright.ui import theme
 
-GUIDE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "help", "USER_GUIDE.md")
+HELP_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "help")
+GUIDE_PATH = os.path.join(HELP_DIR, "USER_GUIDE.md")
+
+
+class GuideBrowser(QTextBrowser):
+    """QTextBrowser that loads images from the help directory and fits them to the viewport width."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._natural: dict[str, tuple[int, int]] = {}
+
+    def loadResource(self, kind: int, url: QUrl):
+        if kind == QTextDocument.ResourceType.ImageResource:
+            path = url.toLocalFile() if url.isLocalFile() else os.path.join(HELP_DIR, url.toString())
+            image = QImage(path)
+            if not image.isNull():
+                self._natural[url.toString()] = (image.width(), image.height())
+                return image
+        return super().loadResource(kind, url)
+
+    def fit_images(self) -> None:
+        """Give every image a width no larger than the viewport (keeping its aspect ratio)."""
+        doc = self.document()
+        avail = self.viewport().width() - 2 * int(doc.documentMargin()) - 8
+        if avail < 100:
+            return
+        cursor = QTextCursor(doc)
+        block = doc.begin()
+        while block.isValid():
+            it = block.begin()
+            while not it.atEnd():
+                frag = it.fragment()
+                fmt = frag.charFormat()
+                if fmt.isImageFormat():
+                    img = fmt.toImageFormat()
+                    natural = self._natural.get(img.name())
+                    if natural is None:
+                        self.loadResource(QTextDocument.ResourceType.ImageResource, QUrl(img.name()))
+                        natural = self._natural.get(img.name())
+                    if natural:
+                        w = min(avail, natural[0])
+                        if int(img.width()) != w:
+                            img.setWidth(w)
+                            img.setHeight(round(w * natural[1] / natural[0]))
+                            cursor.setPosition(frag.position())
+                            cursor.setPosition(frag.position() + frag.length(), QTextCursor.MoveMode.KeepAnchor)
+                            cursor.setCharFormat(img)
+                it += 1
+            block = block.next()
+
+    def resizeEvent(self, event) -> None:
+        super().resizeEvent(event)
+        if event.oldSize().width() != event.size().width():
+            self.fit_images()
 
 
 def guide_markdown() -> str:
@@ -98,7 +151,8 @@ class HelpWindow(QMainWindow):
         self.toc.setFrameShape(QTreeWidget.Shape.NoFrame)
         self.toc.setMinimumWidth(200)
         self.toc.setIndentation(14)
-        self.browser = QTextBrowser()
+        self.browser = GuideBrowser()
+        self.browser.setSearchPaths([HELP_DIR])
         self.browser.setOpenExternalLinks(True)
         self.browser.setFrameShape(QTextBrowser.Shape.NoFrame)
         self.browser.document().setDocumentMargin(28)
@@ -132,6 +186,7 @@ class HelpWindow(QMainWindow):
         font.setPointSizeF(10.5)
         self.browser.setFont(font)
         self.browser.setMarkdown(guide_markdown())
+        self.browser.fit_images()
         self.browser.setStyleSheet(f"QTextBrowser {{ background: {t.panel}; color: {t.text}; }}")
         self.toc.setStyleSheet(f"QTreeWidget {{ background: {t.panel_alt}; }} QTreeWidget::item {{ padding: 4px 2px; }}")
         self._build_toc()

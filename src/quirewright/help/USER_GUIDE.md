@@ -6,19 +6,17 @@ PDF tool does. This guide walks through the interface and every feature.
 
 ## The window
 
-```
-┌──────────────────────────────────────────────────────────────────────────┐
-│ Menu bar                                                                  │
-│ Toolbar: file · undo/redo · tools · drawing · fields · comments · zoom … │
-├────────────┬──────────────────────────────────────────┬──────────────────┤
-│ Navigation │ Find bar (Ctrl+F)                        │ Inspector        │
-│  Pages     │                                          │  page info, or   │
-│  Bookmarks │              page canvas                 │  properties of   │
-│            │                                          │  the selection   │
-├────────────┴──────────────────────────────────────────┴──────────────────┤
-│ Status bar: messages                                      hints per tool │
-└──────────────────────────────────────────────────────────────────────────┘
-```
+![The main window with its parts numbered](window.png)
+
+1. **Menu bar**.
+2. **Toolbar**: file, undo/redo, the selection, node, text and hand tools, drawing tools, form fields, comments, zoom and page navigation, and the panel and theme toggles.
+3. **Navigation** panel with the Pages and Bookmarks tabs.
+4. **Document tabs**, one per open file.
+5. **Find bar** (Ctrl+F).
+6. **Rulers**.
+7. **Page canvas**.
+8. **Inspector**.
+9. **Status bar**.
 
 * **Tabs**: every open document has its own tab above the canvas. Ctrl+Tab
   and Ctrl+Shift+Tab switch, the × closes (asking to save first), and files

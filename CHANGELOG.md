@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Changed
+- The user guide opens with an annotated screenshot of the window instead of a text diagram; images in the help viewer scale to fit
 - The project is now **Quirewright** (package `quirewright`, app id `io.github.quirewright.Quirewright`). Settings from the pre-release name are migrated on first start.
 - New icon (a quire of folded sheets with an awl; oxblood, parchment and brass) and an oxblood UI accent.
 
