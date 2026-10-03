@@ -3,7 +3,7 @@
 > [!CAUTION]
 > **This software was fully developed by AI.** Its human testing and human code review has been extremely limited. This software comes with no guarantees and no warranties and should not be relied upon for any critical applications. It is released to the public in hopes that it can be useful for others. Download and use is covered under the terms of the GNU AGPL License (see [LICENSE](LICENSE) for more info). We welcome bug reports and contributions. See [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
-<img src="src/quirewright/assets/quirewright.svg" width="96" align="right" alt="Quirewright icon">
+<img src="src/quirewright/assets/quirewright.svg?v=2" width="96" align="right" alt="Quirewright icon">
 
 A free and open-source PDF editor that combines vector-level editing of page
 content (in the spirit of Inkscape) with page management (rotate, reorder,
