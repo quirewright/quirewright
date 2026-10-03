@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -208,23 +209,82 @@ class BlankPageDialog(_Dialog):
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle(f"About {APP_NAME}")
+        from PySide6.QtCore import QSize
+        from PySide6.QtWidgets import QGridLayout, QSizePolicy
+
+        from quirewright.ui import theme
+
+        self.setWindowTitle(tr("About {app}").format(app=APP_NAME))
+        self.setMinimumSize(560, 420)
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(24, 20, 24, 16)
+        lay.setContentsMargins(28, 24, 28, 18)
+        lay.setSpacing(14)
+        head = QGridLayout()
+        head.setHorizontalSpacing(18)
+        logo = QLabel()
+        logo.setPixmap(theme.app_icon().pixmap(QSize(96, 96)))
+        logo.setAlignment(Qt.AlignmentFlag.AlignTop)
+        head.addWidget(logo, 0, 0, 3, 1)
         title = QLabel(APP_NAME)
-        title.setProperty("role", "title")
-        ver = QLabel(f"Version {__version__}")
+        title.setStyleSheet("font-size: 24px; font-weight: 700;")
+        head.addWidget(title, 0, 1)
+        ver = QLabel(tr("Version {version}").format(version=__version__))
         ver.setProperty("role", "muted")
-        desc = QLabel(
-            tr("A free and open-source PDF editor combining vector object editing with page management.\n\n"
-            "Licensed under the GNU Affero General Public License v3.0 or later.\n"
-            "Built with PySide6 (Qt) and PyMuPDF (MuPDF).")
-        )
-        desc.setWordWrap(True)
-        lay.addWidget(title)
-        lay.addWidget(ver)
-        lay.addWidget(desc)
+        head.addWidget(ver, 1, 1)
+        tag = QLabel(tr("A free and open-source PDF editor that combines vector object editing with page management, "
+                        "forms, comments and signatures."))
+        tag.setWordWrap(True)
+        tag.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        head.addWidget(tag, 2, 1)
+        head.setColumnStretch(1, 1)
+        lay.addLayout(head)
+        meaning = QLabel(tr("A <i>quire</i> is a gathering of folded sheets, the basic unit of a bound book; a <i>wright</i> is a maker."))
+        meaning.setWordWrap(True)
+        meaning.setProperty("role", "muted")
+        lay.addWidget(meaning)
+        comps = QLabel(self._components())
+        comps.setWordWrap(True)
+        comps.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        lay.addWidget(comps)
+        lic = QLabel(tr("Licensed under the GNU Affero General Public License v3.0 or later. "
+                        "Source code: <a href=\"https://github.com/quirewright/quirewright\">github.com/quirewright/quirewright</a>"))
+        lic.setWordWrap(True)
+        lic.setOpenExternalLinks(True)
+        lay.addWidget(lic)
+        lay.addStretch(1)
         btn = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         btn.rejected.connect(self.reject)
         btn.accepted.connect(self.accept)
         lay.addWidget(btn)
+
+    @staticmethod
+    def _components() -> str:
+        import platform
+
+        rows = [("Python", platform.python_version())]
+        try:
+            import PySide6
+
+            rows.append(("PySide6 / Qt", PySide6.__version__))
+        except Exception:
+            pass
+        try:
+            import pymupdf
+
+            rows.append(("PyMuPDF / MuPDF", pymupdf.VersionBind + " / " + pymupdf.VersionFitz))
+        except Exception:
+            pass
+        try:
+            from importlib.metadata import version
+
+            rows.append(("pyHanko", version("pyhanko")))
+            rows.append(("cryptography", version("cryptography")))
+        except Exception:
+            pass
+        try:
+            from quirewright.core import ocr
+
+            rows.append(("Tesseract OCR", tr("available") if ocr.tesseract_available() else tr("not installed")))
+        except Exception:
+            pass
+        return "<b>" + tr("Built with") + "</b><br>" + "<br>".join(f"{k}: {v}" for k, v in rows)

@@ -141,17 +141,18 @@ def build_stylesheet(t: Theme) -> str:
     QScrollBar::handle:horizontal:hover {{ background: {t.text_muted}; }}
     QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{ width: 0; }}
 
-    QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox {{
-        background: {t.panel_alt}; border: 1px solid {t.border}; border-radius: 6px; padding: 4px 8px;
+    QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QDateTimeEdit {{
+        background: {t.panel_alt}; border: 1px solid {t.border}; border-radius: 6px; padding: 5px 8px; min-height: 22px;
         selection-background-color: {t.accent}; selection-color: {t.accent_text};
     }}
+    QPlainTextEdit, QTextEdit {{ background: {t.panel_alt}; border: 1px solid {t.border}; border-radius: 6px; padding: 4px; }}
     QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {{ border-color: {t.accent}; }}
     QLineEdit:disabled, QSpinBox:disabled, QDoubleSpinBox:disabled, QComboBox:disabled {{ color: {t.text_muted}; }}
     QSpinBox::up-button, QDoubleSpinBox::up-button, QSpinBox::down-button, QDoubleSpinBox::down-button {{ width: 14px; border: none; background: transparent; }}
     QComboBox::drop-down {{ border: none; width: 20px; }}
     QComboBox QAbstractItemView {{ background: {t.panel}; border: 1px solid {t.border}; selection-background-color: {t.accent}; selection-color: {t.accent_text}; }}
 
-    QPushButton {{ background: {t.panel_alt}; border: 1px solid {t.border}; border-radius: 6px; padding: 6px 14px; }}
+    QPushButton {{ background: {t.panel_alt}; border: 1px solid {t.border}; border-radius: 6px; padding: 6px 14px; min-height: 20px; }}
     QPushButton:hover {{ border-color: {t.text_muted}; }}
     QPushButton:pressed {{ background: {t.border}; }}
     QPushButton:default, QPushButton[primary="true"] {{ background: {t.accent}; color: {t.accent_text}; border-color: {t.accent}; }}

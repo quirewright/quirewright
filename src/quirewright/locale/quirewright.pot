@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: quirewright\n"
-"POT-Creation-Date: 2026-10-03 08:42-0400\n"
+"POT-Creation-Date: 2026-10-03 08:51-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -198,12 +198,16 @@ msgstr ""
 msgid "(not set)"
 msgstr ""
 
+#: ui/dialogs.py:241
+msgid "A <i>quire</i> is a gathering of folded sheets, the basic unit of a bound book; a <i>wright</i> is a maker."
+msgstr ""
+
 #: ui/main_window.py:1057
 msgid "A document must keep at least one page."
 msgstr ""
 
-#: ui/dialogs.py:219
-msgid "A free and open-source PDF editor combining vector object editing with page management.\n\nLicensed under the GNU Affero General Public License v3.0 or later.\nBuilt with PySide6 (Qt) and PyMuPDF (MuPDF)."
+#: ui/dialogs.py:234
+msgid "A free and open-source PDF editor that combines vector object editing with page management, forms, comments and signatures."
 msgstr ""
 
 #: ui/doc_dialogs.py:194
@@ -212,6 +216,10 @@ msgstr ""
 
 #: ui/doc_dialogs.py:193
 msgid "AES 256-bit (recommended)"
+msgstr ""
+
+#: ui/dialogs.py:217
+msgid "About {app}"
 msgstr ""
 
 #: ui/doc_dialogs.py:742
@@ -266,7 +274,7 @@ msgstr ""
 msgid "Adds an invisible, searchable text layer over scanned pages. The page image is not changed. Pages that already contain text are skipped unless you choose otherwise."
 msgstr ""
 
-#: ui/dialogs.py:162 ui/doc_dialogs.py:472
+#: ui/dialogs.py:163 ui/doc_dialogs.py:472
 msgid "All pages"
 msgstr ""
 
@@ -286,15 +294,15 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
-#: ui/dialogs.py:163 ui/doc_dialogs.py:529 ui/doc_dialogs.py:560 ui/doc_dialogs.py:673
+#: ui/dialogs.py:164 ui/doc_dialogs.py:529 ui/doc_dialogs.py:560 ui/doc_dialogs.py:673
 msgid "Apply to"
 msgstr ""
 
-#: ui/dialogs.py:101
+#: ui/dialogs.py:102
 msgid "At the beginning"
 msgstr ""
 
-#: ui/dialogs.py:102
+#: ui/dialogs.py:103
 msgid "At the end"
 msgstr ""
 
@@ -342,8 +350,12 @@ msgstr ""
 msgid "Browse and extract images, fonts and attachments"
 msgstr ""
 
-#: ui/dialogs.py:90 ui/sign_dialogs.py:67 ui/sign_dialogs.py:105
+#: ui/dialogs.py:91 ui/sign_dialogs.py:67 ui/sign_dialogs.py:105
 msgid "Browse…"
+msgstr ""
+
+#: ui/dialogs.py:290
+msgid "Built with"
 msgstr ""
 
 #: ui/properties.py:406
@@ -390,11 +402,11 @@ msgstr ""
 msgid "Checked"
 msgstr ""
 
-#: ui/dialogs.py:106
+#: ui/dialogs.py:107
 msgid "Choose PDF"
 msgstr ""
 
-#: ui/dialogs.py:89
+#: ui/dialogs.py:90
 msgid "Choose a PDF…"
 msgstr ""
 
@@ -542,7 +554,7 @@ msgstr ""
 msgid "Crop page margins"
 msgstr ""
 
-#: ui/dialogs.py:146
+#: ui/dialogs.py:147
 msgid "Crop pages"
 msgstr ""
 
@@ -554,7 +566,7 @@ msgstr ""
 msgid "Currency symbol (optional)"
 msgstr ""
 
-#: ui/dialogs.py:159
+#: ui/dialogs.py:160
 msgid "Current page"
 msgstr ""
 
@@ -838,7 +850,7 @@ msgstr ""
 msgid "Extract images"
 msgstr ""
 
-#: ui/dialogs.py:116 ui/main_window.py:1195
+#: ui/dialogs.py:117 ui/main_window.py:1195
 msgid "Extract pages"
 msgstr ""
 
@@ -858,7 +870,7 @@ msgstr ""
 msgid "Field names, comma separated (e.g. a, b, c)"
 msgstr ""
 
-#: ui/dialogs.py:94 ui/sign_dialogs.py:112
+#: ui/dialogs.py:95 ui/sign_dialogs.py:112
 msgid "File"
 msgstr ""
 
@@ -994,7 +1006,7 @@ msgstr ""
 msgid "Include annotations and form fields"
 msgstr ""
 
-#: ui/dialogs.py:103 ui/dialogs.py:196
+#: ui/dialogs.py:104 ui/dialogs.py:197
 msgid "Insert"
 msgstr ""
 
@@ -1010,7 +1022,7 @@ msgstr ""
 msgid "Insert a blank page"
 msgstr ""
 
-#: ui/dialogs.py:184
+#: ui/dialogs.py:185
 msgid "Insert blank page"
 msgstr ""
 
@@ -1022,7 +1034,7 @@ msgstr ""
 msgid "Insert pages"
 msgstr ""
 
-#: ui/dialogs.py:86
+#: ui/dialogs.py:87
 msgid "Insert pages from file"
 msgstr ""
 
@@ -1052,6 +1064,10 @@ msgstr ""
 
 #: ui/doc_dialogs.py:660 ui/doc_dialogs.py:738 ui/main_window.py:1454
 msgid "Language"
+msgstr ""
+
+#: ui/dialogs.py:249
+msgid "Licensed under the GNU Affero General Public License v3.0 or later. Source code: <a href=\"https://github.com/quirewright/quirewright\">github.com/quirewright/quirewright</a>"
 msgstr ""
 
 #: ui/doc_dialogs.py:713
@@ -1222,7 +1238,7 @@ msgstr ""
 msgid "Organisation"
 msgstr ""
 
-#: ui/dialogs.py:192
+#: ui/dialogs.py:193
 msgid "Orientation"
 msgstr ""
 
@@ -1250,11 +1266,11 @@ msgstr ""
 msgid "Page number (Ctrl+G)"
 msgstr ""
 
-#: ui/dialogs.py:97 ui/dialogs.py:122 ui/doc_dialogs.py:695 ui/main_window.py:127
+#: ui/dialogs.py:98 ui/dialogs.py:123 ui/doc_dialogs.py:695 ui/main_window.py:127
 msgid "Pages"
 msgstr ""
 
-#: ui/dialogs.py:138
+#: ui/dialogs.py:139
 msgid "Pages per file"
 msgstr ""
 
@@ -1266,11 +1282,11 @@ msgstr ""
 msgid "Pan the page (H)"
 msgstr ""
 
-#: ui/dialogs.py:77 ui/sign_dialogs.py:56 ui/sign_dialogs.py:115
+#: ui/dialogs.py:78 ui/sign_dialogs.py:56 ui/sign_dialogs.py:115
 msgid "Password"
 msgstr ""
 
-#: ui/dialogs.py:71
+#: ui/dialogs.py:72
 msgid "Password required"
 msgstr ""
 
@@ -1510,7 +1526,7 @@ msgstr ""
 msgid "Save signed document as"
 msgstr ""
 
-#: ui/dialogs.py:117
+#: ui/dialogs.py:118
 msgid "Save the chosen pages to a new PDF. The current document is not changed."
 msgstr ""
 
@@ -1678,7 +1694,7 @@ msgstr ""
 msgid "Signing failed:\n\n{error}"
 msgstr ""
 
-#: ui/dialogs.py:189 ui/properties.py:315 ui/sign_dialogs.py:160
+#: ui/dialogs.py:190 ui/properties.py:315 ui/sign_dialogs.py:160
 msgid "Size"
 msgstr ""
 
@@ -1710,7 +1726,7 @@ msgstr ""
 msgid "Some characters are not in the original font; a built-in font was substituted."
 msgstr ""
 
-#: ui/dialogs.py:131
+#: ui/dialogs.py:132
 msgid "Split document"
 msgstr ""
 
@@ -1822,7 +1838,7 @@ msgstr ""
 msgid "Title:"
 msgstr ""
 
-#: ui/dialogs.py:147
+#: ui/dialogs.py:148
 msgid "Trim margins (in points) from the visible page area. Content outside the crop box is hidden, not deleted."
 msgstr ""
 
@@ -1874,6 +1890,10 @@ msgstr ""
 msgid "Value"
 msgstr ""
 
+#: ui/dialogs.py:231
+msgid "Version {version}"
+msgstr ""
+
 #: ui/sign_dialogs.py:141
 msgid "Visible stamp on the current page"
 msgstr ""
@@ -1882,7 +1902,7 @@ msgstr ""
 msgid "Write a smaller copy with recompressed images"
 msgstr ""
 
-#: ui/dialogs.py:132
+#: ui/dialogs.py:133
 msgid "Write the document as several files, each with the given number of pages."
 msgstr ""
 
@@ -1910,12 +1930,16 @@ msgstr ""
 msgid "Zoom when opening"
 msgstr ""
 
-#: ui/dialogs.py:96
+#: ui/dialogs.py:97
 msgid "all, or e.g. 1-3, 5"
 msgstr ""
 
 #: ui/properties.py:436
 msgid "and"
+msgstr ""
+
+#: ui/dialogs.py:287
+msgid "available"
 msgstr ""
 
 #: ui/doc_dialogs.py:478
@@ -1944,6 +1968,10 @@ msgstr ""
 
 #: ui/sign_dialogs.py:270
 msgid "no, later changes were appended"
+msgstr ""
+
+#: ui/dialogs.py:287
+msgid "not installed"
 msgstr ""
 
 #: ui/sign_dialogs.py:206
