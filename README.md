@@ -42,6 +42,10 @@ context menu:
 **Comments** – highlight, underline and strike out text, add sticky notes;
 edit author, text, colour and opacity in the Inspector; flatten when done.
 
+**Signatures** – sign with a PKCS#12 certificate (or create a self-signed
+one), invisible or as a visible stamp or in a signature field; verify
+signatures and manage a personal trust store.
+
 **Document** – edit metadata (title, author, keywords, dates); set or remove
 passwords and permissions (AES-256); browse and extract images, fonts and
 attachments; attach files; find text across pages; bookmarks panel; page
@@ -192,5 +196,4 @@ Flatpak. Tagging `vX.Y.Z` attaches the AppImage to a GitHub release.
 ## Roadmap
 
 See [docs/FEATURES.md](docs/FEATURES.md) for the full checklist. Everything on
-it is implemented except digital signatures, which are intentionally out of
-scope for now.
+it is implemented, including digital signatures (via pyHanko).

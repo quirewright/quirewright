@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Added
+- Digital signatures via pyHanko: sign (invisible / visible / existing field), self-signed certificate creation, signature verification with a personal trust store, signature fields in the form tool
+- French and Spanish translations
 - Complete German translation
 - AppImage build script, Flatpak manifest, AppStream metadata
 - GitHub Actions CI: lint + tests on Linux/Windows/macOS, AppImage and Flatpak builds, release artefacts

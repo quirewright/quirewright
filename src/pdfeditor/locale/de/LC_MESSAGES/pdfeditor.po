@@ -1340,3 +1340,225 @@ msgstr "Sprache"
 
 msgid "Ungroup"
 msgstr "Gruppierung aufheben"
+
+msgid "Create a signing certificate"
+msgstr "Signaturzertifikat erstellen"
+
+msgid "Creates a self-signed certificate for signing documents. Readers will see your name and that the document has not been changed since signing, but a self-signed certificate is not vouched for by a certificate authority. For legally recognised signatures use a certificate issued by a trusted provider."
+msgstr "Erstellt ein selbstsigniertes Zertifikat zum Signieren von Dokumenten. Leser sehen Ihren Namen und dass das Dokument seit der Signatur nicht verändert wurde; ein selbstsigniertes Zertifikat wird jedoch von keiner Zertifizierungsstelle bestätigt. Für rechtlich anerkannte Signaturen verwenden Sie ein Zertifikat eines vertrauenswürdigen Anbieters."
+
+msgid "Full name"
+msgstr "Vollständiger Name"
+
+msgid "E-mail"
+msgstr "E-Mail"
+
+msgid "Organisation"
+msgstr "Organisation"
+
+msgid "Repeat password"
+msgstr "Passwort wiederholen"
+
+msgid "years"
+msgstr "Jahre"
+
+msgid "Valid for"
+msgstr "Gültig für"
+
+msgid "Save as"
+msgstr "Speichern unter"
+
+msgid "Create"
+msgstr "Erstellen"
+
+msgid "Save certificate"
+msgstr "Zertifikat speichern"
+
+msgid "Create certificate"
+msgstr "Zertifikat erstellen"
+
+msgid "Please enter your name."
+msgstr "Bitte geben Sie Ihren Namen ein."
+
+msgid "The passwords do not match."
+msgstr "Die Passwörter stimmen nicht überein."
+
+msgid "Sign document"
+msgstr "Dokument signieren"
+
+msgid "Certificate"
+msgstr "Zertifikat"
+
+msgid "PKCS#12 file (.p12 / .pfx)"
+msgstr "PKCS#12-Datei (.p12 / .pfx)"
+
+msgid "Create new…"
+msgstr "Neu erstellen…"
+
+msgid "Check certificate"
+msgstr "Zertifikat prüfen"
+
+msgid "Details (optional)"
+msgstr "Details (optional)"
+
+msgid "e.g. I approve this document"
+msgstr "z. B. Ich genehmige dieses Dokument"
+
+msgid "Reason"
+msgstr "Grund"
+
+msgid "Location"
+msgstr "Ort"
+
+msgid "Contact"
+msgstr "Kontakt"
+
+msgid "Certify: mark the document so that further changes invalidate the signature"
+msgstr "Zertifizieren: Dokument so kennzeichnen, dass weitere Änderungen die Signatur ungültig machen"
+
+msgid "Appearance"
+msgstr "Darstellung"
+
+msgid "Invisible signature (no stamp on the page)"
+msgstr "Unsichtbare Signatur (kein Stempel auf der Seite)"
+
+msgid "Visible stamp on the current page"
+msgstr "Sichtbarer Stempel auf der aktuellen Seite"
+
+msgid "Sign an existing signature field"
+msgstr "Vorhandenes Signaturfeld signieren"
+
+msgid "Bottom left"
+msgstr "Unten links"
+
+msgid "Bottom right"
+msgstr "Unten rechts"
+
+msgid "Top left"
+msgstr "Oben links"
+
+msgid "Top right"
+msgstr "Oben rechts"
+
+msgid "The signed document is written to a new file. Signing is the final step: any later edit that is saved rewrites the file and invalidates the signature."
+msgstr "Das signierte Dokument wird in eine neue Datei geschrieben. Das Signieren ist der letzte Schritt: Jede später gespeicherte Änderung schreibt die Datei neu und macht die Signatur ungültig."
+
+msgid "Sign and save as…"
+msgstr "Signieren und speichern unter…"
+
+msgid "Choose certificate"
+msgstr "Zertifikat auswählen"
+
+msgid "Cannot read the certificate: {error}"
+msgstr "Zertifikat kann nicht gelesen werden: {error}"
+
+msgid "self-signed"
+msgstr "selbstsigniert"
+
+msgid "issued by {issuer}"
+msgstr "ausgestellt von {issuer}"
+
+msgid "valid"
+msgstr "gültig"
+
+msgid "Signatures"
+msgstr "Signaturen"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Signed by"
+msgstr "Signiert von"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Field"
+msgstr "Feld"
+
+msgid "This document has no digital signatures."
+msgstr "Dieses Dokument hat keine digitalen Signaturen."
+
+msgid "Trust a certificate…"
+msgstr "Zertifikat vertrauen…"
+
+msgid "Add a certificate file (.pem/.cer/.crt) to your trust store so signatures made with it show as trusted"
+msgstr "Zertifikatsdatei (.pem/.cer/.crt) zum Vertrauensspeicher hinzufügen, damit Signaturen damit als vertrauenswürdig gelten"
+
+msgid "issued by"
+msgstr "ausgestellt von"
+
+msgid "Certificate valid"
+msgstr "Zertifikat gültig"
+
+msgid "Document intact"
+msgstr "Dokument unverändert"
+
+msgid "yes"
+msgstr "ja"
+
+msgid "no"
+msgstr "nein"
+
+msgid "Covers whole document"
+msgstr "Deckt gesamtes Dokument ab"
+
+msgid "no, later changes were appended"
+msgstr "nein, spätere Änderungen wurden angehängt"
+
+msgid "Trusted"
+msgstr "Vertrauenswürdig"
+
+msgid "Si&gn Document…"
+msgstr "Dokument si&gnieren…"
+
+msgid "Add a digital signature with a certificate"
+msgstr "Digitale Signatur mit einem Zertifikat hinzufügen"
+
+msgid "Si&gnatures…"
+msgstr "Si&gnaturen…"
+
+msgid "Show and verify the document's signatures"
+msgstr "Signaturen des Dokuments anzeigen und prüfen"
+
+msgid "Signature field"
+msgstr "Signaturfeld"
+
+msgid "The document has unsaved changes. Save it first?"
+msgstr "Das Dokument hat ungespeicherte Änderungen. Zuerst speichern?"
+
+msgid "Save signed document as"
+msgstr "Signiertes Dokument speichern unter"
+
+msgid "Signing failed:\n\n{error}"
+msgstr "Signieren fehlgeschlagen:\n\n{error}"
+
+msgid "Signed document saved as {name}"
+msgstr "Signiertes Dokument gespeichert als {name}"
+
+msgid "Choose certificate to trust"
+msgstr "Zu vertrauendes Zertifikat auswählen"
+
+msgid "Certificate added to the trust store. Reopen the Signatures dialog to re-check."
+msgstr "Zertifikat zum Vertrauensspeicher hinzugefügt. Öffnen Sie den Signaturen-Dialog erneut zur Prüfung."
+
+msgid "This document is digitally signed. Saving any edit will invalidate the signature (Document › Signatures to verify)."
+msgstr "Dieses Dokument ist digital signiert. Das Speichern von Änderungen macht die Signatur ungültig (Dokument › Signaturen zum Prüfen)."
+
+msgid "Signed document"
+msgstr "Signiertes Dokument"
+
+msgid "This document is digitally signed. Saving your changes will invalidate the signature. Save anyway?"
+msgstr "Dieses Dokument ist digital signiert. Das Speichern Ihrer Änderungen macht die Signatur ungültig. Trotzdem speichern?"
+
+msgid "VALID"
+msgstr "GÜLTIG"
+
+msgid "INVALID"
+msgstr "UNGÜLTIG"
+
+msgid "VALID (document modified after signing)"
+msgstr "GÜLTIG (Dokument nach der Signatur geändert)"
+
+msgid "VALID (signer not in trust store)"
+msgstr "GÜLTIG (Unterzeichner nicht im Vertrauensspeicher)"

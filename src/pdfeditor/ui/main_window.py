@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
 
 from pdfeditor import APP_ID, APP_NAME
 from pdfeditor.core.document import Document
+from pdfeditor.core.geometry import Rect
 from pdfeditor.i18n import N_, tr
 from pdfeditor.ui import theme
 from pdfeditor.ui.canvas import (
@@ -82,6 +83,7 @@ from pdfeditor.ui.help import HelpWindow
 from pdfeditor.ui.outline import OutlinePanel
 from pdfeditor.ui.properties import PropertiesPanel
 from pdfeditor.ui.render import pixmap_to_qimage
+from pdfeditor.ui.sign_dialogs import SignaturesDialog, SignDialog
 from pdfeditor.ui.thumbnails import PagesPanel
 from pdfeditor.ui.welcome import WelcomePage
 
@@ -325,6 +327,8 @@ class MainWindow(QMainWindow):
         self.act_attach = self._act(tr("&Attach File…"), "attach", None, self.attach_file)
         self.act_flatten = self._act(tr("&Flatten Forms and Comments"), "flatten", None, self.flatten)
         self.act_ocr = self._act(tr("Recognize &Text (OCR)…"), "search", None, self.run_ocr, tip=tr("Make scanned pages searchable and selectable"))
+        self.act_sign = self._act(tr("Si&gn Document…"), "edit", None, self.sign_document, tip=tr("Add a digital signature with a certificate"))
+        self.act_signatures = self._act(tr("Si&gnatures…"), "check", None, self.show_signatures, tip=tr("Show and verify the document's signatures"))
         # help
         self.act_about = self._act(f"&About {APP_NAME}", "info", None, lambda: AboutDialog(self).exec())
         self.act_shortcuts = self._act(tr("&Keyboard Shortcuts"), "keyboard", "Ctrl+/", self.show_shortcuts)
@@ -413,6 +417,8 @@ class MainWindow(QMainWindow):
 
         m = mb.addMenu(tr("&Document"))
         m.addActions([self.act_properties, self.act_security, self.act_resources, self.act_attach])
+        m.addSeparator()
+        m.addActions([self.act_sign, self.act_signatures])
         m.addSeparator()
         m.addActions([self.act_ocr, self.act_tool_redact, self.act_flatten])
 
@@ -556,7 +562,7 @@ class MainWindow(QMainWindow):
                   self.act_zoom_width, self.act_zoom_100, self.act_rot_cw, self.act_rot_ccw, self.act_rot_180, self.act_dup_page,
                   self.act_blank, self.act_reverse, self.act_crop, self.act_uncrop, self.act_select_all, self.act_find, self.act_find_next,
                   self.act_find_prev, self.act_numbers, self.act_watermark, self.act_properties, self.act_security, self.act_resources,
-                  self.act_attach, self.act_flatten, self.act_ocr, self.act_insert_image, self.act_goto, self.act_tool_field, self.act_tool_crop,
+                  self.act_attach, self.act_flatten, self.act_ocr, self.act_sign, self.act_signatures, self.act_insert_image, self.act_goto, self.act_tool_field, self.act_tool_crop,
                   self.act_tool_redact, self.act_tool_highlight, self.act_tool_underline, self.act_tool_strike, self.act_tool_note,
                   self.act_tool_rect, self.act_tool_ellipse, self.act_tool_line, self.act_tool_pen, *self.field_actions):
             a.setEnabled(has)
@@ -786,7 +792,16 @@ class MainWindow(QMainWindow):
         self._add_document(doc)
         self.settings.setValue("files/lastDir", os.path.dirname(path))
         self._add_recent(path)
-        self.show_message(f"Opened {os.path.basename(path)} · {doc.page_count} page(s)")
+        try:
+            from pdfeditor.core import signing
+
+            doc.signed = signing.has_signatures(open(path, "rb").read())
+        except Exception:
+            doc.signed = False
+        if getattr(doc, "signed", False):
+            self.show_message(tr("This document is digitally signed. Saving any edit will invalidate the signature (Document › Signatures to verify)."), 12000)
+        else:
+            self.show_message(f"Opened {os.path.basename(path)} · {doc.page_count} page(s)")
 
     def close_document(self) -> None:
         if self._current_view is None:
@@ -811,6 +826,12 @@ class MainWindow(QMainWindow):
     def save(self) -> bool:
         if self.doc is None:
             return False
+        if getattr(self.doc, "signed", False) and self.doc.is_modified:
+            r = QMessageBox.warning(self, tr("Signed document"), tr("This document is digitally signed. Saving your changes will invalidate the signature. Save anyway?"),
+                                    QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Cancel)
+            if r != QMessageBox.StandardButton.Save:
+                return False
+            self.doc.signed = False
         if not self.doc.path:
             return self.save_as()
         try:
@@ -1280,6 +1301,85 @@ class MainWindow(QMainWindow):
             words_total += ocr.add_text_layer(self.doc, i, words)
             done += 1
         self.show_message(f"OCR: {words_total} word(s) recognized on {done} page(s)" + (f", {skipped} skipped" if skipped else ""))
+
+    def _signature_bytes(self) -> bytes:
+        return self.doc.pdf.tobytes(garbage=0, deflate=False) if self.doc else b""
+
+    def _trust_roots(self) -> list[str]:
+        from pdfeditor.core import signing
+
+        d = os.path.join(signing.default_cert_dir(), "trusted")
+        if not os.path.isdir(d):
+            return []
+        return [os.path.join(d, f) for f in sorted(os.listdir(d)) if f.lower().endswith((".pem", ".cer", ".crt", ".der"))]
+
+    def sign_document(self) -> None:
+        if not self.doc:
+            return
+        from pdfeditor.core import signing
+
+        if self.doc.is_modified:
+            r = QMessageBox.question(self, tr("Sign document"), tr("The document has unsaved changes. Save it first?"))
+            if r != QMessageBox.StandardButton.Yes or not self.save():
+                return
+        fields = [w.field_name for w in self.doc.widgets(self.canvas.page_index) if w.field_type == 6]
+        dlg = SignDialog(self.doc.page_count, self.canvas.page_index, fields, self)
+        if dlg.exec() != SignDialog.DialogCode.Accepted:
+            return
+        v = dlg.values()
+        stem = os.path.splitext(self.doc.title)[0]
+        start = os.path.join(os.path.dirname(self.doc.path or ""), f"{stem}-signed.pdf")
+        out, _ = QFileDialog.getSaveFileName(self, tr("Save signed document as"), start, "PDF files (*.pdf)")
+        if not out:
+            return
+        if not out.lower().endswith(".pdf"):
+            out += ".pdf"
+        page = self.canvas.page_index
+        box = None
+        field_name = None
+        if v["mode"] == "field":
+            field_name = v["field"]
+        elif v["mode"] == "visible":
+            pr = self.doc.page_rect(page)
+            w, h, m = v["width"], v["height"], 24.0
+            x0 = m if v["position"].endswith("l") else pr.width - m - w
+            y0 = pr.height - m - h if v["position"].startswith("t") else m
+            scene = Rect(x0, y0, x0 + w, y0 + h)
+            inv = self.doc.pdf_to_page_matrix(page).inverted()
+            box = scene.transformed(inv)
+        try:
+            data = self.doc.pdf.tobytes(garbage=0, deflate=False) if not self.doc.path else open(self.doc.path, "rb").read()
+            signed = signing.sign_pdf(data, v["cert"], v["password"], field_name=field_name, page=page if box else None, box_pdf=box,
+                                      reason=v["reason"], location=v["location"], contact=v["contact"], certify=v["certify"])
+            with open(out, "wb") as fh:
+                fh.write(signed)
+        except Exception as exc:
+            QMessageBox.critical(self, tr("Sign document"), tr("Signing failed:\n\n{error}").format(error=exc))
+            return
+        self.open_file(out)
+        self.show_message(tr("Signed document saved as {name}").format(name=os.path.basename(out)))
+
+    def show_signatures(self) -> None:
+        if not self.doc:
+            return
+        from pdfeditor.core import signing
+
+        data = open(self.doc.path, "rb").read() if self.doc.path and not self.doc.is_modified else self._signature_bytes()
+        sigs = signing.signatures(data, self._trust_roots())
+        SignaturesDialog(sigs, self._add_trusted_certificate, self).exec()
+
+    def _add_trusted_certificate(self, parent=None) -> None:
+        from pdfeditor.core import signing
+
+        p, _ = QFileDialog.getOpenFileName(parent or self, tr("Choose certificate to trust"), "", "Certificates (*.pem *.cer *.crt *.der);;All files (*)")
+        if not p:
+            return
+        d = os.path.join(signing.default_cert_dir(), "trusted")
+        os.makedirs(d, exist_ok=True)
+        import shutil
+
+        shutil.copy(p, os.path.join(d, os.path.basename(p)))
+        self.show_message(tr("Certificate added to the trust store. Reopen the Signatures dialog to re-check."))
 
     def _confirm_area_tool(self, tool: str, rect: QRectF) -> bool:
         if tool == TOOL_REDACT:

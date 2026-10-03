@@ -204,6 +204,25 @@ and whether it is embedded) and attachment in the file. Select rows and
 extract them to disk; attach new files or remove attachments from the same
 dialog, or use Document › Attach File.
 
+## Digital signatures
+
+Document › Sign Document adds a digital signature. You need a certificate
+with its private key in a PKCS#12 file (.p12/.pfx); if you don't have one,
+*Create new…* makes a self-signed certificate (readers will see your name and
+that the file is unchanged since signing, but a self-signed certificate is not
+vouched for by a certificate authority, so use one from a trusted provider
+when legal weight matters). Choose a reason and location, and either an
+invisible signature, a visible stamp placed in a corner of the current page,
+or an existing signature field (add those with the form-field tool). Signing
+writes a new file and opens it. Signing is always the last step: saving any
+later edit rewrites the file and invalidates the signature, and the editor
+warns you before that happens.
+
+Document › Signatures lists every signature with its status: whether the
+document is intact, whether later changes were appended, and whether the
+signer's certificate is trusted. *Trust a certificate…* adds a certificate
+file to your personal trust store so signatures made with it show as trusted.
+
 ## Recognizing text in scans (OCR)
 
 Document › Recognize Text runs the Tesseract engine on scanned pages and
@@ -226,8 +245,8 @@ save.
 Edit › Preferences › Language switches the interface language (restart to
 apply). Translations live in `pdfeditor/locale/<lang>/LC_MESSAGES`; run
 `scripts/extract_strings.py` to refresh the template and
-`scripts/compile_catalogs.py` after editing a `.po` file. A German catalogue
-is included as a starting point; contributions for other languages are
+`scripts/compile_catalogs.py` after editing a `.po` file. German, French and
+Spanish catalogues are included; contributions for other languages are
 welcome.
 
 ## Preferences

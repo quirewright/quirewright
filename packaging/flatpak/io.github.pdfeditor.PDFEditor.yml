@@ -4,7 +4,7 @@
 #   flatpak run org.flatpak.Builder --user --install --force-clean build-dir packaging/flatpak/io.github.pdfeditor.PDFEditor.yml
 #
 # The app id is a placeholder until the project has its final name and home.
-# PyMuPDF wheels: update python3-requirements.json when bumping the version
+# Python wheels (PyMuPDF, pyHanko, cryptography and friends) are pinned in python3-requirements.json; update it when bumping versions
 # (hashes from https://pypi.org/pypi/pymupdf/<version>/json).
 app-id: io.github.pdfeditor.PDFEditor
 runtime: org.kde.Platform

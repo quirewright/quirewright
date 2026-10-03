@@ -64,7 +64,7 @@ Checked items are implemented and covered by tests.
 - [x] Reduce file size (garbage collection, stream compression, image recompression)
 - [x] Redact an area (removes underlying text and images)
 - [x] Print
-- [ ] Digital signatures / certificates (out of scope for now)
+- [x] Digital signatures: sign with PKCS#12 certificates (invisible, visible stamp, or existing field), create self-signed certificates, verify signatures, personal trust store
 - [x] OCR via Tesseract (invisible text layer)
 
 ## Quality of life
@@ -73,4 +73,4 @@ Checked items are implemented and covered by tests.
 - [x] Status bar hints per tool, unsaved-changes guard, save-in-place safety (atomic write)
 - [x] Desktop integration files (launcher, icon); AppImage and Flatpak packaging; CI with lint and cross-platform tests
 - [ ] Autosave / crash recovery
-- [x] Localisation (gettext; complete German catalogue; Qt dialog translations)
+- [x] Localisation (gettext; complete German, French and Spanish catalogues; Qt dialog translations)

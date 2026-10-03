@@ -129,6 +129,16 @@ class PropertiesDialog(_Base):
         return out
 
 
+def _signature_count(doc) -> int:
+    try:
+        from pdfeditor.core import signing
+
+        data = open(doc.path, "rb").read() if doc.path else doc.pdf.tobytes()
+        return len(signing.signatures(data))
+    except Exception:
+        return 0
+
+
 def _date_edit(pdf_date: str) -> QDateTimeEdit:
     e = QDateTimeEdit()
     e.setCalendarPopup(True)
