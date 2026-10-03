@@ -156,3 +156,37 @@ def test_multiple_edits_in_one_block():
     runs = [o for o in pc2.objects if o.kind == "text"]
     assert runs[0].text == "Hi" and runs[0].tm.e == 75
     assert runs[1].tm.e == 75
+
+
+def test_duplicate_and_order():
+    pc = interpret(SAMPLE)
+    ed = ContentEditor(pc)
+    assert ed.duplicate([0, 2], Matrix.translation(5, 5)) == 2
+    pc2 = reparse(ed.build())
+    kinds = [o.kind for o in pc2.objects]
+    assert kinds[-2:] == ["path", "text"]
+    assert pc2.objects[-2].bbox.x0 == 15 and pc2.objects[-2].state.fill_color.to_rgb() == (1.0, 0.0, 0.0)
+    assert pc2.objects[-1].text == "Hello World" and abs(pc2.objects[-1].tm.e - 77) < 1e-6
+    # bring the first rectangle to the front
+    ed = ContentEditor(pc)
+    ed.bring_to_front([0])
+    pc3 = reparse(ed.build())
+    assert pc3.objects[-1].kind == "path" and pc3.objects[-1].bbox.x0 == 10
+    assert sum(1 for o in pc3.objects if o.kind == "path") == 3
+    # send the image to the back
+    ed = ContentEditor(pc)
+    ed.send_to_back([4])
+    pc4 = reparse(ed.build())
+    assert pc4.objects[0].kind == "image" and pc4.objects[0].bbox.x0 == 200
+    assert "image" not in [o.kind for o in pc4.objects[1:]]
+
+
+def test_duplicate_image_under_cm():
+    pc = interpret(SAMPLE)
+    ed = ContentEditor(pc)
+    ed.duplicate([1, 4], Matrix.translation(0, 10))
+    pc2 = reparse(ed.build())
+    line = pc2.objects[-2]
+    assert line.kind == "path" and abs(line.bbox.y0 - 107) < 1e-6
+    img = pc2.objects[-1]
+    assert img.kind == "image" and (img.bbox.x0, img.bbox.y0) == (200, 210)

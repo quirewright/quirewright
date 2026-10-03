@@ -18,15 +18,18 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QPushButton,
     QScrollArea,
+    QSlider,
     QVBoxLayout,
     QWidget,
 )
 
+from pdfeditor.core.annotations import NOTE_ICONS, AnnotInfo
 from pdfeditor.core.content.model import Color, GObject, PathObject, TextRun, XObjectRef
 from pdfeditor.core.document import WIDGET_TYPES, WidgetInfo
 from pdfeditor.core.geometry import Matrix
 from pdfeditor.ui import theme
 from pdfeditor.ui.canvas import DRAW_TOOLS, TOOL_TEXT, PageCanvas
+from pdfeditor.ui.units import LengthSpin, format_length
 
 FONT_CHOICES = [
     ("Helvetica", "helv"), ("Helvetica Bold", "hebo"), ("Helvetica Italic", "heit"), ("Helvetica Bold Italic", "hebi"),
@@ -124,6 +127,7 @@ class PropertiesPanel(QScrollArea):
         self._build_defaults_section()
         self._build_selection_section()
         self._build_widget_section()
+        self._build_annot_section()
         self.layout_.addStretch()
 
         canvas.selectionChanged.connect(lambda ids: self.refresh())
@@ -175,7 +179,7 @@ class PropertiesPanel(QScrollArea):
         form = QFormLayout()
         form.setContentsMargins(0, 0, 0, 0)
         form.setHorizontalSpacing(8)
-        self.d_width = _spin(0, 1e3, 2, 0.5, " pt")
+        self.d_width = LengthSpin(0, 1e3, 0.5)
         form.addRow("Stroke width", self.d_width)
         self.d_font = QComboBox()
         for label, name in FONT_CHOICES:
@@ -208,10 +212,10 @@ class PropertiesPanel(QScrollArea):
         grid = QGridLayout()
         grid.setHorizontalSpacing(8)
         grid.setVerticalSpacing(6)
-        self.x = _spin(-1e5, 1e5, 2, 1, " pt")
-        self.y = _spin(-1e5, 1e5, 2, 1, " pt")
-        self.w = _spin(0.01, 1e5, 2, 1, " pt")
-        self.h = _spin(0.01, 1e5, 2, 1, " pt")
+        self.x = LengthSpin(-1e5, 1e5, 1)
+        self.y = LengthSpin(-1e5, 1e5, 1)
+        self.w = LengthSpin(0.01, 1e5, 1)
+        self.h = LengthSpin(0.01, 1e5, 1)
         self.rot = _spin(-360, 360, 1, 5, "°")
         for i, (lbl, w) in enumerate((("X", self.x), ("Y", self.y), ("W", self.w), ("H", self.h))):
             grid.addWidget(QLabel(lbl), i // 2, (i % 2) * 2)
@@ -245,7 +249,7 @@ class PropertiesPanel(QScrollArea):
         form = QFormLayout()
         form.setContentsMargins(0, 0, 0, 0)
         form.setHorizontalSpacing(8)
-        self.width = _spin(0, 1e4, 2, 0.5, " pt")
+        self.width = LengthSpin(0, 1e4, 0.5)
         form.addRow("Stroke width", self.width)
         st.addLayout(form)
         sl.addWidget(self.style_box)
@@ -253,7 +257,7 @@ class PropertiesPanel(QScrollArea):
         self.stroke_check.toggled.connect(lambda on: self._style(stroke=on))
         self.fill_color.colorChanged.connect(lambda c: self._style(fill_color=_to_color(c), fill=True))
         self.stroke_color.colorChanged.connect(lambda c: self._style(stroke_color=_to_color(c), stroke=True))
-        self.width.editingFinished.connect(lambda: self._style(line_width=self.width.value()))
+        self.width.editingFinished.connect(lambda: self._style(line_width=self.width.value_pt()))
 
         self.text_box = QWidget()
         tl = QVBoxLayout(self.text_box)
@@ -365,6 +369,92 @@ class PropertiesPanel(QScrollArea):
         self.w_checked.toggled.connect(lambda on: None if self._updating else self._apply_widget())
         self.w_choice.activated.connect(lambda i: None if self._updating else self._apply_widget())
 
+    def _build_annot_section(self) -> None:
+        self.annot_box, al = _section("Comment")
+        self.annot_title = self.annot_box.findChild(QLabel)
+        self.a_sub = QLabel("")
+        self.a_sub.setProperty("role", "muted")
+        self.a_sub.setWordWrap(True)
+        al.addWidget(self.a_sub)
+        form = QFormLayout()
+        form.setContentsMargins(0, 0, 0, 0)
+        form.setHorizontalSpacing(8)
+        self.a_author = QLineEdit()
+        form.addRow("Author", self.a_author)
+        self.a_contents = QPlainTextEdit()
+        self.a_contents.setPlaceholderText("Comment text")
+        self.a_contents.setMaximumHeight(110)
+        form.addRow("Text", self.a_contents)
+        self.a_icon = QComboBox()
+        self.a_icon.addItems(NOTE_ICONS)
+        form.addRow("Icon", self.a_icon)
+        self.a_color = ColorButton()
+        form.addRow("Colour", self.a_color)
+        self.a_opacity = QSlider(Qt.Orientation.Horizontal)
+        self.a_opacity.setRange(10, 100)
+        form.addRow("Opacity", self.a_opacity)
+        al.addLayout(form)
+        self.a_form_labels = {}
+        for i in range(form.rowCount()):
+            lbl = form.itemAt(i, QFormLayout.ItemRole.LabelRole)
+            fld = form.itemAt(i, QFormLayout.ItemRole.FieldRole)
+            if fld is not None and fld.widget() is not None:
+                self.a_form_labels[fld.widget()] = lbl.widget() if lbl is not None else None
+        al.addWidget(_hline())
+        btns = QHBoxLayout()
+        self.a_apply = QPushButton("Apply")
+        self.a_apply.setProperty("primary", "true")
+        self.a_delete = QPushButton("Delete")
+        self.a_delete.setProperty("danger", "true")
+        btns.addStretch()
+        btns.addWidget(self.a_delete)
+        btns.addWidget(self.a_apply)
+        al.addLayout(btns)
+        self.layout_.addWidget(self.annot_box)
+        self.a_apply.clicked.connect(self._apply_annot)
+        self.a_delete.clicked.connect(self.canvas.delete_selection)
+        self.a_color.colorChanged.connect(lambda c: self._apply_annot())
+
+    def _refresh_annot(self, annots: list[AnnotInfo]) -> None:
+        a = annots[0]
+        multi = len(annots) > 1
+        self.annot_title.setText(a.type_name if not multi else f"{len(annots)} comments")
+        self.a_sub.setText((a.modified and f"Modified {a.modified[2:10]}") or "")
+        self.a_author.setText(a.author)
+        self.a_contents.setPlainText(a.contents)
+        is_note = a.type == 0
+        self.a_icon.setVisible(is_note)
+        lbl = self.a_form_labels.get(self.a_icon)
+        if lbl is not None:
+            lbl.setVisible(is_note)
+        if is_note:
+            idx = self.a_icon.findText(a.icon)
+            self.a_icon.setCurrentIndex(max(idx, 0))
+        self.a_color.set_color(_tuple_to_qcolor(a.color))
+        self.a_opacity.setValue(int(round(a.opacity * 100)))
+
+    def _apply_annot(self) -> None:
+        if self._updating:
+            return
+        annots = self.canvas.selected_annots()
+        doc = self.canvas.doc
+        if not annots or doc is None:
+            return
+        a = annots[0]
+        props: dict = {"contents": self.a_contents.toPlainText(), "author": self.a_author.text(), "opacity": self.a_opacity.value() / 100.0}
+        if a.type == 0:
+            props["icon"] = self.a_icon.currentText()
+        c = self.a_color.color()
+        if c is not None:
+            props["color"] = (c.redF(), c.greenF(), c.blueF())
+        doc.update_annotation(self.canvas.page_index, a.xref, **props)
+        self.canvas.pageEdited.emit(self.canvas.page_index)
+
+    def refresh_units(self) -> None:
+        for sp in (self.x, self.y, self.w, self.h, self.width, self.d_width):
+            sp.refresh_unit()
+        self.refresh()
+
     # -- refresh --------------------------------------------------------------
     def refresh(self) -> None:
         self._updating = True
@@ -372,16 +462,22 @@ class PropertiesPanel(QScrollArea):
             doc = self.canvas.doc
             objs = self.canvas.selected_objects()
             widgets = self.canvas.selected_widgets()
+            annots = self.canvas.selected_annots()
             tool = self.canvas.tool
             show_defaults = doc is not None and (tool in DRAW_TOOLS or tool == TOOL_TEXT)
-            self.defaults_box.setVisible(show_defaults and not objs and not widgets)
+            any_sel = bool(objs or widgets or annots)
+            self.defaults_box.setVisible(show_defaults and not any_sel)
             self.widget_box.setVisible(bool(widgets))
-            self.sel_box.setVisible(bool(objs) and not widgets)
-            self.page_box.setVisible(not objs and not widgets and not show_defaults)
+            self.annot_box.setVisible(bool(annots))
+            self.sel_box.setVisible(bool(objs) and not widgets and not annots)
+            self.page_box.setVisible(not any_sel and not show_defaults)
             if doc is None:
                 self.page_title.setText("No document")
                 self.page_info.setText("Open a PDF to get started.")
                 self.doc_info.setText("")
+                return
+            if annots:
+                self._refresh_annot(annots)
                 return
             if widgets:
                 self._refresh_widget(widgets)
@@ -392,14 +488,15 @@ class PropertiesPanel(QScrollArea):
                 rot = doc.page_rotation(i)
                 self.page_title.setText(f"Page {i + 1} of {doc.page_count}")
                 self.page_info.setText(
-                    f"{r.width:.1f} × {r.height:.1f} pt  ({r.width / 72 * 25.4:.0f} × {r.height / 72 * 25.4:.0f} mm)"
+                    f"{format_length(r.width)} × {format_length(r.height)}"
                     + (f"\nRotation {rot}°" if rot else "")
                 )
                 n_obj = len(doc.content(i).selectable_objects())
                 n_w = len(doc.widgets(i))
+                n_a = len(doc.annotations(i))
                 self.doc_info.setText(
                     f"{doc.title}\n{doc.page_count} page(s) · {n_obj} editable object(s)"
-                    + (f" · {n_w} form field(s)" if n_w else "") + " on this page"
+                    + (f" · {n_w} form field(s)" if n_w else "") + (f" · {n_a} comment(s)" if n_a else "") + " on this page"
                 )
                 return
             if len(objs) == 1:
@@ -409,10 +506,10 @@ class PropertiesPanel(QScrollArea):
                 self.sel_title.setText(f"{len(objs)} objects")
                 self.sel_sub.setText(", ".join(sorted({_kind_label(o) for o in objs})))
             rect = self.canvas._selection_rect()
-            self.x.setValue(rect.x())
-            self.y.setValue(rect.y())
-            self.w.setValue(rect.width())
-            self.h.setValue(rect.height())
+            self.x.set_value_pt(rect.x())
+            self.y.set_value_pt(rect.y())
+            self.w.set_value_pt(rect.width())
+            self.h.set_value_pt(rect.height())
             self.rot.setValue(0)
             paths = [o for o in objs if isinstance(o, PathObject)]
             texts = [o for o in objs if isinstance(o, TextRun)]
@@ -423,7 +520,7 @@ class PropertiesPanel(QScrollArea):
                 self.stroke_check.setChecked(p.stroke)
                 self.fill_color.set_color(_to_qcolor(p.state.fill_color))
                 self.stroke_color.set_color(_to_qcolor(p.state.stroke_color))
-                self.width.setValue(p.state.line_width)
+                self.width.set_value_pt(p.state.line_width)
             self.text_box.setVisible(bool(texts) and not paths)
             if texts:
                 t = texts[0]
@@ -452,7 +549,7 @@ class PropertiesPanel(QScrollArea):
         w = widgets[0]
         multi = len(widgets) > 1
         self.widget_title.setText(w.type_name if not multi else f"{len(widgets)} form fields")
-        self.w_sub.setText(f"{w.rect.width:.0f} × {w.rect.height:.0f} pt" + (" · editing the first one" if multi else ""))
+        self.w_sub.setText(f"{format_length(w.rect.width)} × {format_length(w.rect.height)}" + (" · editing the first one" if multi else ""))
         self.w_name.setText(w.field_name)
         ft = w.field_type
         is_text = ft == 7
@@ -552,7 +649,7 @@ class PropertiesPanel(QScrollArea):
             self.d_fill_color.set_color(_to_qcolor(s.fill) if s.fill else QColor("#d9e6ff"))
             self.d_stroke_check.setChecked(s.stroke is not None)
             self.d_stroke_color.set_color(_to_qcolor(s.stroke) if s.stroke else QColor("#2659cc"))
-            self.d_width.setValue(s.line_width)
+            self.d_width.set_value_pt(s.line_width)
             idx = self.d_font.findData(s.font)
             self.d_font.setCurrentIndex(max(idx, 0))
             self.d_size.setValue(s.font_size)
@@ -568,7 +665,7 @@ class PropertiesPanel(QScrollArea):
         sc = self.d_stroke_color.color()
         s.fill = _to_color(fc) if self.d_fill_check.isChecked() and fc is not None else None
         s.stroke = _to_color(sc) if self.d_stroke_check.isChecked() and sc is not None else None
-        s.line_width = self.d_width.value()
+        s.line_width = self.d_width.value_pt()
         s.font = self.d_font.currentData() or "helv"
         s.font_size = self.d_size.value()
         tc = self.d_text_color.color()
@@ -581,7 +678,7 @@ class PropertiesPanel(QScrollArea):
         rect = self.canvas._selection_rect()
         if rect.isNull():
             return
-        nx, ny, nw, nh = self.x.value(), self.y.value(), self.w.value(), self.h.value()
+        nx, ny, nw, nh = self.x.value_pt(), self.y.value_pt(), self.w.value_pt(), self.h.value_pt()
         sx = nw / rect.width() if rect.width() > 1e-9 else 1.0
         sy = nh / rect.height() if rect.height() > 1e-9 else 1.0
         if self.lock.isChecked() and (abs(sx - 1) > 1e-9) != (abs(sy - 1) > 1e-9):

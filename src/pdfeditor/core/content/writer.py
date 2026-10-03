@@ -190,6 +190,7 @@ class ContentEditor:
         self._dirty_blocks: set[int] = set()  # id(block)
         self._blocks_by_id: dict[int, TextBlock] = {}
         self._appends: list[bytes] = []
+        self._prepends: list[bytes] = []
 
     # -- mutations -------------------------------------------------------
     def _obj(self, oid: int) -> GObject:
@@ -393,6 +394,99 @@ class ContentEditor:
         self._appends.append(b"\n".join(ops))
         return True
 
+    # -- duplicate / z-order ------------------------------------------------------
+    def _standalone_bytes(self, obj: GObject, offset: Matrix | None = None) -> bytes | None:
+        """Serialize an object relative to the end-of-stream base state (for appending)."""
+        base, inv = self._append_base()
+        if isinstance(obj, TextRun):
+            if obj.font_info is None and not obj.font:
+                return None
+            st = obj.state
+            tm = obj.tm
+            if offset is not None:
+                tm = tm * st.ctm * offset * st.ctm.inverted()
+            # text device matrix = tm * ctm; re-express relative to base ctm
+            tm_rel = tm * st.ctm * inv
+            ops: list[bytes] = [b"q"]
+            ops += diff_ops(base, st, ctm=False, text=False, gs=True)
+            ops.append(b"BT")
+            ops.append(fmt_name(obj.font) + b" " + fmt(st.font_size) + b" Tf")
+            if st.char_spacing:
+                ops.append(fmt(st.char_spacing) + b" Tc")
+            if st.word_spacing:
+                ops.append(fmt(st.word_spacing) + b" Tw")
+            if st.hscale != 1.0:
+                ops.append(fmt(st.hscale * 100) + b" Tz")
+            if st.rise:
+                ops.append(fmt(st.rise) + b" Ts")
+            if st.render_mode:
+                ops.append(fmt(st.render_mode) + b" Tr")
+            ops.append(fmt_matrix(tm_rel) + b" Tm")
+            ops.append(self._serialize_items(obj))
+            ops += [b"ET", b"Q"]
+            return b"\n".join(ops)
+        st = obj.state.copy()
+        if isinstance(obj, PathObject):
+            if obj.kind == "clip":
+                return None
+            subpaths = obj.subpaths
+            if offset is not None:
+                user = st.ctm * offset * st.ctm.inverted()
+                subpaths = [[_transform_segment(seg, user) for seg in sp] for sp in subpaths]
+            body = serialize_subpaths(subpaths) + b" " + paint_operator(obj.fill, obj.stroke, obj.even_odd)
+        elif isinstance(obj, XObjectRef):
+            if offset is not None:
+                st.ctm = st.ctm * offset
+            body = fmt_name(obj.name) + b" Do"
+        elif isinstance(obj, ShadingObject):
+            if offset is not None:
+                st.ctm = st.ctm * offset
+            body = fmt_name(obj.name) + b" sh"
+        elif isinstance(obj, InlineImage):
+            if offset is not None:
+                st.ctm = st.ctm * offset
+            body = self.stream[obj.span[0] : obj.span[1]]
+        else:
+            return None
+        diff = diff_ops(base, st, ctm=True)
+        return b"q " + b" ".join(diff) + (b"\n" if diff else b"") + body + b" Q"
+
+    def duplicate(self, ids: Iterable[int], offset: Matrix | None = None) -> int:
+        """Append copies of the given objects (optionally displaced in device space). Returns count."""
+        n = 0
+        for oid in sorted(ids):
+            data = self._standalone_bytes(self._obj(oid), offset)
+            if data is not None:
+                self._appends.append(data)
+                n += 1
+        return n
+
+    def bring_to_front(self, ids: Iterable[int]) -> int:
+        n = self.duplicate(ids)
+        self.delete(ids)
+        return n
+
+    def send_to_back(self, ids: Iterable[int]) -> int:
+        """Move objects to the start of the stream (drawn first, i.e. underneath)."""
+        n = 0
+        parts: list[bytes] = []
+        base = GraphicsState()
+        for oid in sorted(ids):
+            obj = self._obj(oid)
+            saved = self.content.end_base_state
+            self.content.end_base_state = base
+            try:
+                data = self._standalone_bytes(obj)
+            finally:
+                self.content.end_base_state = saved
+            if data is not None:
+                parts.append(data)
+                n += 1
+        if parts:
+            self._prepends.append(b"\n".join(parts) + b"\n")
+            self.delete(ids)
+        return n
+
     # -- building --------------------------------------------------------
     def build(self) -> bytes:
         reps: list[_Replacement] = []
@@ -409,6 +503,8 @@ class ContentEditor:
             reps.append(_Replacement(blk.span[0], blk.span[1], self._serialize_block(blk)))
         reps.sort(key=lambda r: r.start)
         out = bytearray()
+        if self._prepends:
+            out += b"".join(self._prepends)
         pos = 0
         for r in reps:
             if r.start < pos:

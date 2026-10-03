@@ -27,6 +27,7 @@ from PySide6.QtGui import (
     QTransform,
     QWheelEvent,
 )
+from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import (
     QGraphicsItem,
     QGraphicsPathItem,
@@ -42,6 +43,7 @@ from PySide6.QtWidgets import (
 
 from pdfeditor.core.content.model import Color, GObject, PathObject, TextRun, XObjectRef
 from pdfeditor.core.content.writer import ContentEditor
+from pdfeditor.core.annotations import AnnotInfo
 from pdfeditor.core.document import Document, WidgetInfo
 from pdfeditor.core.geometry import Matrix, Rect
 from pdfeditor.ui import theme
@@ -56,8 +58,13 @@ TOOL_ELLIPSE = "ellipse"
 TOOL_LINE = "line"
 TOOL_PEN = "pen"
 TOOL_FIELD = "field"  # followed by ":<type>", e.g. "field:7"
+TOOL_MARKUP = "markup"  # followed by ":highlight" / ":underline" / ":strikeout"
+TOOL_NOTE = "note"
+TOOL_CROP = "crop"
+TOOL_REDACT = "redact"
 
 DRAW_TOOLS = (TOOL_RECT, TOOL_ELLIPSE, TOOL_LINE, TOOL_PEN)
+AREA_TOOLS = (TOOL_CROP, TOOL_REDACT)
 
 HANDLE_PX = 8.0
 MIN_ZOOM = 0.1
@@ -188,6 +195,52 @@ class WidgetItem(QGraphicsItem):
         if not (self.hovered or self.selected_flag or self.show_tint):
             return
         pen = QPen(QColor(t.selection if self.selected_flag else t.hover), 0, Qt.PenStyle.DashLine if not self.selected_flag else Qt.PenStyle.SolidLine)
+        pen.setCosmetic(True)
+        pen.setWidthF(1.2)
+        painter.setPen(pen)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawRect(self.rect)
+
+
+class AnnotItem(QGraphicsItem):
+    """Hit-test and highlight proxy for an annotation (comment)."""
+
+    def __init__(self, info: AnnotInfo):
+        super().__init__()
+        self.info = info
+        self.rect = rect_to_qrect(info.rect)
+        self.hovered = False
+        self.selected_flag = False
+        self.setAcceptHoverEvents(True)
+        self.setZValue(60)
+        self.setToolTip(f"{info.type_name}" + (f" — {info.author}" if info.author else "") + (f"\n{info.contents}" if info.contents else ""))
+
+    def boundingRect(self) -> QRectF:
+        return self.rect.adjusted(-1, -1, 1, 1)
+
+    def shape(self) -> QPainterPath:
+        p = QPainterPath()
+        p.addRect(self.rect)
+        return p
+
+    def hoverEnterEvent(self, event) -> None:
+        self.hovered = True
+        self.update()
+
+    def hoverLeaveEvent(self, event) -> None:
+        self.hovered = False
+        self.update()
+
+    def set_selected(self, on: bool) -> None:
+        if self.selected_flag != on:
+            self.selected_flag = on
+            self.update()
+
+    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget | None = None) -> None:
+        if not (self.hovered or self.selected_flag):
+            return
+        t = theme.current()
+        pen = QPen(QColor(t.selection if self.selected_flag else t.hover), 0, Qt.PenStyle.SolidLine if self.selected_flag else Qt.PenStyle.DashLine)
         pen.setCosmetic(True)
         pen.setWidthF(1.2)
         painter.setPen(pen)
@@ -448,8 +501,15 @@ class PageCanvas(QGraphicsView):
         self.page_item: QGraphicsPixmapItem | None = None
         self.items_by_id: dict[int, ObjectItem] = {}
         self.widget_items: dict[int, WidgetItem] = {}
+        self.annot_items: dict[int, AnnotItem] = {}
         self.selection: list[int] = []
         self.widget_selection: list[int] = []
+        self.annot_selection: list[int] = []
+        self.highlight_items: list[QGraphicsRectItem] = []
+        self.highlights: list[Rect] = []
+        self.current_highlight: Rect | None = None
+        self.author = ""
+        self.confirm_area = None  # callable(tool, QRectF) -> bool, set by the main window
         self.frame = SelectionFrame()
         self._scene.addItem(self.frame)
         self.node_overlay: NodeOverlay | None = None
@@ -496,6 +556,9 @@ class PageCanvas(QGraphicsView):
         self.page_index = 0
         self.selection = []
         self.widget_selection = []
+        self.annot_selection = []
+        self.highlights = []
+        self.current_highlight = None
         if doc is not None:
             doc.add_listener(self._on_doc_event)
         self.rebuild()
@@ -520,6 +583,7 @@ class PageCanvas(QGraphicsView):
         self.page_index = index
         self.selection = []
         self.widget_selection = []
+        self.annot_selection = []
         self.rebuild()
         self.selectionChanged.emit([])
 
@@ -529,9 +593,10 @@ class PageCanvas(QGraphicsView):
         self._end_text_edit(commit=False)
         self._cancel_pen()
         self.tool = tool
-        if tool in DRAW_TOOLS or tool == TOOL_TEXT or self.is_field_tool:
+        if tool in DRAW_TOOLS or tool in AREA_TOOLS or tool in (TOOL_TEXT, TOOL_NOTE) or self.is_field_tool or self.is_markup_tool:
             self.selection = []
             self.widget_selection = []
+            self.annot_selection = []
             self._update_selection_visuals()
             self.selectionChanged.emit([])
         self._update_node_overlay()
@@ -542,6 +607,13 @@ class PageCanvas(QGraphicsView):
     @property
     def is_field_tool(self) -> bool:
         return self.tool.startswith(TOOL_FIELD)
+
+    @property
+    def is_markup_tool(self) -> bool:
+        return self.tool.startswith(TOOL_MARKUP)
+
+    def markup_kind(self) -> str:
+        return self.tool.split(":", 1)[1] if ":" in self.tool else "highlight"
 
     def field_tool_type(self) -> int:
         try:
@@ -554,8 +626,10 @@ class PageCanvas(QGraphicsView):
             self.viewport().setCursor(Qt.CursorShape.OpenHandCursor)
         elif self.tool == TOOL_TEXT:
             self.viewport().setCursor(Qt.CursorShape.IBeamCursor)
-        elif self.tool in DRAW_TOOLS or self.is_field_tool:
+        elif self.tool in DRAW_TOOLS or self.tool in AREA_TOOLS or self.is_field_tool or self.is_markup_tool:
             self.viewport().setCursor(Qt.CursorShape.CrossCursor)
+        elif self.tool == TOOL_NOTE:
+            self.viewport().setCursor(Qt.CursorShape.PointingHandCursor)
         else:
             self.viewport().setCursor(Qt.CursorShape.ArrowCursor)
 
@@ -572,10 +646,13 @@ class PageCanvas(QGraphicsView):
         self._cancel_pen()
         old_selection = list(self.selection) if keep_selection else []
         old_widgets = list(self.widget_selection) if keep_selection else []
+        old_annots = list(self.annot_selection) if keep_selection else []
         self._scene.removeItem(self.frame)
         self._scene.clear()
         self.items_by_id = {}
         self.widget_items = {}
+        self.annot_items = {}
+        self.highlight_items = []
         self.page_item = None
         self.node_overlay = None
         self.text_proxy = None
@@ -605,13 +682,17 @@ class PageCanvas(QGraphicsView):
         self._render_now()
         self._build_overlay()
         self._build_widgets()
+        self._build_annots()
+        self._build_highlights()
         if self._select_new_after_rebuild and self.items_by_id:
             self._select_new_after_rebuild = False
             self.selection = [max(self.items_by_id)]
             self.widget_selection = []
+            self.annot_selection = []
         else:
             self.selection = [i for i in old_selection if i in self.items_by_id]
             self.widget_selection = [x for x in old_widgets if x in self.widget_items]
+            self.annot_selection = [x for x in old_annots if x in self.annot_items]
         self._update_selection_visuals()
         self._update_node_overlay()
         self._update_widget_tint()
@@ -642,6 +723,43 @@ class PageCanvas(QGraphicsView):
             item = WidgetItem(info)
             self._scene.addItem(item)
             self.widget_items[info.xref] = item
+
+    def _build_annots(self) -> None:
+        assert self.doc is not None
+        for info in self.doc.annotations(self.page_index):
+            item = AnnotItem(info)
+            self._scene.addItem(item)
+            self.annot_items[info.xref] = item
+
+    def _build_highlights(self) -> None:
+        for it in self.highlight_items:
+            try:
+                self._scene.removeItem(it)
+            except RuntimeError:
+                pass
+        self.highlight_items = []
+        if not self.highlights:
+            return
+        t = theme.current()
+        for r in self.highlights:
+            item = QGraphicsRectItem(rect_to_qrect(r).adjusted(-1, -1, 1, 1))
+            is_current = self.current_highlight is not None and r == self.current_highlight
+            c = QColor("#f59e0b" if is_current else "#fde047")
+            c.setAlpha(120 if is_current else 70)
+            item.setBrush(QBrush(c))
+            pen = QPen(QColor(t.accent if is_current else "#eab308"), 0)
+            pen.setCosmetic(True)
+            item.setPen(pen)
+            item.setZValue(5)
+            self._scene.addItem(item)
+            self.highlight_items.append(item)
+
+    def set_highlights(self, rects: list[Rect], current: Rect | None = None) -> None:
+        self.highlights = list(rects)
+        self.current_highlight = current
+        self._build_highlights()
+        if current is not None:
+            self.ensureVisible(rect_to_qrect(current).adjusted(-40, -40, 40, 40))
 
     def _object_geometry(self, obj: GObject, S: QTransform) -> tuple[QPainterPath | None, QPainterPath | None]:
         clip = obj.state.clip_bbox
@@ -791,13 +909,17 @@ class PageCanvas(QGraphicsView):
     def selected_widgets(self) -> list[WidgetInfo]:
         return [self.widget_items[x].info for x in self.widget_selection if x in self.widget_items]
 
+    def selected_annots(self) -> list[AnnotInfo]:
+        return [self.annot_items[x].info for x in self.annot_selection if x in self.annot_items]
+
     @property
     def has_selection(self) -> bool:
-        return bool(self.selection or self.widget_selection)
+        return bool(self.selection or self.widget_selection or self.annot_selection)
 
     def select(self, ids: list[int], emit: bool = True) -> None:
         self.selection = [i for i in ids if i in self.items_by_id]
         self.widget_selection = []
+        self.annot_selection = []
         self._update_selection_visuals()
         self._update_node_overlay()
         if emit:
@@ -806,6 +928,16 @@ class PageCanvas(QGraphicsView):
     def select_widgets(self, xrefs: list[int], emit: bool = True) -> None:
         self.widget_selection = [x for x in xrefs if x in self.widget_items]
         self.selection = []
+        self.annot_selection = []
+        self._update_selection_visuals()
+        self._update_node_overlay()
+        if emit:
+            self.selectionChanged.emit([])
+
+    def select_annots(self, xrefs: list[int], emit: bool = True) -> None:
+        self.annot_selection = [x for x in xrefs if x in self.annot_items]
+        self.selection = []
+        self.widget_selection = []
         self._update_selection_visuals()
         self._update_node_overlay()
         if emit:
@@ -824,11 +956,15 @@ class PageCanvas(QGraphicsView):
         wsel = set(self.widget_selection)
         for x, item in self.widget_items.items():
             item.set_selected(x in wsel)
+        asel = set(self.annot_selection)
+        for x, item in self.annot_items.items():
+            item.set_selected(x in asel)
         self.frame.set_rect(self._selection_rect(), self.zoom)
 
     def _selected_items(self) -> list[QGraphicsItem]:
         items: list[QGraphicsItem] = [self.items_by_id[i] for i in self.selection if i in self.items_by_id]
         items += [self.widget_items[x] for x in self.widget_selection if x in self.widget_items]
+        items += [self.annot_items[x] for x in self.annot_selection if x in self.annot_items]
         return items
 
     def _selection_rect(self) -> QRectF:
@@ -880,6 +1016,14 @@ class PageCanvas(QGraphicsView):
         return self.pdf_to_scene.inverted()
 
     def transform_selection(self, m_scene: Matrix, label: str = "Transform") -> None:
+        if self.annot_selection and self.doc is not None:
+            movable = [a.xref for a in self.selected_annots() if a.movable]
+            if movable:
+                self.doc.transform_annotations(self.page_index, movable, m_scene)
+                self.pageEdited.emit(self.page_index)
+            else:
+                self.statusMessage.emit("Text markup annotations follow the text and cannot be moved.")
+            return
         if self.widget_selection and self.doc is not None:
             self.doc.transform_widgets(self.page_index, list(self.widget_selection), m_scene)
             self.pageEdited.emit(self.page_index)
@@ -896,6 +1040,12 @@ class PageCanvas(QGraphicsView):
         self.transform_selection(Matrix.translation(dx, dy), "Nudge")
 
     def delete_selection(self) -> None:
+        if self.annot_selection and self.doc is not None:
+            xs = list(self.annot_selection)
+            self.annot_selection = []
+            self.doc.delete_annotations(self.page_index, xs)
+            self.selectionChanged.emit([])
+            return
         if self.widget_selection and self.doc is not None:
             xs = list(self.widget_selection)
             self.widget_selection = []
@@ -911,6 +1061,116 @@ class PageCanvas(QGraphicsView):
         self.selection = []
         self._commit(ed, "Delete")
         self.selectionChanged.emit([])
+
+    # -- arrangement -----------------------------------------------------------------
+    def duplicate_selection(self, offset: float = 10.0) -> None:
+        if self.widget_selection or self.annot_selection:
+            self.statusMessage.emit("Only page content can be duplicated.")
+            return
+        ed = self._editor()
+        if ed is None or not self.selection:
+            return
+        n = ed.duplicate(list(self.selection), self.scene_matrix_to_pdf(Matrix.translation(offset, offset)))
+        if n:
+            self._commit(ed, "Duplicate", select_new=True)
+            if n > 1:
+                ids = sorted(self.items_by_id)[-n:]
+                self.select(ids)
+
+    def bring_to_front(self) -> None:
+        ed = self._editor()
+        if ed is None or not self.selection:
+            return
+        n = ed.bring_to_front(list(self.selection))
+        self._commit(ed, "Bring to front", select_new=True)
+        if n > 1:
+            self.select(sorted(self.items_by_id)[-n:])
+
+    def send_to_back(self) -> None:
+        ed = self._editor()
+        if ed is None or not self.selection:
+            return
+        n = ed.send_to_back(list(self.selection))
+        self.selection = []
+        self._commit(ed, "Send to back")
+        if n:
+            self.select(sorted(self.items_by_id)[:n])
+
+    def flip_selection(self, horizontal: bool) -> None:
+        rect = self._selection_rect()
+        if rect.isNull():
+            return
+        c = rect.center()
+        m = Matrix.translation(-c.x(), -c.y()) * (Matrix.scale(-1, 1) if horizontal else Matrix.scale(1, -1)) * Matrix.translation(c.x(), c.y())
+        self.transform_selection(m, "Flip")
+
+    def rotate_selection(self, degrees: float) -> None:
+        rect = self._selection_rect()
+        if rect.isNull():
+            return
+        c = rect.center()
+        self.transform_selection(Matrix.translation(-c.x(), -c.y()) * Matrix.rotation(degrees) * Matrix.translation(c.x(), c.y()), "Rotate")
+
+    def align_selection(self, mode: str) -> None:
+        """Align content objects: left/hcenter/right/top/vcenter/bottom; a single object aligns to the page."""
+        ed = self._editor()
+        if ed is None or not self.selection:
+            return
+        rects = {oid: self.items_by_id[oid].sceneTransform().mapRect(self.items_by_id[oid].shape().boundingRect()) for oid in self.selection}
+        target = self._selection_rect() if len(rects) > 1 else self.page_rect
+        moved = False
+        for oid, r in rects.items():
+            dx = dy = 0.0
+            if mode == "left":
+                dx = target.left() - r.left()
+            elif mode == "hcenter":
+                dx = target.center().x() - r.center().x()
+            elif mode == "right":
+                dx = target.right() - r.right()
+            elif mode == "top":
+                dy = target.top() - r.top()
+            elif mode == "vcenter":
+                dy = target.center().y() - r.center().y()
+            elif mode == "bottom":
+                dy = target.bottom() - r.bottom()
+            if abs(dx) > 1e-6 or abs(dy) > 1e-6:
+                ed.transform([oid], self.scene_matrix_to_pdf(Matrix.translation(dx, dy)), scale_stroke=False)
+                moved = True
+        if moved:
+            self._commit(ed, "Align")
+
+    def distribute_selection(self, horizontal: bool) -> None:
+        ed = self._editor()
+        if ed is None or len(self.selection) < 3:
+            return
+        rects = [(oid, self.items_by_id[oid].sceneTransform().mapRect(self.items_by_id[oid].shape().boundingRect())) for oid in self.selection]
+        key = (lambda r: r.center().x()) if horizontal else (lambda r: r.center().y())
+        rects.sort(key=lambda t: key(t[1]))
+        first, last = key(rects[0][1]), key(rects[-1][1])
+        step = (last - first) / (len(rects) - 1)
+        for i, (oid, r) in enumerate(rects[1:-1], start=1):
+            want = first + i * step
+            d = want - key(r)
+            if abs(d) > 1e-6:
+                ed.transform([oid], self.scene_matrix_to_pdf(Matrix.translation(d, 0) if horizontal else Matrix.translation(0, d)), scale_stroke=False)
+        self._commit(ed, "Distribute")
+
+    def copy_selected_text(self) -> str:
+        runs = [o for o in self.selected_objects() if isinstance(o, TextRun)]
+        if not runs:
+            return ""
+        lines: list[str] = []
+        done: set[int] = set()
+        for r in sorted(runs, key=lambda r: (-r.tm.f, r.tm.e)):
+            if r.id in done:
+                continue
+            ids = self.text_line_ids(r.id)
+            sel_ids = [i for i in ids if i in self.selection]
+            done.update(sel_ids)
+            lines.append(self._line_text(sel_ids))
+        text = "\n".join(lines)
+        QGuiApplication.clipboard().setText(text)
+        return text
 
     def set_selection_style(self, **kwargs) -> None:
         if not self.selection:
@@ -1247,9 +1507,9 @@ class PageCanvas(QGraphicsView):
         return pen
 
     # -- mouse handling ---------------------------------------------------------
-    def _object_at(self, pos: QPointF) -> ObjectItem | WidgetItem | None:
+    def _object_at(self, pos: QPointF) -> ObjectItem | WidgetItem | AnnotItem | None:
         for it in self._scene.items(pos, Qt.ItemSelectionMode.IntersectsItemShape, Qt.SortOrder.DescendingOrder):
-            if isinstance(it, (ObjectItem, WidgetItem)):
+            if isinstance(it, (ObjectItem, WidgetItem, AnnotItem)):
                 return it
         return None
 
@@ -1277,8 +1537,15 @@ class PageCanvas(QGraphicsView):
             self.pen_points.append(pos)
             self._update_pen_preview(pos)
             return
-        if self.tool in (TOOL_RECT, TOOL_ELLIPSE, TOOL_LINE) or self.is_field_tool:
+        if self.tool in (TOOL_RECT, TOOL_ELLIPSE, TOOL_LINE) or self.tool in AREA_TOOLS or self.is_field_tool or self.is_markup_tool:
             self.drag = DragState("create", pos, pos)
+            return
+        if self.tool == TOOL_NOTE:
+            if self.page_rect.contains(pos) and self.doc is not None:
+                self.doc.add_note(self.page_index, (pos.x(), pos.y()), "", author=self.author)
+                self.pageEdited.emit(self.page_index)
+                if self.annot_items:
+                    self.select_annots([max(self.annot_items)])
             return
         if self.tool == TOOL_NODE and self.node_overlay is not None:
             key = self.node_overlay.point_at(pos)
@@ -1327,6 +1594,17 @@ class PageCanvas(QGraphicsView):
             if x not in self.widget_selection:
                 self.select_widgets([x])
             self.drag = DragState("move", pos, pos)
+            return
+        if isinstance(item, AnnotItem):
+            x = item.info.xref
+            if shift:
+                sel = [a for a in self.annot_selection if a != x] if x in self.annot_selection else self.annot_selection + [x]
+                self.select_annots(sel)
+                return
+            if x not in self.annot_selection:
+                self.select_annots([x])
+            if item.info.movable:
+                self.drag = DragState("move", pos, pos)
             return
         oid = item.obj.id
         if shift:
@@ -1454,7 +1732,10 @@ class PageCanvas(QGraphicsView):
                     self.select(ids)
                 else:
                     xs = [x for x, it in self.widget_items.items() if rect.contains(it.sceneBoundingRect())]
-                    self.select_widgets(xs)
+                    if xs:
+                        self.select_widgets(xs)
+                    else:
+                        self.select_annots([x for x, it in self.annot_items.items() if rect.contains(it.sceneBoundingRect())])
             return
         if d.mode == "create":
             if self.preview is not None:
@@ -1464,6 +1745,11 @@ class PageCanvas(QGraphicsView):
             if self.is_field_tool:
                 r = geom if isinstance(geom, QRectF) else QRectF(geom[0], geom[1]).normalized()
                 self.create_widget(r, self.field_tool_type())
+                return
+            if self.is_markup_tool or self.tool in AREA_TOOLS:
+                r = geom if isinstance(geom, QRectF) else QRectF(geom[0], geom[1]).normalized()
+                if r.width() * self.zoom >= 3 and r.height() * self.zoom >= 3:
+                    self._apply_area_tool(r)
                 return
             if isinstance(geom, tuple):
                 if (geom[0] - geom[1]).manhattanLength() * self.zoom >= 3:
@@ -1489,6 +1775,30 @@ class PageCanvas(QGraphicsView):
                     self._commit(ed, "Edit nodes")
             else:
                 ov.update()
+
+    def _apply_area_tool(self, r: QRectF) -> None:
+        if self.doc is None:
+            return
+        rect = qrect_to_rect(r)
+        if self.is_markup_tool:
+            words = self.doc.words_in_rect(self.page_index, rect)
+            if not words:
+                self.statusMessage.emit("No text in that area.")
+                return
+            self.doc.add_markup(self.page_index, self.markup_kind(), words, author=self.author)
+            self.pageEdited.emit(self.page_index)
+            if self.annot_items:
+                self.select_annots([max(self.annot_items)])
+            return
+        if self.confirm_area is not None and not self.confirm_area(self.tool, r):
+            return
+        if self.tool == TOOL_CROP:
+            self.doc.set_cropbox_scene(self.page_index, rect)
+            self.set_tool(TOOL_SELECT)
+            QTimer.singleShot(0, self.zoom_fit)
+        elif self.tool == TOOL_REDACT:
+            self.doc.redact_area(self.page_index, rect)
+        self.pageEdited.emit(self.page_index)
 
     def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
         pos = self.mapToScene(event.position().toPoint())

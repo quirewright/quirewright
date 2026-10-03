@@ -20,7 +20,9 @@ from typing import Any, Callable, Iterable, Sequence
 
 import pymupdf
 
+from pdfeditor.core.annotations import AnnotationMixin
 from pdfeditor.core.commands import ContentEditCommand, SnapshotCommand, UndoStack
+from pdfeditor.core.docinfo import DocInfoMixin, SecuritySettings
 from pdfeditor.core.content.interpreter import interpret
 from pdfeditor.core.content.model import PageContent
 from pdfeditor.core.fonts import FontInfo
@@ -349,7 +351,7 @@ class _DocumentExtras:
         self._structure_op("Move field(s)", action)
 
 
-class Document(_DocumentExtras):
+class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
     def __init__(self, path: str | None = None, pdf: pymupdf.Document | None = None):
         self.path: str | None = path
         if pdf is not None:
@@ -360,6 +362,7 @@ class Document(_DocumentExtras):
             self.pdf = pymupdf.open()
             self.pdf.new_page()
         self.undo_stack = UndoStack(self)
+        self.security = SecuritySettings()
         self.listeners: list[Listener] = []
         self._content_cache: dict[int, PageContent] = {}
         self._resources_cache: dict[int, PageResources] = {}
@@ -670,7 +673,7 @@ class Document(_DocumentExtras):
         fd, tmp = tempfile.mkstemp(prefix=".pdfeditor-", suffix=".pdf", dir=directory)
         os.close(fd)
         try:
-            self.pdf.save(tmp, garbage=garbage, deflate=True, use_objstms=0)
+            self.pdf.save(tmp, garbage=garbage, deflate=True, use_objstms=0, **self.security.to_save_args())
             os.replace(tmp, target)
         except Exception:
             try:
@@ -682,6 +685,10 @@ class Document(_DocumentExtras):
         data = open(target, "rb").read()
         old = self.pdf
         self.pdf = pymupdf.open(stream=data, filetype="pdf")
+        if self.pdf.needs_pass:
+            pw = self.security.user_password or self.security.owner_password
+            self.pdf.authenticate(pw)
+        self.security = SecuritySettings()
         try:
             old.close()
         except Exception:

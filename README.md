@@ -39,6 +39,15 @@ context menu:
 - crop pages by margins (non-destructive, resettable)
 - open encrypted PDFs, save / save as, recent files, drag-and-drop to open
 
+**Comments** – highlight, underline and strike out text, add sticky notes;
+edit author, text, colour and opacity in the Inspector; flatten when done.
+
+**Document** – edit metadata (title, author, keywords, dates); set or remove
+passwords and permissions (AES-256); browse and extract images, fonts and
+attachments; attach files; find text across pages; bookmarks panel; page
+numbers, watermarks, redaction; export pages as PNG/JPEG/SVG or text; print;
+save a reduced-size copy.
+
 **Forms** – create AcroForm fields (text, checkbox, radio, dropdown, list box,
 push button) by dragging on the page; move, resize and delete them like any
 object; edit name, value, options, caption, font size, colours, border and
@@ -46,7 +55,10 @@ flags (read-only, required, multiline) in the Inspector. Filling a form is just
 selecting a field and typing its value.
 
 **UI** – light and dark themes, consistent custom icons, Inspector panel with
-contextual properties, keyboard shortcuts for every tool and command.
+contextual properties, welcome screen, configurable units, keyboard shortcuts
+for every tool and command (Help › Keyboard Shortcuts), and a user guide in
+[docs/USER_GUIDE.md](docs/USER_GUIDE.md). The feature checklist and roadmap
+live in [docs/FEATURES.md](docs/FEATURES.md).
 
 ## Install & run
 
@@ -141,10 +153,16 @@ already follow platform conventions.
 GNU Affero General Public License v3.0 or later (see `LICENSE`). PyMuPDF/MuPDF
 are AGPL-licensed; Qt via PySide6 is LGPL.
 
+## Desktop integration (Linux)
+
+```bash
+packaging/install-desktop.sh
+```
+
+installs a launcher and icon for the current user.
+
 ## Roadmap
 
-- multi-line text boxes with wrapping; bezier drawing in the Pen tool
-- grouping, z-order changes, alignment & distribution
-- editing inside form XObjects
-- annotations, forms, OCR, redaction
-- continuous multi-page view, background rendering, print
+See [docs/FEATURES.md](docs/FEATURES.md). Highlights still open: continuous
+multi-page view and tabs, multi-line text boxes, bezier drawing in the Pen
+tool, grouping, editing inside form XObjects, page labels, OCR.
