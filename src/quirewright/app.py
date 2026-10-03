@@ -65,10 +65,13 @@ def main(argv: list[str] | None = None) -> int:
             app.installTranslator(qt_tr)
     # Theme preference: "system" (default, follows the desktop live), "light" or "dark".
     mode = settings.value("ui/theme", "", type=str)
-    if not mode:
-        # migrate the old boolean setting
-        mode = ("dark" if settings.value("ui/dark", False, type=bool) else "light") if settings.contains("ui/dark") else "system"
+    if mode not in ("system", "light", "dark"):
+        # First start with the three-way preference: follow the desktop. The old
+        # boolean toggle is dropped rather than migrated (it was easy to leave stale).
+        mode = "system"
         settings.setValue("ui/theme", mode)
+        settings.remove("ui/dark")
+        settings.sync()
     if args.dark:
         mode = "dark"
     elif args.light:
