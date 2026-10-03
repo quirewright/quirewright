@@ -33,7 +33,7 @@ def test_ui_in_german(tmp_path):
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
     from PySide6.QtWidgets import QApplication
 
-    app = QApplication.instance() or QApplication([])
+    QApplication.instance() or QApplication([])
     i18n.set_language("de")
     try:
         from pdfeditor.ui.main_window import MainWindow

@@ -17,17 +17,18 @@ from PySide6.QtGui import (
     QBrush,
     QColor,
     QFont,
+    QGuiApplication,
     QKeyEvent,
     QMouseEvent,
     QPainter,
     QPainterPath,
     QPainterPathStroker,
     QPen,
+    QPixmap,
     QPolygonF,
     QTransform,
     QWheelEvent,
 )
-from PySide6.QtGui import QGuiApplication, QPixmap
 from PySide6.QtWidgets import (
     QGraphicsItem,
     QGraphicsLineItem,
@@ -43,12 +44,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from pdfeditor.core.content.model import Color, GObject, PathObject, TextRun, XObjectRef
-from pdfeditor.core.content.writer import ContentEditor, wrap_text
 from pdfeditor.core.annotations import AnnotInfo
+from pdfeditor.core.content.model import Color, GObject, PathObject, TextRun, XObjectRef
+from pdfeditor.core.content.writer import ContentEditor
 from pdfeditor.core.document import Document, WidgetInfo
 from pdfeditor.core.geometry import Matrix, Rect
-from pdfeditor.i18n import N_, tr
+from pdfeditor.i18n import tr
 from pdfeditor.ui import theme
 from pdfeditor.ui.render import RenderCache, render_page
 
@@ -382,7 +383,7 @@ class NodeOverlay(QGraphicsItem):
         r = self.handle_radius() * 1.4
         best = None
         best_d = r
-        for si, gi, pi, x, y, anchor in self.points():
+        for si, gi, pi, x, y, _anchor in self.points():
             p = self.scene_point(x, y)
             d = math.hypot(p.x() - pos.x(), p.y() - pos.y())
             if d <= best_d:
@@ -429,9 +430,9 @@ class NodeOverlay(QGraphicsItem):
         r = self.handle_radius()
         thin = QPen(QColor(t.hover), 0, Qt.PenStyle.DashLine)
         thin.setCosmetic(True)
-        for si, sp in enumerate(self.subpaths):
+        for sp in self.subpaths:
             prev: tuple[float, float] | None = None
-            for gi, seg in enumerate(sp):
+            for seg in sp:
                 if seg[0] == "c":
                     painter.setPen(thin)
                     if prev is not None:
@@ -1181,7 +1182,6 @@ class PageCanvas(QGraphicsView):
 
     def _show_smart(self, x: float | None, y: float | None) -> None:
         self._clear_smart()
-        t = theme.current()
         pen = QPen(QColor("#f43f5e"), 0, Qt.PenStyle.DashLine)
         pen.setCosmetic(True)
         r = self.sceneRect()

@@ -662,3 +662,681 @@ msgstr "Abbrechen"
 
 msgid "The new language is used after you restart the application."
 msgstr "Die neue Sprache wird nach einem Neustart der Anwendung verwendet."
+
+msgid "(not set)"
+msgstr "(nicht gesetzt)"
+
+msgid "A document must keep at least one page."
+msgstr "Ein Dokument muss mindestens eine Seite behalten."
+
+msgid "A free and open-source PDF editor combining vector object editing with page management.\n\nLicensed under the GNU Affero General Public License v3.0 or later.\nBuilt with PySide6 (Qt) and PyMuPDF (MuPDF)."
+msgstr "Ein freier und quelloffener PDF-Editor, der Vektorobjekt-Bearbeitung mit Seitenverwaltung verbindet.\n\nLizenziert unter der GNU Affero General Public License v3.0 oder neuer.\nErstellt mit PySide6 (Qt) und PyMuPDF (MuPDF)."
+
+msgid "AES 128-bit"
+msgstr "AES 128 Bit"
+
+msgid "AES 256-bit (recommended)"
+msgstr "AES 256 Bit (empfohlen)"
+
+msgid "Actual size"
+msgstr "Originalgröße"
+
+msgid "Add a bookmark for the current page"
+msgstr "Lesezeichen für die aktuelle Seite hinzufügen"
+
+msgid "Add a child bookmark under the selected one"
+msgstr "Untergeordnetes Lesezeichen unter dem ausgewählten hinzufügen"
+
+msgid "Add bookmark here"
+msgstr "Lesezeichen hier hinzufügen"
+
+msgid "Add child bookmark"
+msgstr "Untergeordnetes Lesezeichen hinzufügen"
+
+msgid "Add page numbers"
+msgstr "Seitenzahlen hinzufügen"
+
+msgid "Add rule"
+msgstr "Regel hinzufügen"
+
+msgid "Add watermark"
+msgstr "Wasserzeichen hinzufügen"
+
+msgid "Adds an invisible, searchable text layer over scanned pages. The page image is not changed. Pages that already contain text are skipped unless you choose otherwise."
+msgstr "Legt eine unsichtbare, durchsuchbare Textebene über gescannte Seiten. Das Seitenbild wird nicht verändert. Seiten, die bereits Text enthalten, werden übersprungen, sofern Sie nichts anderes wählen."
+
+msgid "All pages"
+msgstr "Alle Seiten"
+
+msgid "All pages (one file each)"
+msgstr "Alle Seiten (je eine Datei)"
+
+msgid "Apply to"
+msgstr "Anwenden auf"
+
+msgid "At the beginning"
+msgstr "Am Anfang"
+
+msgid "At the end"
+msgstr "Am Ende"
+
+msgid "Attach files"
+msgstr "Dateien anhängen"
+
+msgid "Attach file…"
+msgstr "Datei anhängen…"
+
+msgid "Back (Alt+Left)"
+msgstr "Zurück (Alt+Links)"
+
+msgid "Browse and extract images, fonts and attachments"
+msgstr "Bilder, Schriften und Anhänge durchsuchen und extrahieren"
+
+msgid "Browse…"
+msgstr "Durchsuchen…"
+
+msgid "Calculate"
+msgstr "Berechnen"
+
+msgid "Calculation & format"
+msgstr "Berechnung & Format"
+
+msgid "Cannot delete"
+msgstr "Löschen nicht möglich"
+
+msgid "Checked"
+msgstr "Aktiviert"
+
+msgid "Choose PDF"
+msgstr "PDF auswählen"
+
+msgid "Choose a PDF…"
+msgstr "PDF auswählen…"
+
+msgid "Choose folder"
+msgstr "Ordner auswählen"
+
+msgid "Choose folder for fonts"
+msgstr "Ordner für Schriften auswählen"
+
+msgid "Choose folder for images"
+msgstr "Ordner für Bilder auswählen"
+
+msgid "Choose folder for page images"
+msgstr "Ordner für Seitenbilder auswählen"
+
+msgid "Choose output folder"
+msgstr "Ausgabeordner auswählen"
+
+msgid "Click an object to inspect and edit it. Drag to move, use the handles to resize, double-click text to edit a line, double-click a shape to edit its nodes. Use the drawing tools to add shapes, text and form fields."
+msgstr "Klicken Sie auf ein Objekt, um es zu prüfen und zu bearbeiten. Ziehen zum Verschieben, Anfasser zum Skalieren, Doppelklick auf Text bearbeitet eine Zeile, Doppelklick auf eine Form bearbeitet ihre Knoten. Mit den Zeichenwerkzeugen fügen Sie Formen, Text und Formularfelder hinzu."
+
+msgid "Click for corners, click-and-drag for curves · double-click or Enter finishes · click the first point to close · Esc cancels"
+msgstr "Klicken für Ecken, Klicken und Ziehen für Kurven · Doppelklick oder Eingabe beendet · Klick auf den ersten Punkt schließt · Esc bricht ab"
+
+msgid "Click on the page to add a sticky note, then type its text in the Inspector"
+msgstr "Klicken Sie auf die Seite, um eine Notiz hinzuzufügen, und geben Sie den Text im Inspektor ein"
+
+msgid "Click text to edit the line · Ctrl+E edits the paragraph · click or drag on empty space for new text · Enter applies · Esc cancels"
+msgstr "Klick auf Text bearbeitet die Zeile · Strg+E bearbeitet den Absatz · Klicken oder Ziehen auf freier Fläche für neuen Text · Eingabe übernimmt · Esc bricht ab"
+
+msgid "Click to add a comment"
+msgstr "Klicken, um einen Kommentar hinzuzufügen"
+
+msgid "Click to select · drag to move · Shift+click to add · handles resize · double-click text to edit, a shape for nodes, a group to enter it"
+msgstr "Klicken wählt aus · Ziehen verschiebt · Umschalt+Klick erweitert · Anfasser skalieren · Doppelklick auf Text bearbeitet, auf eine Form die Knoten, auf eine Gruppe betritt sie"
+
+msgid "Close (Esc)"
+msgstr "Schließen (Esc)"
+
+msgid "Combine languages with +, e.g. eng+deu"
+msgstr "Sprachen mit + kombinieren, z. B. eng+deu"
+
+msgid "Combine the selected objects into a group (a form XObject)"
+msgstr "Ausgewählte Objekte zu einer Gruppe (Form-XObject) zusammenfassen"
+
+msgid "Comment text"
+msgstr "Kommentartext"
+
+msgid "Convert all form fields and comments into fixed page content? They can no longer be edited afterwards (undo is available)."
+msgstr "Alle Formularfelder und Kommentare in festen Seiteninhalt umwandeln? Sie können danach nicht mehr bearbeitet werden (Rückgängig ist möglich)."
+
+msgid "Copy the selected text to the clipboard"
+msgstr "Ausgewählten Text in die Zwischenablage kopieren"
+
+msgid "Create a new document with one blank page"
+msgstr "Neues Dokument mit einer leeren Seite erstellen"
+
+msgid "Crop page margins"
+msgstr "Seitenränder zuschneiden"
+
+msgid "Crop pages"
+msgstr "Seiten zuschneiden"
+
+msgid "Currency"
+msgstr "Währung"
+
+msgid "Currency symbol (optional)"
+msgstr "Währungssymbol (optional)"
+
+msgid "Current page"
+msgstr "Aktuelle Seite"
+
+msgid "Date format"
+msgstr "Datumsformat"
+
+msgid "Decimals"
+msgstr "Dezimalstellen"
+
+msgid "Delete selected objects"
+msgstr "Ausgewählte Objekte löschen"
+
+msgid "Delete the selected bookmark"
+msgstr "Ausgewähltes Lesezeichen löschen"
+
+msgid "Delete the selected page(s)"
+msgstr "Ausgewählte Seite(n) löschen"
+
+msgid "Distribute &Vertically"
+msgstr "&Vertikal verteilen"
+
+msgid "Distribute Hori&zontally"
+msgstr "Hori&zontal verteilen"
+
+msgid "Drag a rectangle to crop the page to it (C)"
+msgstr "Rechteck aufziehen, um die Seite darauf zuzuschneiden (C)"
+
+msgid "Drag a rectangle to crop the page to that area (content outside is hidden, not deleted)"
+msgstr "Rechteck aufziehen, um die Seite auf diesen Bereich zuzuschneiden (Inhalt außerhalb wird ausgeblendet, nicht gelöscht)"
+
+msgid "Drag a rectangle to permanently remove everything inside it"
+msgstr "Rechteck aufziehen, um alles darin dauerhaft zu entfernen"
+
+msgid "Drag a rectangle to permanently remove its content"
+msgstr "Rechteck aufziehen, um dessen Inhalt dauerhaft zu entfernen"
+
+msgid "Drag anchors (squares) and control points (circles) · Esc returns to Select"
+msgstr "Ankerpunkte (Quadrate) und Kontrollpunkte (Kreise) ziehen · Esc kehrt zur Auswahl zurück"
+
+msgid "Drag on the page to add a {field}"
+msgstr "Auf der Seite ziehen, um {field} hinzuzufügen"
+
+msgid "Drag on the page to place the field · select a field to edit it in the Inspector"
+msgstr "Auf der Seite ziehen, um das Feld zu platzieren · Feld auswählen, um es im Inspektor zu bearbeiten"
+
+msgid "Drag onto the page to create a guide"
+msgstr "Auf die Seite ziehen, um eine Hilfslinie zu erstellen"
+
+msgid "Drag over text to highlight it"
+msgstr "Über Text ziehen, um ihn hervorzuheben"
+
+msgid "Drag over text to strike it out"
+msgstr "Über Text ziehen, um ihn durchzustreichen"
+
+msgid "Drag over text to underline it"
+msgstr "Über Text ziehen, um ihn zu unterstreichen"
+
+msgid "Drag over words to mark them up · select a comment to edit it in the Inspector"
+msgstr "Über Wörter ziehen, um sie zu markieren · Kommentar auswählen, um ihn im Inspektor zu bearbeiten"
+
+msgid "Drag to draw a line · Shift snaps to 45°"
+msgstr "Ziehen zeichnet eine Linie · Umschalt rastet auf 45° ein"
+
+msgid "Drag to draw a rectangle · Shift for a square"
+msgstr "Ziehen zeichnet ein Rechteck · Umschalt für ein Quadrat"
+
+msgid "Drag to draw an ellipse · Shift for a circle"
+msgstr "Ziehen zeichnet eine Ellipse · Umschalt für einen Kreis"
+
+msgid "Drag to pan · Ctrl+wheel zooms"
+msgstr "Ziehen verschiebt die Ansicht · Strg+Mausrad zoomt"
+
+msgid "Draw a polyline: click points, Enter or double-click to finish (P)"
+msgstr "Linienzug zeichnen: Punkte klicken, Eingabe oder Doppelklick beendet (P)"
+
+msgid "Draw a rectangle (R)"
+msgstr "Rechteck zeichnen (R)"
+
+msgid "Draw a straight line (L)"
+msgstr "Gerade Linie zeichnen (L)"
+
+msgid "Draw an ellipse (E)"
+msgstr "Ellipse zeichnen (E)"
+
+msgid "Duplicate the selected objects"
+msgstr "Ausgewählte Objekte duplizieren"
+
+msgid "Duplicate the selected page(s)"
+msgstr "Ausgewählte Seite(n) duplizieren"
+
+msgid "Each rule numbers pages from its start page until the next rule. For example a rule starting at page 1 with lower-case roman numerals and a second rule starting at page 5 with decimal numbers gives i, ii, iii, iv, 1, 2, …"
+msgstr "Jede Regel nummeriert die Seiten ab ihrer Startseite bis zur nächsten Regel. Eine Regel ab Seite 1 mit kleinen römischen Ziffern und eine zweite ab Seite 5 mit Dezimalzahlen ergibt zum Beispiel i, ii, iii, iv, 1, 2, …"
+
+msgid "Edit all lines of this paragraph with word wrapping (Ctrl+E)"
+msgstr "Alle Zeilen dieses Absatzes mit Zeilenumbruch bearbeiten (Strg+E)"
+
+msgid "Edit or add text (T)"
+msgstr "Text bearbeiten oder hinzufügen (T)"
+
+msgid "Edit path nodes (N)"
+msgstr "Pfadknoten bearbeiten (N)"
+
+msgid "Edit the objects inside the selected group or form XObject"
+msgstr "Objekte innerhalb der ausgewählten Gruppe bzw. des Form-XObjects bearbeiten"
+
+msgid "Edit the whole paragraph around the selected text with word wrapping"
+msgstr "Gesamten Absatz um den ausgewählten Text mit Zeilenumbruch bearbeiten"
+
+msgid "Editing paragraph: Ctrl+Enter applies, Esc cancels"
+msgstr "Absatz wird bearbeitet: Strg+Eingabe übernimmt, Esc bricht ab"
+
+msgid "Encryption will be applied when you save. Keep the password somewhere safe."
+msgstr "Die Verschlüsselung wird beim Speichern angewendet. Bewahren Sie das Passwort sicher auf."
+
+msgid "Export page"
+msgstr "Seite exportieren"
+
+msgid "Export page as image"
+msgstr "Seite als Bild exportieren"
+
+msgid "Export text"
+msgstr "Text exportieren"
+
+msgid "Extract all embedded…"
+msgstr "Alle eingebetteten extrahieren…"
+
+msgid "Extract all…"
+msgstr "Alle extrahieren…"
+
+msgid "Extract fonts"
+msgstr "Schriften extrahieren"
+
+msgid "Extract images"
+msgstr "Bilder extrahieren"
+
+msgid "Extract pages"
+msgstr "Seiten extrahieren"
+
+msgid "Extract pages to"
+msgstr "Seiten extrahieren nach"
+
+msgid "Extract selected…"
+msgstr "Ausgewählte extrahieren…"
+
+msgid "Field names, comma separated (e.g. a, b, c)"
+msgstr "Feldnamen, durch Kommas getrennt (z. B. a, b, c)"
+
+msgid "File"
+msgstr "Datei"
+
+msgid "Find text in the document"
+msgstr "Text im Dokument suchen"
+
+msgid "Fit page"
+msgstr "Ganze Seite"
+
+msgid "Fit page width"
+msgstr "An Seitenbreite anpassen"
+
+msgid "Fit the whole page"
+msgstr "Ganze Seite anzeigen"
+
+msgid "Fit width"
+msgstr "Seitenbreite"
+
+msgid "Flatten"
+msgstr "Einbetten"
+
+msgid "Format"
+msgstr "Format"
+
+msgid "Forward (Alt+Right)"
+msgstr "Vorwärts (Alt+Rechts)"
+
+msgid "From"
+msgstr "Aus"
+
+msgid "Guide removed"
+msgstr "Hilfslinie entfernt"
+
+msgid "How pages are numbered in viewers (i, ii, 1, 2, A-1 …)"
+msgstr "Wie Seiten in Betrachtern nummeriert werden (i, ii, 1, 2, A-1 …)"
+
+msgid "Include annotations and form fields"
+msgstr "Kommentare und Formularfelder einschließen"
+
+msgid "Insert"
+msgstr "Einfügen"
+
+msgid "Insert a blank page"
+msgstr "Leere Seite einfügen"
+
+msgid "Insert blank page"
+msgstr "Leere Seite einfügen"
+
+msgid "Insert image"
+msgstr "Bild einfügen"
+
+msgid "Insert pages"
+msgstr "Seiten einfügen"
+
+msgid "Insert pages from file"
+msgstr "Seiten aus Datei einfügen"
+
+msgid "JavaScript run by the viewer (Acrobat AF* helpers available)"
+msgstr "JavaScript, das der Betrachter ausführt (Acrobat-AF*-Funktionen verfügbar)"
+
+msgid "Main"
+msgstr "Haupt"
+
+msgid "Make scanned pages searchable and selectable"
+msgstr "Gescannte Seiten durchsuchbar und auswählbar machen"
+
+msgid "Margin"
+msgstr "Rand"
+
+msgid "Name shown on comments you add"
+msgstr "Name, der bei Ihren Kommentaren angezeigt wird"
+
+msgid "New document with one blank page"
+msgstr "Neues Dokument mit einer leeren Seite"
+
+msgid "New objects need a fill or a stroke colour (see the Inspector)."
+msgstr "Neue Objekte benötigen eine Füll- oder Konturfarbe (siehe Inspektor)."
+
+msgid "Next match (Enter)"
+msgstr "Nächster Treffer (Eingabe)"
+
+msgid "No bookmarks. Use + to add one for the current page."
+msgstr "Keine Lesezeichen. Mit + fügen Sie eines für die aktuelle Seite hinzu."
+
+msgid "No colour / unknown colour space"
+msgstr "Keine Farbe / unbekannter Farbraum"
+
+msgid "No pages matched the given range."
+msgstr "Keine Seiten entsprechen dem angegebenen Bereich."
+
+msgid "No recent files"
+msgstr "Keine zuletzt geöffneten Dateien"
+
+msgid "No text in that area."
+msgstr "Kein Text in diesem Bereich."
+
+msgid "One option per line"
+msgstr "Eine Option pro Zeile"
+
+msgid "Only embedded fonts can be extracted. Font files are usually subsets and remain subject to the font's licence."
+msgstr "Nur eingebettete Schriften können extrahiert werden. Schriftdateien sind meist Teilmengen und unterliegen weiterhin der Lizenz der Schrift."
+
+msgid "Only page content can be duplicated."
+msgstr "Nur Seiteninhalt kann dupliziert werden."
+
+msgid "Open a PDF"
+msgstr "PDF öffnen"
+
+msgid "Open the guide in your default Markdown viewer"
+msgstr "Handbuch im Standard-Markdown-Betrachter öffnen"
+
+msgid "Orientation"
+msgstr "Ausrichtung"
+
+msgid "Page labels"
+msgstr "Seitenbeschriftungen"
+
+msgid "Page number (Ctrl+G)"
+msgstr "Seitenzahl (Strg+J)"
+
+msgid "Pages per file"
+msgstr "Seiten pro Datei"
+
+msgid "Pan the page (H)"
+msgstr "Ansicht verschieben (H)"
+
+msgid "Password"
+msgstr "Passwort"
+
+msgid "Password required"
+msgstr "Passwort erforderlich"
+
+msgid "Passwords and permissions"
+msgstr "Passwörter und Berechtigungen"
+
+msgid "Permanently remove all text and images inside the rectangle and paint it black?"
+msgstr "Allen Text und alle Bilder im Rechteck dauerhaft entfernen und es schwarz färben?"
+
+msgid "Place an image on the page"
+msgstr "Bild auf der Seite platzieren"
+
+msgid "Please choose an existing PDF file."
+msgstr "Bitte wählen Sie eine vorhandene PDF-Datei."
+
+msgid "Position"
+msgstr "Position"
+
+msgid "Previous match (Shift+Enter)"
+msgstr "Vorheriger Treffer (Umschalt+Eingabe)"
+
+msgid "Print the document"
+msgstr "Dokument drucken"
+
+msgid "RC4 128-bit (legacy)"
+msgstr "RC4 128 Bit (veraltet)"
+
+msgid "Range…"
+msgstr "Bereich…"
+
+msgid "Redact"
+msgstr "Schwärzen"
+
+msgid "Remove"
+msgstr "Entfernen"
+
+msgid "Remove all labels"
+msgstr "Alle Beschriftungen entfernen"
+
+msgid "Remove rule"
+msgstr "Regel entfernen"
+
+msgid "Rename bookmark"
+msgstr "Lesezeichen umbenennen"
+
+msgid "Rename the selected bookmark"
+msgstr "Ausgewähltes Lesezeichen umbenennen"
+
+msgid "Rename…"
+msgstr "Umbenennen…"
+
+msgid "Require a value between"
+msgstr "Wert erforderlich zwischen"
+
+msgid "Required to change permissions"
+msgstr "Erforderlich zum Ändern der Berechtigungen"
+
+msgid "Required to open the document (optional)"
+msgstr "Erforderlich zum Öffnen des Dokuments (optional)"
+
+msgid "Resolution"
+msgstr "Auflösung"
+
+msgid "Rotate Selection 90° CCW"
+msgstr "Auswahl um 90° gegen den Uhrzeigersinn drehen"
+
+msgid "Rotate Selection 90° CW"
+msgstr "Auswahl um 90° im Uhrzeigersinn drehen"
+
+msgid "Rotate page(s) 90° clockwise"
+msgstr "Seite(n) um 90° im Uhrzeigersinn drehen"
+
+msgid "Rotate page(s) 90° counter-clockwise"
+msgstr "Seite(n) um 90° gegen den Uhrzeigersinn drehen"
+
+msgid "Rotation"
+msgstr "Drehung"
+
+msgid "Rulers in your preferred units; drag from a ruler to add a guide"
+msgstr "Lineale in Ihrer bevorzugten Einheit; aus einem Lineal ziehen, um eine Hilfslinie hinzuzufügen"
+
+msgid "Save attachment"
+msgstr "Anhang speichern"
+
+msgid "Save font"
+msgstr "Schrift speichern"
+
+msgid "Save image"
+msgstr "Bild speichern"
+
+msgid "Save reduced size copy"
+msgstr "Verkleinerte Kopie speichern"
+
+msgid "Save selected…"
+msgstr "Ausgewählte speichern…"
+
+msgid "Save the chosen pages to a new PDF. The current document is not changed."
+msgstr "Die gewählten Seiten in ein neues PDF speichern. Das aktuelle Dokument wird nicht verändert."
+
+msgid "Save the document"
+msgstr "Dokument speichern"
+
+msgid "Scale Stroke &Width with Objects"
+msgstr "Kontur&breite mit Objekten skalieren"
+
+msgid "Scale stroke width when resizing objects"
+msgstr "Konturbreite beim Skalieren von Objekten anpassen"
+
+msgid "Script"
+msgstr "Skript"
+
+msgid "Scripts are stored as PDF JavaScript actions (Acrobat-compatible). Sum/product/average/min/max are also evaluated here when you fill in values."
+msgstr "Skripte werden als PDF-JavaScript-Aktionen gespeichert (Acrobat-kompatibel). Summe/Produkt/Durchschnitt/Min/Max werden auch hier berechnet, wenn Sie Werte eingeben."
+
+msgid "Search the guide…  (Enter: next, Shift+Enter: previous)"
+msgstr "Im Handbuch suchen…  (Eingabe: weiter, Umschalt+Eingabe: zurück)"
+
+msgid "Security will be removed when you save."
+msgstr "Die Sicherheitseinstellungen werden beim Speichern entfernt."
+
+msgid "Select a group (form XObject) to ungroup."
+msgstr "Wählen Sie eine Gruppe (Form-XObject), um die Gruppierung aufzuheben."
+
+msgid "Select an attachment first."
+msgstr "Wählen Sie zuerst einen Anhang."
+
+msgid "Select and transform objects (S)"
+msgstr "Objekte auswählen und transformieren (S)"
+
+msgid "Select one or more embedded fonts first."
+msgstr "Wählen Sie zuerst eine oder mehrere eingebettete Schriften."
+
+msgid "Select one or more images first."
+msgstr "Wählen Sie zuerst ein oder mehrere Bilder."
+
+msgid "Selected"
+msgstr "Ausgewählt"
+
+msgid "Sent to printer"
+msgstr "An Drucker gesendet"
+
+msgid "Set to current page"
+msgstr "Auf aktuelle Seite setzen"
+
+msgid "Show all pages in one scrolling column"
+msgstr "Alle Seiten in einer scrollbaren Spalte anzeigen"
+
+msgid "Skip pages that already have text"
+msgstr "Seiten überspringen, die bereits Text enthalten"
+
+msgid "Snap to page edges, guides and other objects while dragging (hold Alt to disable temporarily)"
+msgstr "Beim Ziehen an Seitenrändern, Hilfslinien und anderen Objekten einrasten (Alt gedrückt halten zum vorübergehenden Abschalten)"
+
+msgid "Some characters are not available in the chosen font."
+msgstr "Einige Zeichen sind in der gewählten Schrift nicht verfügbar."
+
+msgid "Some characters are not in the original font; a built-in font was substituted."
+msgstr "Einige Zeichen fehlen in der ursprünglichen Schrift; eine eingebaute Schrift wurde ersetzt."
+
+msgid "Split document"
+msgstr "Dokument teilen"
+
+msgid "Split the selected group back into its objects"
+msgstr "Ausgewählte Gruppe wieder in ihre Objekte auflösen"
+
+msgid "Start at"
+msgstr "Beginnen bei"
+
+msgid "Text content (Enter applies)"
+msgstr "Textinhalt (Eingabe übernimmt)"
+
+msgid "Text could not be encoded."
+msgstr "Der Text konnte nicht kodiert werden."
+
+msgid "Text markup annotations follow the text and cannot be moved."
+msgstr "Textmarkierungen folgen dem Text und können nicht verschoben werden."
+
+msgid "Text size"
+msgstr "Textgröße"
+
+msgid "The password was not accepted."
+msgstr "Das Passwort wurde nicht akzeptiert."
+
+msgid "Thousands separator"
+msgstr "Tausendertrennzeichen"
+
+msgid "Title, author, keywords and file details"
+msgstr "Titel, Autor, Schlüsselwörter und Dateidetails"
+
+msgid "Title:"
+msgstr "Titel:"
+
+msgid "Trim margins (in points) from the visible page area. Content outside the crop box is hidden, not deleted."
+msgstr "Ränder (in Punkt) vom sichtbaren Seitenbereich abschneiden. Inhalt außerhalb des Zuschnitts wird ausgeblendet, nicht gelöscht."
+
+msgid "Type text…"
+msgstr "Text eingeben…"
+
+msgid "Type text… (Ctrl+Enter applies, Esc cancels)"
+msgstr "Text eingeben… (Strg+Eingabe übernimmt, Esc bricht ab)"
+
+msgid "Used for shapes, lines and text you create."
+msgstr "Wird für Formen, Linien und Text verwendet, die Sie erstellen."
+
+msgid "Validate"
+msgstr "Prüfen"
+
+msgid "Write a smaller copy with recompressed images"
+msgstr "Kleinere Kopie mit neu komprimierten Bildern schreiben"
+
+msgid "Write the document as several files, each with the given number of pages."
+msgstr "Das Dokument als mehrere Dateien mit der angegebenen Seitenzahl schreiben."
+
+msgid "Wrong password"
+msgstr "Falsches Passwort"
+
+msgid "all, or e.g. 1-3, 5"
+msgstr "alle, oder z. B. 1-3, 5"
+
+msgid "and"
+msgstr "und"
+
+msgid "e.g. 2-5, 8"
+msgstr "z. B. 2-5, 8"
+
+msgid "{n} = number, {total} = count of numbered pages, {page} = physical page number"
+msgstr "{n} = Nummer, {total} = Anzahl nummerierter Seiten, {page} = physische Seitenzahl"
+
+msgid "{n} comments"
+msgstr "{n} Kommentare"
+
+msgid "{n} form fields"
+msgstr "{n} Formularfelder"
+
+msgid "Current page ({n})"
+msgstr "Aktuelle Seite ({n})"
+
+msgid "Selected pages ({n})"
+msgstr "Ausgewählte Seiten ({n})"
+
+msgid "Language"
+msgstr "Sprache"
+
+msgid "Ungroup"
+msgstr "Gruppierung aufheben"

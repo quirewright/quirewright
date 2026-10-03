@@ -1,12 +1,11 @@
 import os
 
 import pymupdf
-import pytest
 
 from pdfeditor.core.content.model import Color
 from pdfeditor.core.content.writer import ContentEditor
 from pdfeditor.core.document import Document
-from pdfeditor.core.geometry import Matrix, Rect
+from pdfeditor.core.geometry import Matrix
 
 
 def make_doc(tmp_path, n=3):

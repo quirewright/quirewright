@@ -8,7 +8,7 @@ from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QWidget
 
 from pdfeditor import APP_NAME, __version__
-from pdfeditor.i18n import N_, tr
+from pdfeditor.i18n import tr
 from pdfeditor.ui import theme
 
 

@@ -27,7 +27,6 @@ from PySide6.QtWidgets import (
 from pdfeditor.core.annotations import NOTE_ICONS, AnnotInfo
 from pdfeditor.core.content.model import Color, GObject, PathObject, TextRun, XObjectRef
 from pdfeditor.core.document import (
-    WIDGET_TYPES,
     WidgetInfo,
     calc_script,
     date_format_script,
@@ -177,10 +176,10 @@ class PropertiesPanel(QScrollArea):
     def _build_page_section(self) -> None:
         self.page_box, pl = _section(tr("Page"))
         self.page_title = self.page_box.findChild(QLabel)
-        self.page_info = QLabel(tr(""))
+        self.page_info = QLabel("")
         self.page_info.setProperty("role", "muted")
         self.page_info.setWordWrap(True)
-        self.doc_info = QLabel(tr(""))
+        self.doc_info = QLabel("")
         self.doc_info.setProperty("role", "muted")
         self.doc_info.setWordWrap(True)
         pl.addWidget(self.page_info)
@@ -242,7 +241,7 @@ class PropertiesPanel(QScrollArea):
     def _build_selection_section(self) -> None:
         self.sel_box, sl = _section(tr("Selection"))
         self.sel_title = self.sel_box.findChild(QLabel)
-        self.sel_sub = QLabel(tr(""))
+        self.sel_sub = QLabel("")
         self.sel_sub.setProperty("role", "muted")
         self.sel_sub.setWordWrap(True)
         sl.addWidget(self.sel_sub)
@@ -308,7 +307,7 @@ class PropertiesPanel(QScrollArea):
         tform = QFormLayout()
         tform.setContentsMargins(0, 0, 0, 0)
         tform.setHorizontalSpacing(8)
-        self.font_label = QLabel(tr(""))
+        self.font_label = QLabel("")
         self.font_label.setProperty("role", "muted")
         self.font_size = _spin(0.1, 1000, 2, 1, " pt")
         self.text_color = ColorButton()
@@ -316,7 +315,7 @@ class PropertiesPanel(QScrollArea):
         tform.addRow(tr("Size"), self.font_size)
         tform.addRow(tr("Colour"), self.text_color)
         tl.addLayout(tform)
-        self.text_note = QLabel(tr(""))
+        self.text_note = QLabel("")
         self.text_note.setProperty("role", "muted")
         self.text_note.setWordWrap(True)
         tl.addWidget(self.text_note)
@@ -329,7 +328,7 @@ class PropertiesPanel(QScrollArea):
         self.font_size.editingFinished.connect(lambda: self.canvas.set_text_size(self.font_size.value()))
         self.text_color.colorChanged.connect(lambda c: self.canvas.set_selection_style(fill_color=_to_color(c)))
 
-        self.other_info = QLabel(tr(""))
+        self.other_info = QLabel("")
         self.other_info.setProperty("role", "muted")
         self.other_info.setWordWrap(True)
         sl.addWidget(self.other_info)
@@ -346,7 +345,7 @@ class PropertiesPanel(QScrollArea):
     def _build_widget_section(self) -> None:
         self.widget_box, wl = _section(tr("Form field"))
         self.widget_title = self.widget_box.findChild(QLabel)
-        self.w_sub = QLabel(tr(""))
+        self.w_sub = QLabel("")
         self.w_sub.setProperty("role", "muted")
         self.w_sub.setWordWrap(True)
         wl.addWidget(self.w_sub)
@@ -359,7 +358,7 @@ class PropertiesPanel(QScrollArea):
         self.w_value_row = form.rowCount()
         form.addRow(tr("Value"), self.w_value)
         self.w_checked = QCheckBox(tr("Checked"))
-        form.addRow(tr(""), self.w_checked)
+        form.addRow("", self.w_checked)
         self.w_choice = QComboBox()
         form.addRow(tr("Selected"), self.w_choice)
         self.w_choices = QPlainTextEdit()
@@ -417,7 +416,7 @@ class PropertiesPanel(QScrollArea):
         self.w_decimals.setValue(2)
         sform.addRow(tr("Decimals"), self.w_decimals)
         self.w_thousands = QCheckBox(tr("Thousands separator"))
-        sform.addRow(tr(""), self.w_thousands)
+        sform.addRow("", self.w_thousands)
         self.w_currency = QLineEdit()
         self.w_currency.setPlaceholderText(tr("Currency symbol (optional)"))
         sform.addRow(tr("Currency"), self.w_currency)
@@ -436,7 +435,7 @@ class PropertiesPanel(QScrollArea):
         rng.addWidget(self.w_min)
         rng.addWidget(QLabel(tr("and")))
         rng.addWidget(self.w_max)
-        sform.addRow(tr(""), rng)
+        sform.addRow("", rng)
         self.w_js = QPlainTextEdit()
         self.w_js.setPlaceholderText(tr("JavaScript run by the viewer (Acrobat AF* helpers available)"))
         self.w_js.setMaximumHeight(90)
@@ -472,7 +471,7 @@ class PropertiesPanel(QScrollArea):
     def _build_annot_section(self) -> None:
         self.annot_box, al = _section(tr("Comment"))
         self.annot_title = self.annot_box.findChild(QLabel)
-        self.a_sub = QLabel(tr(""))
+        self.a_sub = QLabel("")
         self.a_sub.setProperty("role", "muted")
         self.a_sub.setWordWrap(True)
         al.addWidget(self.a_sub)
@@ -574,7 +573,7 @@ class PropertiesPanel(QScrollArea):
             if doc is None:
                 self.page_title.setText(tr("No document"))
                 self.page_info.setText(tr("Open a PDF to get started."))
-                self.doc_info.setText(tr(""))
+                self.doc_info.setText("")
                 return
             if annots:
                 self._refresh_annot(annots)
@@ -604,7 +603,7 @@ class PropertiesPanel(QScrollArea):
                 self.sel_sub.setText(_describe(objs[0]))
             else:
                 self.sel_title.setText(f"{len(objs)} objects")
-                self.sel_sub.setText(tr(", ").join(sorted({_kind_label(o) for o in objs})))
+                self.sel_sub.setText(", ".join(sorted({_kind_label(o) for o in objs})))
             rect = self.canvas._selection_rect().translated(-self.canvas.page_offset)
             self.x.set_value_pt(rect.x())
             self.y.set_value_pt(rect.y())
@@ -629,7 +628,7 @@ class PropertiesPanel(QScrollArea):
                 multi_line = len(baselines) > 1
                 self.text_edit.setEnabled(not multi_line)
                 if multi_line:
-                    self.text_edit.setText(tr(""))
+                    self.text_edit.setText("")
                     self.text_edit.setPlaceholderText(f"{len(baselines)} lines selected — use Edit paragraph")
                 else:
                     self.text_edit.setPlaceholderText(tr("Text content (Enter applies)"))
@@ -645,11 +644,11 @@ class PropertiesPanel(QScrollArea):
                     notes.append("Subset font: characters not already used in the document fall back to a built-in font.")
                 if t.invisible:
                     notes.append("Invisible text (e.g. OCR layer).")
-                self.text_note.setText(tr(" ").join(notes))
+                self.text_note.setText(" ".join(notes))
             others = [o for o in objs if o.kind in ("image", "form", "inline_image", "shading")]
             self.other_info.setVisible(bool(others) and not paths and not texts)
             if others:
-                self.other_info.setText(tr("\n").join(_describe(o) for o in others[:5]))
+                self.other_info.setText("\n".join(_describe(o) for o in others[:5]))
         finally:
             self._updating = False
 
@@ -739,7 +738,7 @@ class PropertiesPanel(QScrollArea):
         self.w_calc_fields.setText(fields)
         fmt = "none"
         self.w_thousands.setChecked(False)
-        self.w_currency.setText(tr(""))
+        self.w_currency.setText("")
         m = re.search(r'AFNumber_Format\(\s*(\d+)\s*,\s*(\d+)\s*,\s*\d+\s*,\s*\d+\s*,\s*"([^"]*)"', w.script_format or "")
         if m:
             fmt = "number"

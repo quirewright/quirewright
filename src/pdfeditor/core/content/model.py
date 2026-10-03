@@ -92,7 +92,7 @@ class GraphicsState:
     rise: float = 0.0
     render_mode: int = 0
 
-    def copy(self) -> "GraphicsState":
+    def copy(self) -> GraphicsState:
         return replace(self)
 
 
@@ -182,8 +182,8 @@ class TextRun(GObject):
     op: str = "Tj"
     glyphs: list[Glyph] = field(default_factory=list)
     text: str = ""
-    block: "TextBlock | None" = None
-    font_info: "FontInfo | None" = None
+    block: TextBlock | None = None
+    font_info: FontInfo | None = None
     deleted: bool = False
     end_tm: Matrix = field(default_factory=Matrix)  # text matrix after the run
 

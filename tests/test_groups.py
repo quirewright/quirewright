@@ -5,7 +5,7 @@ import pytest
 
 from pdfeditor.core.content.writer import ContentEditor
 from pdfeditor.core.document import Document
-from pdfeditor.core.geometry import Matrix, Rect
+from pdfeditor.core.geometry import Matrix
 
 
 def render_bytes(doc, index=0):

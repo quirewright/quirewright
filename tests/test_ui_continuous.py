@@ -7,7 +7,7 @@ from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
 from pdfeditor.ui import theme
-from pdfeditor.ui.canvas import PAGE_GAP, TOOL_FIELD, TOOL_RECT, TOOL_SELECT
+from pdfeditor.ui.canvas import PAGE_GAP, TOOL_FIELD, TOOL_RECT
 
 
 @pytest.fixture(scope="session")

@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QToolBu
 
 from pdfeditor.core.document import Document
 from pdfeditor.core.geometry import Rect
-from pdfeditor.i18n import N_, tr
+from pdfeditor.i18n import tr
 from pdfeditor.ui import theme
 
 
@@ -33,7 +33,7 @@ class FindBar(QWidget):
         self.edit.installEventFilter(self)
         self.case = QCheckBox(tr("Match case"))
         self.case.toggled.connect(lambda on: self._search(self.edit.text()))
-        self.count = QLabel(tr(""))
+        self.count = QLabel("")
         self.count.setProperty("role", "muted")
         self.count.setMinimumWidth(90)
         self.prev_btn = QToolButton()
@@ -60,7 +60,7 @@ class FindBar(QWidget):
         self.doc = doc
         self.hits = []
         self.index = -1
-        self.count.setText(tr(""))
+        self.count.setText("")
 
     def show_bar(self) -> None:
         self.show()
@@ -85,7 +85,7 @@ class FindBar(QWidget):
         self.hits = []
         self.index = -1
         if self.doc is None or not text:
-            self.count.setText(tr(""))
+            self.count.setText("")
             self.highlightsChanged.emit(-1, [])
             return
         try:

@@ -2,7 +2,6 @@
 
 import pymupdf
 
-from pdfeditor.core.content.interpreter import interpret
 from pdfeditor.core.content.model import Color
 from pdfeditor.core.content.writer import ContentEditor
 from pdfeditor.core.document import Document

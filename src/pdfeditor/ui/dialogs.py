@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import os
-
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -16,14 +13,13 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPushButton,
-    QRadioButton,
     QSpinBox,
     QVBoxLayout,
     QWidget,
 )
 
 from pdfeditor import APP_NAME, __version__
-from pdfeditor.i18n import N_, tr
+from pdfeditor.i18n import tr
 
 
 def parse_page_ranges(text: str, page_count: int) -> list[int]:

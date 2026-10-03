@@ -7,8 +7,9 @@ structure operations where the inverse is awkward to express).
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
     from pdfeditor.core.document import Document
@@ -17,13 +18,13 @@ if TYPE_CHECKING:  # pragma: no cover
 class Command:
     label: str
 
-    def redo(self, doc: "Document") -> None:  # pragma: no cover - abstract
+    def redo(self, doc: Document) -> None:  # pragma: no cover - abstract
         raise NotImplementedError
 
-    def undo(self, doc: "Document") -> None:  # pragma: no cover - abstract
+    def undo(self, doc: Document) -> None:  # pragma: no cover - abstract
         raise NotImplementedError
 
-    def merge_with(self, other: "Command") -> bool:
+    def merge_with(self, other: Command) -> bool:
         return False
 
 
@@ -37,12 +38,12 @@ class ContentEditCommand(Command):
     bbox_old: str | None = None  # form XObject /BBox before and after (grown to fit edits)
     bbox_new: str | None = None
 
-    def redo(self, doc: "Document") -> None:
+    def redo(self, doc: Document) -> None:
         if self.page_xref and self.bbox_new:
             doc.pdf.xref_set_key(self.page_xref, "BBox", self.bbox_new)
         doc._write_stream(self.page_index, self.new_stream, self.page_xref)
 
-    def undo(self, doc: "Document") -> None:
+    def undo(self, doc: Document) -> None:
         if self.page_xref and self.bbox_old:
             doc.pdf.xref_set_key(self.page_xref, "BBox", self.bbox_old)
         doc._write_stream(self.page_index, self.old_stream, self.page_xref)
@@ -53,9 +54,9 @@ class SnapshotCommand(Command):
     label: str
     before: bytes
     after: bytes | None = None
-    action: Callable[["Document"], None] | None = None
+    action: Callable[[Document], None] | None = None
 
-    def redo(self, doc: "Document") -> None:
+    def redo(self, doc: Document) -> None:
         if self.after is None:
             assert self.action is not None
             self.action(doc)
@@ -64,13 +65,13 @@ class SnapshotCommand(Command):
         else:
             doc.restore(self.after)
 
-    def undo(self, doc: "Document") -> None:
+    def undo(self, doc: Document) -> None:
         doc.restore(self.before)
 
 
 @dataclass
 class UndoStack:
-    doc: "Document"
+    doc: Document
     limit: int = 100
     _undo: list[Command] = field(default_factory=list)
     _redo: list[Command] = field(default_factory=list)

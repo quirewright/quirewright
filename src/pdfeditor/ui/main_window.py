@@ -4,8 +4,17 @@ from __future__ import annotations
 
 import os
 
-from PySide6.QtCore import QPoint, QRectF, QSettings, Qt, QTimer, QUrl
-from PySide6.QtGui import QAction, QActionGroup, QCloseEvent, QDesktopServices, QDragEnterEvent, QDropEvent, QIntValidator, QKeySequence, QPainter
+from PySide6.QtCore import QPoint, QRectF, QSettings, Qt, QTimer
+from PySide6.QtGui import (
+    QAction,
+    QActionGroup,
+    QCloseEvent,
+    QDragEnterEvent,
+    QDropEvent,
+    QIntValidator,
+    QKeySequence,
+    QPainter,
+)
 from PySide6.QtPrintSupport import QPrintDialog, QPrinter
 from PySide6.QtWidgets import (
     QApplication,
@@ -19,17 +28,14 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QSizePolicy,
     QStackedWidget,
-    QTabBar,
     QTabWidget,
     QToolBar,
     QToolButton,
-    QVBoxLayout,
     QWidget,
 )
 
 from pdfeditor import APP_ID, APP_NAME
 from pdfeditor.core.document import Document
-from pdfeditor.core.geometry import Rect
 from pdfeditor.i18n import N_, tr
 from pdfeditor.ui import theme
 from pdfeditor.ui.canvas import (
@@ -75,7 +81,6 @@ from pdfeditor.ui.docview import DocumentView
 from pdfeditor.ui.help import HelpWindow
 from pdfeditor.ui.outline import OutlinePanel
 from pdfeditor.ui.properties import PropertiesPanel
-from pdfeditor.ui.units import current_unit
 from pdfeditor.ui.render import pixmap_to_qimage
 from pdfeditor.ui.thumbnails import PagesPanel
 from pdfeditor.ui.welcome import WelcomePage
@@ -457,7 +462,7 @@ class MainWindow(QMainWindow):
         self.page_entry.setToolTip(tr("Page number (Ctrl+G)"))
         self.page_entry.returnPressed.connect(self._page_from_entry)
         tb.addWidget(self.page_entry)
-        self.page_total = QLabel(tr("/ –"))
+        self.page_total = QLabel("/ –")
         self.page_total.setMinimumWidth(40)
         tb.addWidget(self.page_total)
         tb.addAction(self.act_next)
@@ -479,14 +484,14 @@ class MainWindow(QMainWindow):
 
     def _build_statusbar(self) -> None:
         sb = self.statusBar()
-        self.status_msg = QLabel(tr(""))
-        self.status_hint = QLabel(tr(""))
+        self.status_msg = QLabel("")
+        self.status_hint = QLabel("")
         self.status_hint.setProperty("role", "muted")
         sb.addWidget(self.status_msg, 1)
         sb.addPermanentWidget(self.status_hint)
         self._msg_timer = QTimer(self)
         self._msg_timer.setSingleShot(True)
-        self._msg_timer.timeout.connect(lambda: self.status_msg.setText(tr("")))
+        self._msg_timer.timeout.connect(lambda: self.status_msg.setText(""))
 
     def _connect_view(self, view: DocumentView) -> None:
         c = view.canvas
@@ -1335,7 +1340,6 @@ class MainWindow(QMainWindow):
         if dlg.exec() != PreferencesDialog.DialogCode.Accepted:
             return
         res = dlg.apply()
-        from pdfeditor import i18n
 
         if res.get("language") and res["language"] != self.settings.value("ui/languageApplied", "system", type=str):
             self.settings.setValue("ui/languageApplied", res["language"])

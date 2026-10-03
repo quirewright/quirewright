@@ -1,6 +1,5 @@
 """Offscreen smoke tests for the Qt UI."""
 
-import os
 
 import pymupdf
 import pytest

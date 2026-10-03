@@ -7,7 +7,6 @@ import os
 from PySide6.QtCore import QSize, Qt, QUrl
 from PySide6.QtGui import QDesktopServices, QFont, QKeySequence, QShortcut, QTextCursor, QTextDocument
 from PySide6.QtWidgets import (
-    QHBoxLayout,
     QLabel,
     QLineEdit,
     QMainWindow,
@@ -17,12 +16,11 @@ from PySide6.QtWidgets import (
     QToolButton,
     QTreeWidget,
     QTreeWidgetItem,
-    QVBoxLayout,
     QWidget,
 )
 
 from pdfeditor import APP_NAME
-from pdfeditor.i18n import N_, tr
+from pdfeditor.i18n import tr
 from pdfeditor.ui import theme
 
 GUIDE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "help", "USER_GUIDE.md")
@@ -81,7 +79,7 @@ class HelpWindow(QMainWindow):
         self.search.setClearButtonEnabled(True)
         self.search.setMinimumWidth(320)
         tb.addWidget(self.search)
-        self.match_label = QLabel(tr(""))
+        self.match_label = QLabel("")
         self.match_label.setProperty("role", "muted")
         self.match_label.setContentsMargins(10, 0, 10, 0)
         tb.addWidget(self.match_label)
@@ -200,7 +198,7 @@ class HelpWindow(QMainWindow):
     def _search_changed(self, text: str) -> None:
         self.browser.moveCursor(QTextCursor.MoveOperation.Start)
         if not text:
-            self.match_label.setText(tr(""))
+            self.match_label.setText("")
             return
         self._search_next()
 

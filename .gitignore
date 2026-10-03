@@ -8,3 +8,5 @@ dist/
 .coverage
 htmlcov/
 *.swp
+squashfs-root/
+*.AppImage

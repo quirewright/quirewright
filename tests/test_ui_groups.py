@@ -2,7 +2,7 @@
 
 import pymupdf
 import pytest
-from PySide6.QtCore import QPointF, Qt
+from PySide6.QtCore import Qt
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 

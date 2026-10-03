@@ -3,6 +3,9 @@
 ## Unreleased
 
 ### Added
+- Complete German translation
+- AppImage build script, Flatpak manifest, AppStream metadata
+- GitHub Actions CI: lint + tests on Linux/Windows/macOS, AppImage and Flatpak builds, release artefacts
 - Form field calculations, number/percent/date formats and range validation (Acrobat-compatible scripts), evaluated locally
 - OCR text layer via Tesseract (Document › Recognize Text)
 - Interface translations (gettext) with a German catalogue and a language preference

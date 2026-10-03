@@ -38,7 +38,8 @@ def main() -> int:
                     entries.setdefault(text, []).append(f"{os.path.relpath(p, ROOT)}:{line}")
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as fh:
-        fh.write('msgid ""\nmsgstr ""\n"Project-Id-Version: pdfeditor\\n"\n"POT-Creation-Date: %s\\n"\n"MIME-Version: 1.0\\n"\n"Content-Type: text/plain; charset=UTF-8\\n"\n"Content-Transfer-Encoding: 8bit\\n"\n\n' % time.strftime("%Y-%m-%d %H:%M%z"))
+        stamp = time.strftime("%Y-%m-%d %H:%M%z")
+        fh.write(f'msgid ""\nmsgstr ""\n"Project-Id-Version: pdfeditor\\n"\n"POT-Creation-Date: {stamp}\\n"\n"MIME-Version: 1.0\\n"\n"Content-Type: text/plain; charset=UTF-8\\n"\n"Content-Transfer-Encoding: 8bit\\n"\n\n')
         for text in sorted(entries):
             fh.write("#: " + " ".join(entries[text][:4]) + "\n")
             fh.write(f'msgid "{escape(text)}"\nmsgstr ""\n\n')

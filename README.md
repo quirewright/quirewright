@@ -163,13 +163,31 @@ Then pick the language in Edit › Preferences.
 GNU Affero General Public License v3.0 or later (see `LICENSE`). PyMuPDF/MuPDF
 are AGPL-licensed; Qt via PySide6 is LGPL.
 
-## Desktop integration (Linux)
+## Packaging
+
+**AppImage** (self-contained, any x86_64/aarch64 Linux):
 
 ```bash
-packaging/install-desktop.sh
+pip install pyinstaller
+packaging/build-appimage.sh          # -> dist/PDFEditor-<version>-<arch>.AppImage
 ```
 
+**Flatpak** (manifest in `packaging/flatpak`, built on Flathub's PySide base app):
+
+```bash
+flatpak install flathub org.flatpak.Builder org.kde.Platform//6.11 org.kde.Sdk//6.11 io.qt.PySide.BaseApp//6.11
+flatpak run org.flatpak.Builder --user --install --force-clean build-dir packaging/flatpak/io.github.pdfeditor.PDFEditor.yml
+flatpak run io.github.pdfeditor.PDFEditor
+```
+
+**Desktop entry** for a source checkout: `packaging/install-desktop.sh`
 installs a launcher and icon for the current user.
+
+## Continuous integration
+
+`.github/workflows/ci.yml` lints with ruff and runs the test suite on Linux,
+Windows and macOS for Python 3.11 and 3.12, then builds the AppImage and the
+Flatpak. Tagging `vX.Y.Z` attaches the AppImage to a GitHub release.
 
 ## Roadmap
 

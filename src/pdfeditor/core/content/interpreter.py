@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from typing import Any, Protocol
 
-from pdfeditor.core.content.lexer import Keyword, Lexer, Name
+from pdfeditor.core.content.lexer import Lexer, Name
 from pdfeditor.core.content.model import (
     Color,
     Glyph,

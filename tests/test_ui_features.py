@@ -6,7 +6,6 @@ from PySide6.QtCore import QPoint, QPointF, Qt
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
-from pdfeditor.core.docinfo import SecuritySettings
 from pdfeditor.ui import theme
 from pdfeditor.ui.canvas import TOOL_CROP, TOOL_MARKUP, TOOL_NOTE, TOOL_REDACT, TOOL_SELECT
 
@@ -193,7 +192,15 @@ def test_outline_panel(app, window):
 
 
 def test_dialogs_apply(app, window):
-    from pdfeditor.ui.doc_dialogs import ExportImageDialog, PageNumbersDialog, PropertiesDialog, ResourcesDialog, SecurityDialog, ShortcutsDialog, WatermarkDialog
+    from pdfeditor.ui.doc_dialogs import (
+        ExportImageDialog,
+        PageNumbersDialog,
+        PropertiesDialog,
+        ResourcesDialog,
+        SecurityDialog,
+        ShortcutsDialog,
+        WatermarkDialog,
+    )
 
     d = PropertiesDialog(window.doc, window)
     d.fields["title"].setText("Feature test")

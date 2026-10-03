@@ -214,13 +214,13 @@ class FontInfo:
 
     # ------------------------------------------------------------------
     @classmethod
-    def fallback(cls, name: str, base_font: str = "Helvetica") -> "FontInfo":
+    def fallback(cls, name: str, base_font: str = "Helvetica") -> FontInfo:
         fi = cls(name=name, base_font=base_font, builtin=builtin_font_name(base_font))
         fi.encoding_unicode = dict(STANDARD_ENCODING)
         return fi
 
     @classmethod
-    def load(cls, doc, resolver: Resolver, font_obj: Any, name: str, xref: int = 0) -> "FontInfo":
+    def load(cls, doc, resolver: Resolver, font_obj: Any, name: str, xref: int = 0) -> FontInfo:
         """Build a FontInfo from a font dictionary (or a reference to one)."""
         if isinstance(font_obj, Ref):
             xref = font_obj.num

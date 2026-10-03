@@ -21,7 +21,7 @@ def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.WARNING, format="%(levelname)s %(name)s: %(message)s")
 
     os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
-    from PySide6.QtCore import QSettings, Qt
+    from PySide6.QtCore import QSettings
     from PySide6.QtWidgets import QApplication
 
     from pdfeditor import i18n

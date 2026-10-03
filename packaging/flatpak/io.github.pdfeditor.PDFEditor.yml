@@ -1,0 +1,44 @@
+# Flatpak manifest, built on Flathub's PySide base app (which provides Qt + PySide6).
+#
+#   flatpak install flathub org.flatpak.Builder org.kde.Platform//6.11 org.kde.Sdk//6.11 io.qt.PySide.BaseApp//6.11
+#   flatpak run org.flatpak.Builder --user --install --force-clean build-dir packaging/flatpak/io.github.pdfeditor.PDFEditor.yml
+#
+# The app id is a placeholder until the project has its final name and home.
+# PyMuPDF wheels: update python3-requirements.json when bumping the version
+# (hashes from https://pypi.org/pypi/pymupdf/<version>/json).
+app-id: io.github.pdfeditor.PDFEditor
+runtime: org.kde.Platform
+runtime-version: "6.11"
+sdk: org.kde.Sdk
+base: io.qt.PySide.BaseApp
+base-version: "6.11"
+command: pdfeditor
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --filesystem=home          # open and save PDFs anywhere in the home directory
+  - --filesystem=xdg-download
+  - --socket=cups              # printing
+  - --env=QT_QPA_PLATFORMTHEME=xdgdesktopportal
+cleanup-commands:
+  - /app/cleanup-BaseApp.sh
+modules:
+  - python3-requirements.json
+  - name: pdfeditor
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --no-build-isolation --no-deps --prefix=${FLATPAK_DEST} .
+      - install -Dm644 packaging/pdfeditor.desktop ${FLATPAK_DEST}/share/applications/io.github.pdfeditor.PDFEditor.desktop
+      - sed -i 's/^Icon=pdfeditor/Icon=io.github.pdfeditor.PDFEditor/' ${FLATPAK_DEST}/share/applications/io.github.pdfeditor.PDFEditor.desktop
+      - install -Dm644 packaging/pdfeditor.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/io.github.pdfeditor.PDFEditor.svg
+      - install -Dm644 packaging/io.github.pdfeditor.PDFEditor.metainfo.xml ${FLATPAK_DEST}/share/metainfo/io.github.pdfeditor.PDFEditor.metainfo.xml
+    sources:
+      - type: dir
+        path: ../..
+        skip:
+          - .venv
+          - build
+          - dist
+          - .git

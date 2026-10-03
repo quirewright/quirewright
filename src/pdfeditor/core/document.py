@@ -15,16 +15,17 @@ from __future__ import annotations
 import logging
 import os
 import tempfile
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
-from typing import Any, Callable, Iterable, Sequence
+from typing import Any
 
 import pymupdf
 
 from pdfeditor.core.annotations import AnnotationMixin
 from pdfeditor.core.commands import ContentEditCommand, SnapshotCommand, UndoStack
-from pdfeditor.core.docinfo import DocInfoMixin, SecuritySettings
 from pdfeditor.core.content.interpreter import interpret
 from pdfeditor.core.content.model import PageContent
+from pdfeditor.core.docinfo import DocInfoMixin, SecuritySettings
 from pdfeditor.core.fonts import FontInfo
 from pdfeditor.core.geometry import Matrix, Rect
 from pdfeditor.core.pdfobj import Ref, Resolver, as_float
@@ -48,7 +49,7 @@ class PageResources:
     """Resolves font and XObject resources for one page (with inheritance),
     or for a form XObject (falling back to the page's resources)."""
 
-    def __init__(self, doc: "Document", page_index: int, form_xref: int = 0, parent: "PageResources | None" = None):
+    def __init__(self, doc: Document, page_index: int, form_xref: int = 0, parent: PageResources | None = None):
         self.doc = doc
         self.page_index = page_index
         self.form_xref = form_xref
@@ -256,7 +257,7 @@ class _DocumentExtras:
 
     # -- images ----------------------------------------------------------------
     def add_image(self, index: int, rect_scene: Rect, path: str) -> None:
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             page = doc.pdf[index]
             r = _unrotated_rect(page, rect_scene)
             page.insert_image(r, filename=path, keep_proportion=True, rotate=page.rotation)
@@ -323,7 +324,7 @@ class _DocumentExtras:
         base = {1: "Button", 2: "Check", 3: "Combo", 4: "List", 5: "Radio", 6: "Signature", 7: "Text"}.get(field_type, "Field")
         name = name or self._unique_field_name(base)
 
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             page = doc.pdf[index]
             if field_type == 5:
                 doc._add_radio(page, name, rect_scene, props)
@@ -400,7 +401,7 @@ class _DocumentExtras:
         return None
 
     def update_widget(self, index: int, xref: int, label: str = "Edit field", **props) -> None:
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             page = doc.pdf[index]
             w = doc._find_widget(page, xref)
             if w is None:
@@ -484,7 +485,7 @@ class _DocumentExtras:
     def delete_widgets(self, index: int, xrefs: Iterable[int]) -> None:
         xs = set(xrefs)
 
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             page = doc.pdf[index]
             for w in list(page.widgets()):
                 if w.xref in xs:
@@ -522,7 +523,7 @@ class _DocumentExtras:
         kind, cat = self.pdf.xref_get_key(owner, prefix + category)
         existing = ""
         if kind == "xref":
-            owner, prefix, cat_kind, existing = int(cat.split()[0]), "", "dict", self.pdf.xref_object(int(cat.split()[0]))
+            owner, prefix, existing = int(cat.split()[0]), "", self.pdf.xref_object(int(cat.split()[0]))
             cat_path = ""
         elif kind == "dict":
             existing = cat
@@ -549,7 +550,7 @@ class _DocumentExtras:
         if not ids:
             return
 
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             pc = doc.content(index, path)
             ed = ContentEditor(pc)
             base = pc.end_base_state
@@ -592,7 +593,7 @@ class _DocumentExtras:
         from pdfeditor.core.content.model import XObjectRef
         from pdfeditor.core.content.writer import fmt, fmt_matrix
 
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             pc = doc.content(index, path)
             obj = pc.objects[oid]
             if not isinstance(obj, XObjectRef) or obj.subtype != "Form" or not obj.xref:
@@ -614,7 +615,7 @@ class _DocumentExtras:
 
     def _merge_form_resources(self, index: int, path: EditPath, form_xref: int, stream: bytes) -> bytes:
         """Copy a form's resources into the parent's, renaming on conflicts; returns the adjusted stream."""
-        from pdfeditor.core.content.lexer import Lexer, Name
+        from pdfeditor.core.content.lexer import Lexer
 
         owner, prefix = self._resources_owner(index, path)
         kind, val = self.pdf.xref_get_key(form_xref, "Resources")
@@ -673,7 +674,7 @@ class _DocumentExtras:
         """Apply a scene-space transform to widget rectangles (move/scale)."""
         xs = list(xrefs)
 
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             page = doc.pdf[index]
             for w in list(page.widgets()):
                 if w.xref not in xs:
@@ -776,7 +777,7 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
         return page.get_pixmap(**kw)
 
     # -- content ---------------------------------------------------------
-    def resources(self, index: int, path: "EditPath" = ()) -> PageResources:
+    def resources(self, index: int, path: EditPath = ()) -> PageResources:
         key = (index, tuple(x for x, _m in path))
         res = self._resources_cache.get(key)
         if res is None:
@@ -788,7 +789,7 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
             self._resources_cache[key] = res
         return res
 
-    def content(self, index: int, path: "EditPath" = ()) -> PageContent:
+    def content(self, index: int, path: EditPath = ()) -> PageContent:
         """Parsed content of a page, or of a form XObject reached through ``path``.
 
         ``path`` is a tuple of ``(xobject xref, base matrix)`` pairs, outermost first;
@@ -839,7 +840,7 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
             for key in [k for k in self._resources_cache if k[0] == index]:
                 self._resources_cache.pop(key, None)
 
-    def apply_content_edit(self, index: int, new_stream: bytes, label: str = "Edit", path: "EditPath" = ()) -> None:
+    def apply_content_edit(self, index: int, new_stream: bytes, label: str = "Edit", path: EditPath = ()) -> None:
         old = self.content(index, path).stream
         if new_stream == old:
             return
@@ -851,7 +852,7 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
                                  bbox_old=bbox_old, bbox_new=bbox_new)
         self.undo_stack.push(cmd)
 
-    def _grown_form_bbox(self, index: int, path: "EditPath", new_stream: bytes) -> tuple[str | None, str | None]:
+    def _grown_form_bbox(self, index: int, path: EditPath, new_stream: bytes) -> tuple[str | None, str | None]:
         """If the edited content extends beyond the form's /BBox, return (old, grown) BBox strings."""
         from pdfeditor.core.content.model import GraphicsState
 
@@ -923,14 +924,14 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
         self.invalidate()
         self._emit("pages", None)
 
-    def _structure_op(self, label: str, action: Callable[["Document"], None]) -> None:
+    def _structure_op(self, label: str, action: Callable[[Document], None]) -> None:
         cmd = SnapshotCommand(label=label, before=self.snapshot(), action=action)
         self.undo_stack.push(cmd)
 
     def rotate_pages(self, indices: Iterable[int], delta: int) -> None:
         idx = list(indices)
 
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             for i in idx:
                 p = doc.pdf[i]
                 p.set_rotation((p.rotation + delta) % 360)
@@ -942,7 +943,7 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
         if not idx or len(idx) >= self.page_count:
             return
 
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             doc.pdf.delete_pages(idx)
 
         self._structure_op("Delete page(s)", action)
@@ -952,7 +953,7 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
         if src == dst:
             return
 
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             n = doc.pdf.page_count
             order = list(range(n))
             order.pop(src)
@@ -967,7 +968,7 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
         if not srcs:
             return
 
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             n = doc.pdf.page_count
             order = [i for i in range(n) if i not in srcs]
             insert_at = dst - sum(1 for s in srcs if s < dst)
@@ -980,7 +981,7 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
     def duplicate_pages(self, indices: Iterable[int]) -> None:
         idx = sorted(set(indices))
 
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             for i in reversed(idx):
                 n = doc.pdf.page_count
                 doc.pdf.copy_page(i, i + 1 if i + 1 < n else -1)
@@ -988,13 +989,13 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
         self._structure_op("Duplicate page(s)", action)
 
     def insert_blank_page(self, at: int, width: float, height: float) -> None:
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             doc.pdf.new_page(pno=at, width=width, height=height)
 
         self._structure_op("Insert blank page", action)
 
     def insert_pages_from(self, src_path: str, at: int, from_page: int = -1, to_page: int = -1) -> None:
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             src = pymupdf.open(src_path)
             try:
                 doc.pdf.insert_pdf(src, from_page=from_page, to_page=to_page, start_at=at)
@@ -1004,7 +1005,7 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
         self._structure_op("Insert pages", action)
 
     def reverse_pages(self) -> None:
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             doc.pdf.select(list(range(doc.pdf.page_count - 1, -1, -1)))
 
         self._structure_op("Reverse page order", action)
@@ -1012,7 +1013,7 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
     def set_cropbox(self, indices: Iterable[int], rect: Rect) -> None:
         idx = list(indices)
 
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             for i in idx:
                 p = doc.pdf[i]
                 r = pymupdf.Rect(rect.x0, rect.y0, rect.x1, rect.y1) & p.mediabox
@@ -1025,7 +1026,7 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
         """Crop by margins measured in points from the current visible page edges."""
         idx = list(indices)
 
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             for i in idx:
                 p = doc.pdf[i]
                 cb = p.cropbox  # unrotated PDF coordinates (y up); treat top/bottom accordingly
@@ -1039,7 +1040,7 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
     def reset_cropbox(self, indices: Iterable[int]) -> None:
         idx = list(indices)
 
-        def action(doc: "Document") -> None:
+        def action(doc: Document) -> None:
             for i in idx:
                 p = doc.pdf[i]
                 p.set_cropbox(p.mediabox)

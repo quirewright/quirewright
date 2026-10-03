@@ -9,8 +9,8 @@ where the new CTM is ``cm_matrix * CTM``).
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
 
 
 @dataclass(frozen=True, slots=True)
@@ -23,26 +23,26 @@ class Matrix:
     f: float = 0.0
 
     @staticmethod
-    def identity() -> "Matrix":
+    def identity() -> Matrix:
         return Matrix()
 
     @staticmethod
-    def translation(tx: float, ty: float) -> "Matrix":
+    def translation(tx: float, ty: float) -> Matrix:
         return Matrix(1, 0, 0, 1, tx, ty)
 
     @staticmethod
-    def scale(sx: float, sy: float | None = None) -> "Matrix":
+    def scale(sx: float, sy: float | None = None) -> Matrix:
         if sy is None:
             sy = sx
         return Matrix(sx, 0, 0, sy, 0, 0)
 
     @staticmethod
-    def rotation(degrees: float) -> "Matrix":
+    def rotation(degrees: float) -> Matrix:
         r = math.radians(degrees)
         c, s = math.cos(r), math.sin(r)
         return Matrix(c, s, -s, c, 0, 0)
 
-    def __mul__(self, other: "Matrix") -> "Matrix":
+    def __mul__(self, other: Matrix) -> Matrix:
         """self first, then other."""
         return Matrix(
             self.a * other.a + self.b * other.c,
@@ -56,7 +56,7 @@ class Matrix:
     def det(self) -> float:
         return self.a * self.d - self.b * self.c
 
-    def inverted(self) -> "Matrix":
+    def inverted(self) -> Matrix:
         det = self.det()
         if abs(det) < 1e-12:
             raise ValueError("matrix is singular")
@@ -107,7 +107,7 @@ class Rect:
     y1: float
 
     @staticmethod
-    def from_points(points: Iterable[tuple[float, float]]) -> "Rect | None":
+    def from_points(points: Iterable[tuple[float, float]]) -> Rect | None:
         pts = list(points)
         if not pts:
             return None
@@ -116,7 +116,7 @@ class Rect:
         return Rect(min(xs), min(ys), max(xs), max(ys))
 
     @staticmethod
-    def normalized(x0: float, y0: float, x1: float, y1: float) -> "Rect":
+    def normalized(x0: float, y0: float, x1: float, y1: float) -> Rect:
         return Rect(min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1))
 
     @property
@@ -131,7 +131,7 @@ class Rect:
     def is_empty(self) -> bool:
         return self.x1 <= self.x0 or self.y1 <= self.y0
 
-    def union(self, other: "Rect | None") -> "Rect":
+    def union(self, other: Rect | None) -> Rect:
         if other is None:
             return self
         return Rect(
@@ -141,7 +141,7 @@ class Rect:
             max(self.y1, other.y1),
         )
 
-    def intersect(self, other: "Rect | None") -> "Rect":
+    def intersect(self, other: Rect | None) -> Rect:
         if other is None:
             return self
         return Rect(
@@ -151,13 +151,13 @@ class Rect:
             min(self.y1, other.y1),
         )
 
-    def expanded(self, margin: float) -> "Rect":
+    def expanded(self, margin: float) -> Rect:
         return Rect(self.x0 - margin, self.y0 - margin, self.x1 + margin, self.y1 + margin)
 
     def contains(self, x: float, y: float) -> bool:
         return self.x0 <= x <= self.x1 and self.y0 <= y <= self.y1
 
-    def transformed(self, m: Matrix) -> "Rect":
+    def transformed(self, m: Matrix) -> Rect:
         """Bounding box of this rect after transformation."""
         corners = [
             m.apply(self.x0, self.y0),

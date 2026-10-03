@@ -71,6 +71,6 @@ Checked items are implemented and covered by tests.
 - [x] Keyboard shortcuts for every tool; shortcut reference dialog; in-app help viewer (F1)
 - [x] Preferences: theme, units (pt / mm / in), stroke scaling
 - [x] Status bar hints per tool, unsaved-changes guard, save-in-place safety (atomic write)
-- [x] Desktop integration files (launcher, icon)
+- [x] Desktop integration files (launcher, icon); AppImage and Flatpak packaging; CI with lint and cross-platform tests
 - [ ] Autosave / crash recovery
-- [x] Localisation (gettext; German sample catalogue; Qt dialog translations)
+- [x] Localisation (gettext; complete German catalogue; Qt dialog translations)

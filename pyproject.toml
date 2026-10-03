@@ -16,7 +16,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-cov"]
+dev = ["pytest>=8", "pytest-cov", "ruff>=0.5"]
+build = ["pyinstaller>=6"]
 
 [project.scripts]
 pdfeditor = "pdfeditor.app:main"

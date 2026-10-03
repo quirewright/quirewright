@@ -6,8 +6,8 @@ Rectangles exchanged with the UI are in scene space (rotated page, y down).
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
 
 import pymupdf
 

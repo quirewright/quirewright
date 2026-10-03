@@ -1,6 +1,5 @@
 """Metadata, security, resources, attachments, outline, decorations, search, export, redaction, annotations."""
 
-import os
 
 import pymupdf
 import pytest

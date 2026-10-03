@@ -24,25 +24,23 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMessageBox,
-    QPlainTextEdit,
     QPushButton,
     QRadioButton,
     QSlider,
     QSpinBox,
-    QTabWidget,
     QTableWidget,
     QTableWidgetItem,
+    QTabWidget,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
 )
 
-from pdfeditor import APP_ID, APP_NAME
-from pdfeditor.core.docinfo import ALL_PERMISSIONS, PERMISSIONS, SecuritySettings, datetime_to_pdf_date, pdf_date_to_datetime
+from pdfeditor import APP_ID
+from pdfeditor.core.docinfo import PERMISSIONS, SecuritySettings, datetime_to_pdf_date, pdf_date_to_datetime
 from pdfeditor.core.document import Document
 from pdfeditor.i18n import N_, tr
-from pdfeditor.ui import theme
 from pdfeditor.ui.units import UNITS, current_unit, set_current_unit
 
 
@@ -189,7 +187,7 @@ class SecurityDialog(_Base):
         self.method.setCurrentIndex(max(idx, 0))
         form.addRow(tr("Open password"), self.user_pw)
         form.addRow(tr("Owner password"), self.owner_pw)
-        form.addRow(tr(""), self.show_pw)
+        form.addRow("", self.show_pw)
         form.addRow(tr("Encryption"), self.method)
         self.body.addWidget(box)
         pbox = QGroupBox(tr("Allow readers to"))
@@ -498,7 +496,7 @@ class PageNumbersDialog(_Base, _ScopeMixin):
         hint = QLabel(tr("{n} = number, {total} = count of numbered pages, {page} = physical page number"))
         hint.setProperty("role", "muted")
         hint.setWordWrap(True)
-        form.addRow(tr(""), hint)
+        form.addRow("", hint)
         self.start = QSpinBox()
         self.start.setRange(0, 100000)
         self.start.setValue(1)
@@ -519,7 +517,7 @@ class PageNumbersDialog(_Base, _ScopeMixin):
         form.addRow(tr("Margin"), self.margin)
         self.scope = self._scope_combo(page_count, selected, current)
         form.addRow(tr("Apply to"), self.scope)
-        form.addRow(tr(""), self.range_edit)
+        form.addRow("", self.range_edit)
         self.body.addLayout(form)
         self.add_buttons("Add numbers")
 
@@ -550,7 +548,7 @@ class WatermarkDialog(_Base, _ScopeMixin):
         form.addRow(tr("Colour"), self.color)
         self.scope = self._scope_combo(page_count, selected, current)
         form.addRow(tr("Apply to"), self.scope)
-        form.addRow(tr(""), self.range_edit)
+        form.addRow("", self.range_edit)
         self.body.addLayout(form)
         self.add_buttons("Add watermark")
 
@@ -652,7 +650,7 @@ class OcrDialog(_Base, _ScopeMixin):
         form.addRow(tr("Language"), self.language)
         hint = QLabel(tr("Combine languages with +, e.g. eng+deu"))
         hint.setProperty("role", "muted")
-        form.addRow(tr(""), hint)
+        form.addRow("", hint)
         self.dpi = QSpinBox()
         self.dpi.setRange(100, 600)
         self.dpi.setValue(300)
@@ -660,10 +658,10 @@ class OcrDialog(_Base, _ScopeMixin):
         form.addRow(tr("Resolution"), self.dpi)
         self.skip_text = QCheckBox(tr("Skip pages that already have text"))
         self.skip_text.setChecked(True)
-        form.addRow(tr(""), self.skip_text)
+        form.addRow("", self.skip_text)
         self.scope = self._scope_combo(page_count, selected, current)
         form.addRow(tr("Apply to"), self.scope)
-        form.addRow(tr(""), self.range_edit)
+        form.addRow("", self.range_edit)
         self.body.addLayout(form)
         self.add_buttons("Recognize")
 
@@ -687,7 +685,7 @@ class ExportImageDialog(_Base):
         form.addRow(tr("Pages"), self.scope)
         self.annots = QCheckBox(tr("Include annotations and form fields"))
         self.annots.setChecked(True)
-        form.addRow(tr(""), self.annots)
+        form.addRow("", self.annots)
         self.body.addLayout(form)
         self.format.currentIndexChanged.connect(lambda i: self.dpi.setEnabled(self.format.currentData() != "svg"))
         self.add_buttons("Export…")
@@ -715,7 +713,7 @@ class PreferencesDialog(_Base):
         form.addRow(tr("Units"), self.units)
         self.scale_stroke = QCheckBox(tr("Scale stroke width when resizing objects"))
         self.scale_stroke.setChecked(self.settings.value("edit/scaleStroke", True, type=bool))
-        form.addRow(tr(""), self.scale_stroke)
+        form.addRow("", self.scale_stroke)
         self.author = QLineEdit(self.settings.value("user/author", "", type=str))
         self.author.setPlaceholderText(tr("Name shown on comments you add"))
         form.addRow(tr("Your name"), self.author)

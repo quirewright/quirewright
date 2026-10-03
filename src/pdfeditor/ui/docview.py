@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import os
-
-from PySide6.QtCore import QPointF, Qt
+from PySide6.QtCore import QPointF
 from PySide6.QtWidgets import QGridLayout, QVBoxLayout, QWidget
 
 from pdfeditor.core.document import Document

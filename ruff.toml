@@ -1,0 +1,16 @@
+line-length = 140
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = [
+  "E501",   # long lines: handled by formatter conventions, many UI strings
+  "E731",   # lambda assignment is used deliberately in a few places
+  "B008",   # function calls in defaults (Qt enums)
+  "B905",   # zip strict
+  "UP007",  # X | None unions are fine but not enforced on older files
+  "E402",   # imports after sys.path tweaks in scripts
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["B011", "E741"]

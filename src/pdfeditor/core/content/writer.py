@@ -10,8 +10,8 @@ neighbouring runs.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
 
 from pdfeditor.core.content.model import (
     Color,
@@ -28,7 +28,6 @@ from pdfeditor.core.content.model import (
 )
 from pdfeditor.core.fonts import FontInfo
 from pdfeditor.core.geometry import Matrix
-
 
 # --- serialization helpers --------------------------------------------------
 

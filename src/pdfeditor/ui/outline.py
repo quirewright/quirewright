@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
 
 from pdfeditor.core.docinfo import OutlineItem
 from pdfeditor.core.document import Document
-from pdfeditor.i18n import N_, tr
+from pdfeditor.i18n import tr
 from pdfeditor.ui import theme
 
 
@@ -47,11 +47,11 @@ class OutlinePanel(QWidget):
         lay.addWidget(self.empty)
         row = QHBoxLayout()
         self.add_btn = QToolButton()
-        self.add_btn.setText(tr("+"))
+        self.add_btn.setText("+")
         self.add_btn.setToolTip(tr("Add a bookmark for the current page"))
         self.add_btn.clicked.connect(self.add_bookmark)
         self.sub_btn = QToolButton()
-        self.sub_btn.setText(tr("↳"))
+        self.sub_btn.setText("↳")
         self.sub_btn.setToolTip(tr("Add a child bookmark under the selected one"))
         self.sub_btn.clicked.connect(lambda: self.add_bookmark(child=True))
         self.del_btn = QToolButton()

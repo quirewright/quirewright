@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.pdfeditor.PDFEditor</id>
+  <name>PDF Editor</name>
+  <summary>Edit PDF content, pages, forms and comments</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>AGPL-3.0-or-later</project_license>
+  <description>
+    <p>A free and open-source PDF editor that combines vector-level editing of page content (move, resize, reshape and restyle paths, edit text in place, draw new shapes) with page management (rotate, reorder, insert, extract, crop), form fields, comments, metadata, security, OCR and more.</p>
+  </description>
+  <launchable type="desktop-id">pdfeditor.desktop</launchable>
+  <provides><binary>pdfeditor</binary></provides>
+  <categories><category>Office</category><category>Graphics</category></categories>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-10-03"/>
+  </releases>
+</component>

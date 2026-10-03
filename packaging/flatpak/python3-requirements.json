@@ -1,0 +1,21 @@
+{
+  "name": "python3-pymupdf",
+  "buildsystem": "simple",
+  "build-commands": [
+    "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pymupdf\" --no-build-isolation"
+  ],
+  "sources": [
+    {
+      "type": "file",
+      "url": "https://files.pythonhosted.org/packages/c7/06/dace3e27af26690cb20bead80dbac42941b0841eb689b8aabbd67dde16f0/pymupdf-1.28.2-cp310-abi3-manylinux_2_28_x86_64.whl",
+      "sha256": "397d6715c1f0df7548a92d0afd8ce370fc48fa47aeefac16be2bc04a16a8227f",
+      "only-arches": ["x86_64"]
+    },
+    {
+      "type": "file",
+      "url": "https://files.pythonhosted.org/packages/d2/86/4a68f080b71b46802178346af46486e1697508e760855ff5f3b218a6dff7/pymupdf-1.28.2-cp310-abi3-manylinux_2_28_aarch64.whl",
+      "sha256": "3050a233dde1211efe89ada74e2add6238436434159f46097a1423aad2842545",
+      "only-arches": ["aarch64"]
+    }
+  ]
+}
