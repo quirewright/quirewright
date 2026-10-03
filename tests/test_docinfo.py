@@ -71,7 +71,7 @@ def test_images_and_fonts(doc, tmp_path):
 
 def test_attachments(doc, tmp_path):
     f = tmp_path / "data.csv"
-    f.write_text("a,b\n1,2\n")
+    f.write_bytes(b"a,b\n1,2\n")
     assert doc.attachments() == []
     doc.add_attachment(str(f), "table")
     atts = doc.attachments()

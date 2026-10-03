@@ -1144,25 +1144,36 @@ class Document(_DocumentExtras, DocInfoMixin, AnnotationMixin):
         os.close(fd)
         try:
             self.pdf.save(tmp, garbage=garbage, deflate=True, use_objstms=0, **self.security.to_save_args())
-            os.replace(tmp, target)
+            with open(tmp, "rb") as fh:
+                data = fh.read()
         except Exception:
             try:
                 os.remove(tmp)
             except OSError:
                 pass
             raise
-        # Reopen from the saved file so further edits/incremental state are sane
-        data = open(target, "rb").read()
+        # Reopen from the saved bytes so further edits/incremental state are sane. The old
+        # document is closed *before* the rename: on Windows a file that MuPDF still holds
+        # open cannot be replaced.
         old = self.pdf
         self.pdf = pymupdf.open(stream=data, filetype="pdf")
         if self.pdf.needs_pass:
             pw = self.security.user_password or self.security.owner_password
             self.pdf.authenticate(pw)
-        self.security = SecuritySettings()
         try:
             old.close()
         except Exception:
             pass
+        try:
+            os.replace(tmp, target)
+        except Exception:
+            # The saved state lives on in memory (self.pdf); only the file on disk is stale.
+            try:
+                os.remove(tmp)
+            except OSError:
+                pass
+            raise
+        self.security = SecuritySettings()
         self.path = target
         self.invalidate()
         self.undo_stack.mark_clean()
