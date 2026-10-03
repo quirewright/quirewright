@@ -3,7 +3,7 @@
 
     python scripts/build_site.py [-o OUTPUT_DIR]
 
-Pages: index.html from site/templates/index.html, guide.html from the in-app user
+Pages: index.html and download.html from site/templates/, guide.html from the in-app user
 guide, features.html from docs/FEATURES.md. Output is self-contained; the gh-pages
 branch holds exactly this directory.
 """
@@ -28,6 +28,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = os.path.join(ROOT, "site")
 REPO_URL = "https://github.com/quirewright/quirewright"
 SITE_URL = "https://quirewright.github.io/quirewright/"
+WARNING = (
+    "This software was fully developed by AI. Its human testing and human code review has been extremely limited. "
+    "This software comes with no guarantees and no warranties and should not be relied upon for any critical "
+    "applications. It is released to the public in hopes that it can be useful for others. Download and use is "
+    "covered under the terms of the GNU AGPL License (see <a href=\"{repo}/blob/main/LICENSE\">LICENSE</a> for more "
+    "info). We welcome bug reports and contributions. See <a href=\"{repo}/blob/main/CONTRIBUTING.md\">CONTRIBUTING</a> "
+    "for more information."
+)
 DESCRIPTION = (
     "Quirewright is a free and open-source PDF editor for Linux: Inkscape-style vector editing "
     "of page content, page management, forms, signatures, encryption and OCR."
@@ -86,6 +94,10 @@ def build(out: str) -> None:
 
     index = render(read(os.path.join(SITE, "templates", "index.html")), **common)
     page("index.html", "Quirewright · a free and open-source PDF editor", index)
+
+    download = render(read(os.path.join(SITE, "templates", "download.html")),
+                      warning=WARNING.format(repo=REPO_URL), **common)
+    page("download.html", "Download · Quirewright", download)
 
     doc_tpl = read(os.path.join(SITE, "templates", "doc.html"))
     stamp = f'<p class="doc-meta">Quirewright {html.escape(ver)} · updated {git_date()}</p>'

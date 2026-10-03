@@ -1,5 +1,8 @@
 # Quirewright
 
+> [!CAUTION]
+> **This software was fully developed by AI.** Its human testing and human code review has been extremely limited. This software comes with no guarantees and no warranties and should not be relied upon for any critical applications. It is released to the public in hopes that it can be useful for others. Download and use is covered under the terms of the GNU AGPL License (see [LICENSE](LICENSE) for more info). We welcome bug reports and contributions. See [CONTRIBUTING](CONTRIBUTING.md) for more information.
+
 <img src="src/quirewright/assets/quirewright.svg" width="96" align="right" alt="Quirewright icon">
 
 A free and open-source PDF editor that combines **vector-level editing of page
@@ -167,7 +170,12 @@ Then pick the language in Edit › Preferences.
 ## Licence
 
 GNU Affero General Public License v3.0 or later (see `LICENSE`). PyMuPDF/MuPDF
-are AGPL-licensed; Qt via PySide6 is LGPL.
+are AGPL-licensed; Qt via PySide6 is LGPL. The licence's warranty and
+liability disclaimers (sections 15 and 16) apply to every copy.
+
+## Contributing
+
+Bug reports and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Packaging
 
