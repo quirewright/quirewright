@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
-  <!-- Small-size variant: the folded stack only. -->
+  <!-- Small-size variant: the folded stack only, same geometry as the full icon. -->
   <rect x="8" y="8" width="112" height="112" rx="26" fill="#7A1F2B"/>
   <g stroke="#4E1119" stroke-width="3" stroke-linejoin="round">
-    <path d="M22 52 L58 62 L94 52 L94 90 L58 100 L22 90 Z" fill="#DCCBA5"/>
-    <path d="M30 42 L66 52 L102 42 L102 80 L66 90 L30 80 Z" fill="#EADBB9"/>
-    <path d="M38 32 L74 42 L110 32 L110 70 L74 80 L38 70 Z" fill="#F6ECD6"/>
+    <path d="M18 36 L54 48 L90 36 L90 96 L54 108 L18 96 Z" fill="#DCCBA5"/>
+    <path d="M28 26 L64 38 L100 26 L100 86 L64 98 L28 86 Z" fill="#EADBB9"/>
+    <path d="M38 16 L74 28 L110 16 L110 76 L74 88 L38 76 Z" fill="#F6ECD6"/>
   </g>
-  <path d="M74 42 L74 80" stroke="#C4AE85" stroke-width="3" stroke-linecap="round"/>
+  <path d="M74 28 L74 88" stroke="#C4AE85" stroke-width="3" stroke-linecap="round"/>
 </svg>
