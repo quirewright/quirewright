@@ -8,6 +8,7 @@ from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QWidget
 
 from pdfeditor import APP_NAME, __version__
+from pdfeditor.i18n import N_, tr
 from pdfeditor.ui import theme
 
 
@@ -42,21 +43,21 @@ class WelcomePage(QWidget):
         head.addStretch()
         lay.addLayout(head)
         btns = QHBoxLayout()
-        self.open_btn = QPushButton("Open PDF…")
+        self.open_btn = QPushButton(tr("Open PDF…"))
         self.open_btn.setProperty("primary", "true")
         self.open_btn.setMinimumHeight(36)
         self.open_btn.clicked.connect(self.openRequested)
-        self.new_btn = QPushButton("New blank document")
+        self.new_btn = QPushButton(tr("New blank document"))
         self.new_btn.setMinimumHeight(36)
         self.new_btn.clicked.connect(self.newRequested)
         btns.addWidget(self.open_btn)
         btns.addWidget(self.new_btn)
         btns.addStretch()
         lay.addLayout(btns)
-        hint = QLabel("You can also drop a PDF anywhere in this window.")
+        hint = QLabel(tr("You can also drop a PDF anywhere in this window."))
         hint.setProperty("role", "muted")
         lay.addWidget(hint)
-        self.recent_label = QLabel("RECENT FILES")
+        self.recent_label = QLabel(tr("RECENT FILES"))
         self.recent_label.setProperty("role", "heading")
         lay.addWidget(self.recent_label)
         self.recent = QListWidget()

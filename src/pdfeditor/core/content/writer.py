@@ -377,6 +377,8 @@ class ContentEditor:
         size: float,
         color: Color | None = None,
         rotation: float = 0.0,
+        hscale: float = 1.0,
+        render_mode: int = 0,
     ) -> bool:
         """Append a text object with its baseline origin at device point (x, y)."""
         encoded = font.encode(text)
@@ -388,6 +390,10 @@ class ContentEditor:
         if color is not None:
             ops += _color_ops(Color("X", ()), "X", color, color.space, False)
         ops.append(fmt_name(font_name) + b" " + fmt(size) + b" Tf")
+        if abs(hscale - 1.0) > 1e-6:
+            ops.append(fmt(hscale * 100.0) + b" Tz")
+        if render_mode:
+            ops.append(fmt(render_mode) + b" Tr")
         ops.append(fmt_matrix(tm) + b" Tm")
         ops.append(fmt_string(encoded, bool(font.code_ranges)) + b" Tj")
         ops += [b"ET", b"Q"]

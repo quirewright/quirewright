@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QToolBu
 
 from pdfeditor.core.document import Document
 from pdfeditor.core.geometry import Rect
+from pdfeditor.i18n import N_, tr
 from pdfeditor.ui import theme
 
 
@@ -25,27 +26,27 @@ class FindBar(QWidget):
         lay.setContentsMargins(10, 6, 10, 6)
         lay.setSpacing(6)
         self.edit = QLineEdit()
-        self.edit.setPlaceholderText("Find in document…")
+        self.edit.setPlaceholderText(tr("Find in document…"))
         self.edit.setClearButtonEnabled(True)
         self.edit.textChanged.connect(self._search)
         self.edit.returnPressed.connect(self.next)
         self.edit.installEventFilter(self)
-        self.case = QCheckBox("Match case")
+        self.case = QCheckBox(tr("Match case"))
         self.case.toggled.connect(lambda on: self._search(self.edit.text()))
-        self.count = QLabel("")
+        self.count = QLabel(tr(""))
         self.count.setProperty("role", "muted")
         self.count.setMinimumWidth(90)
         self.prev_btn = QToolButton()
         self.prev_btn.setIcon(theme.icon("chevron-left"))
-        self.prev_btn.setToolTip("Previous match (Shift+Enter)")
+        self.prev_btn.setToolTip(tr("Previous match (Shift+Enter)"))
         self.prev_btn.clicked.connect(self.previous)
         self.next_btn = QToolButton()
         self.next_btn.setIcon(theme.icon("chevron-right"))
-        self.next_btn.setToolTip("Next match (Enter)")
+        self.next_btn.setToolTip(tr("Next match (Enter)"))
         self.next_btn.clicked.connect(self.next)
         self.close_btn = QToolButton()
         self.close_btn.setIcon(theme.icon("close"))
-        self.close_btn.setToolTip("Close (Esc)")
+        self.close_btn.setToolTip(tr("Close (Esc)"))
         self.close_btn.clicked.connect(self.hide_bar)
         lay.addWidget(self.edit, 1)
         lay.addWidget(self.case)
@@ -59,7 +60,7 @@ class FindBar(QWidget):
         self.doc = doc
         self.hits = []
         self.index = -1
-        self.count.setText("")
+        self.count.setText(tr(""))
 
     def show_bar(self) -> None:
         self.show()
@@ -84,7 +85,7 @@ class FindBar(QWidget):
         self.hits = []
         self.index = -1
         if self.doc is None or not text:
-            self.count.setText("")
+            self.count.setText(tr(""))
             self.highlightsChanged.emit(-1, [])
             return
         try:
@@ -92,7 +93,7 @@ class FindBar(QWidget):
         except Exception:
             self.hits = []
         if not self.hits:
-            self.count.setText("No matches")
+            self.count.setText(tr("No matches"))
             self.highlightsChanged.emit(-1, [])
             return
         self.next()

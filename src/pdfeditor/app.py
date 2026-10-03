@@ -15,6 +15,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("file", nargs="?", help="PDF file to open")
     parser.add_argument("--dark", action="store_true", help="force dark mode")
     parser.add_argument("--light", action="store_true", help="force light mode")
+    parser.add_argument("--lang", help="interface language code (e.g. en, de); overrides the preference")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.WARNING, format="%(levelname)s %(name)s: %(message)s")
@@ -22,6 +23,11 @@ def main(argv: list[str] | None = None) -> int:
     os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
     from PySide6.QtCore import QSettings, Qt
     from PySide6.QtWidgets import QApplication
+
+    from pdfeditor import i18n
+
+    settings_pre = QSettings(APP_ID, APP_ID)
+    i18n.set_language(args.lang or settings_pre.value("ui/language", "system", type=str))
 
     from pdfeditor.ui import theme
     from pdfeditor.ui.main_window import MainWindow
@@ -31,6 +37,14 @@ def main(argv: list[str] | None = None) -> int:
     QApplication.setDesktopFileName(APP_ID)
     app = QApplication(sys.argv[:1])
     settings = QSettings(APP_ID, APP_ID)
+    # Qt's own strings (file dialogs, message box buttons) in the chosen language
+    from PySide6.QtCore import QLibraryInfo, QLocale, QTranslator
+
+    lang = i18n.current_language()
+    if lang != "en":
+        qt_tr = QTranslator(app)
+        if qt_tr.load(QLocale(lang), "qtbase", "_", QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)):
+            app.installTranslator(qt_tr)
     dark: bool | None = None
     if args.dark:
         dark = True

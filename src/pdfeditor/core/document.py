@@ -160,6 +160,11 @@ class WidgetInfo:
     border_width: float = 1.0
     label: str = ""
     on_state: str | None = None
+    script_calc: str = ""
+    script_format: str = ""
+    script_validate: str = ""  # "change" action in PyMuPDF terms (field value validation)
+    script_keystroke: str = ""
+    script_action: str = ""  # mouse-up action (buttons)
 
     @property
     def type_name(self) -> str:
@@ -192,6 +197,49 @@ def _unrotated_rect(page, r: Rect) -> pymupdf.Rect:
     rr = pymupdf.Rect(r.x0, r.y0, r.x1, r.y1) * page.derotation_matrix
     rr.normalize()
     return rr
+
+
+def format_number(value: float, format_script: str = "") -> str:
+    """Render a number the way an AFNumber_Format / AFPercent_Format script would (approximately)."""
+    import re
+
+    m = re.search(r"AF(Number|Percent)_Format\(\s*(\d+)", format_script or "")
+    if m:
+        decimals = int(m.group(2))
+        if m.group(1) == "Percent":
+            return f"{value * 100:.{decimals}f}%"
+        return f"{value:,.{decimals}f}" if "1," not in format_script else f"{value:.{decimals}f}"
+    if abs(value - round(value)) < 1e-9:
+        return str(int(round(value)))
+    return f"{value:g}"
+
+
+CALC_OPS = {"sum": "SUM", "product": "PRD", "average": "AVG", "minimum": "MIN", "maximum": "MAX"}
+
+
+def calc_script(op: str, fields: Sequence[str]) -> str:
+    names = ", ".join(f'"{f}"' for f in fields)
+    return f'AFSimple_Calculate("{CALC_OPS.get(op, op)}", new Array({names}));'
+
+
+def number_format_script(decimals: int = 2, separator: int = 0, negative: int = 0, currency: str = "", prepend: bool = True) -> str:
+    return f'AFNumber_Format({decimals}, {separator}, {negative}, 0, "{currency}", {"true" if prepend else "false"});'
+
+
+def percent_format_script(decimals: int = 2) -> str:
+    return f"AFPercent_Format({decimals}, 0);"
+
+
+def date_format_script(fmt: str = "yyyy-mm-dd") -> str:
+    return f'AFDate_FormatEx("{fmt}");'
+
+
+def range_validate_script(low: float | None, high: float | None) -> str:
+    return f'AFRange_Validate({"true" if low is not None else "false"}, {low if low is not None else 0}, {"true" if high is not None else "false"}, {high if high is not None else 0});'
+
+
+def number_keystroke_script(decimals: int = 2, separator: int = 0, negative: int = 0, currency: str = "", prepend: bool = True) -> str:
+    return f'AFNumber_Keystroke({decimals}, {separator}, {negative}, 0, "{currency}", {"true" if prepend else "false"});'
 
 
 class _DocumentExtras:
@@ -246,6 +294,11 @@ class _DocumentExtras:
                     border_width=float(w.border_width or 0),
                     label=w.field_label or "",
                     on_state=w.on_state() if w.field_type in (2, 5) else None,
+                    script_calc=w.script_calc or "",
+                    script_format=w.script_format or "",
+                    script_validate=w.script_change or "",
+                    script_keystroke=w.script_stroke or "",
+                    script_action=w.script or "",
                 )
             except Exception as exc:  # pragma: no cover
                 log.warning("widget %s: %s", getattr(w, "xref", "?"), exc)
@@ -374,9 +427,59 @@ class _DocumentExtras:
                 w.border_width = float(props["border_width"])
             if "label" in props:
                 w.button_caption = props["label"]
+            for key, attr in (("script_calc", "script_calc"), ("script_format", "script_format"), ("script_validate", "script_change"),
+                              ("script_keystroke", "script_stroke"), ("script_action", "script")):
+                if key in props:
+                    setattr(w, attr, props[key] or None)
             w.update()
 
         self._structure_op(label, action)
+
+    # -- calculations (evaluated locally so the preview updates; viewers run the JS) ----
+    def recalculate(self, index: int) -> int:
+        """Evaluate AFSimple_Calculate scripts of fields on the page; returns the number updated."""
+        import re
+
+        page = self.pdf[index]
+        widgets = list(page.widgets())
+        values: dict[str, float] = {}
+        for w in widgets:
+            try:
+                values[w.field_name] = float(str(w.field_value or "").replace(",", ".") or 0)
+            except ValueError:
+                values[w.field_name] = 0.0
+        pat = re.compile(r'AFSimple_Calculate\(\s*"(SUM|PRD|AVG|MIN|MAX)"\s*,\s*(?:new\s+Array\s*\(|\[)\s*([^\])]*)[\)\]]')
+        updated = 0
+        for w in widgets:
+            script = w.script_calc or ""
+            m = pat.search(script)
+            if not m:
+                continue
+            op = m.group(1)
+            names = [n.strip().strip('"\'') for n in m.group(2).split(",") if n.strip()]
+            nums = [values.get(n, 0.0) for n in names]
+            if not nums:
+                continue
+            if op == "SUM":
+                res = sum(nums)
+            elif op == "PRD":
+                res = 1.0
+                for v in nums:
+                    res *= v
+            elif op == "AVG":
+                res = sum(nums) / len(nums)
+            elif op == "MIN":
+                res = min(nums)
+            else:
+                res = max(nums)
+            text = format_number(res, w.script_format or "")
+            if str(w.field_value or "") != text:
+                w.field_value = text
+                w.update()
+                updated += 1
+        if updated:
+            self._content_cache.clear()
+        return updated
 
     def delete_widgets(self, index: int, xrefs: Iterable[int]) -> None:
         xs = set(xrefs)

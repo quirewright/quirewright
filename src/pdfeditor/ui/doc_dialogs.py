@@ -41,6 +41,7 @@ from PySide6.QtWidgets import (
 from pdfeditor import APP_ID, APP_NAME
 from pdfeditor.core.docinfo import ALL_PERMISSIONS, PERMISSIONS, SecuritySettings, datetime_to_pdf_date, pdf_date_to_datetime
 from pdfeditor.core.document import Document
+from pdfeditor.i18n import N_, tr
 from pdfeditor.ui import theme
 from pdfeditor.ui.units import UNITS, current_unit, set_current_unit
 
@@ -79,7 +80,7 @@ class _Base(QDialog):
 
 class PropertiesDialog(_Base):
     def __init__(self, doc: Document, parent=None):
-        super().__init__("Document properties", parent, 520)
+        super().__init__(tr("Document properties"), parent, 520)
         self.doc = doc
         tabs = QTabWidget()
         self.body.addWidget(tabs)
@@ -95,9 +96,9 @@ class PropertiesDialog(_Base):
             form.addRow(label, e)
         self.created = _date_edit(md.get("creationDate", ""))
         self.modified = _date_edit(md.get("modDate", ""))
-        form.addRow("Created", self.created)
-        form.addRow("Modified", self.modified)
-        tabs.addTab(meta, "Description")
+        form.addRow(tr("Created"), self.created)
+        form.addRow(tr("Modified"), self.modified)
+        tabs.addTab(meta, tr("Description"))
         # info
         info_w = QWidget()
         grid = QFormLayout(info_w)
@@ -120,7 +121,7 @@ class PropertiesDialog(_Base):
             lbl.setWordWrap(True)
             lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             grid.addRow(k, lbl)
-        tabs.addTab(info_w, "Details")
+        tabs.addTab(info_w, tr("Details"))
         self.add_buttons("Apply")
 
     def values(self) -> dict[str, str]:
@@ -135,7 +136,7 @@ def _date_edit(pdf_date: str) -> QDateTimeEdit:
     e.setCalendarPopup(True)
     e.setDisplayFormat("yyyy-MM-dd HH:mm")
     dt = pdf_date_to_datetime(pdf_date)
-    e.setSpecialValueText("(not set)")
+    e.setSpecialValueText(tr("(not set)"))
     e.setMinimumDateTime(QDateTime(QDate(1900, 1, 1), QTime(0, 0)))
     if dt is None:
         e.setDateTime(e.minimumDateTime())
@@ -155,7 +156,7 @@ def _date_value(e: QDateTimeEdit) -> str:
 
 class SecurityDialog(_Base):
     def __init__(self, doc: Document, parent=None):
-        super().__init__("Document security", parent, 480)
+        super().__init__(tr("Document security"), parent, 480)
         info = doc.security_info()
         pending: SecuritySettings = info["pending"]
         status = QLabel(
@@ -164,34 +165,34 @@ class SecurityDialog(_Base):
         )
         status.setWordWrap(True)
         self.body.addWidget(status)
-        self.keep = QRadioButton("Keep the current security settings")
-        self.none = QRadioButton("No password or restrictions")
-        self.encrypt = QRadioButton("Protect with passwords and permissions")
+        self.keep = QRadioButton(tr("Keep the current security settings"))
+        self.none = QRadioButton(tr("No password or restrictions"))
+        self.encrypt = QRadioButton(tr("Protect with passwords and permissions"))
         self.body.addWidget(self.keep)
         self.body.addWidget(self.none)
         self.body.addWidget(self.encrypt)
-        box = QGroupBox("Passwords")
+        box = QGroupBox(tr("Passwords"))
         form = QFormLayout(box)
         self.user_pw = QLineEdit(pending.user_password)
         self.user_pw.setEchoMode(QLineEdit.EchoMode.Password)
-        self.user_pw.setPlaceholderText("Required to open the document (optional)")
+        self.user_pw.setPlaceholderText(tr("Required to open the document (optional)"))
         self.owner_pw = QLineEdit(pending.owner_password)
         self.owner_pw.setEchoMode(QLineEdit.EchoMode.Password)
-        self.owner_pw.setPlaceholderText("Required to change permissions")
-        self.show_pw = QCheckBox("Show passwords")
+        self.owner_pw.setPlaceholderText(tr("Required to change permissions"))
+        self.show_pw = QCheckBox(tr("Show passwords"))
         self.show_pw.toggled.connect(lambda on: [e.setEchoMode(QLineEdit.EchoMode.Normal if on else QLineEdit.EchoMode.Password) for e in (self.user_pw, self.owner_pw)])
         self.method = QComboBox()
-        self.method.addItem("AES 256-bit (recommended)", "aes256")
-        self.method.addItem("AES 128-bit", "aes128")
-        self.method.addItem("RC4 128-bit (legacy)", "rc4_128")
+        self.method.addItem(tr("AES 256-bit (recommended)"), "aes256")
+        self.method.addItem(tr("AES 128-bit"), "aes128")
+        self.method.addItem(tr("RC4 128-bit (legacy)"), "rc4_128")
         idx = self.method.findData(pending.method)
         self.method.setCurrentIndex(max(idx, 0))
-        form.addRow("Open password", self.user_pw)
-        form.addRow("Owner password", self.owner_pw)
-        form.addRow("", self.show_pw)
-        form.addRow("Encryption", self.method)
+        form.addRow(tr("Open password"), self.user_pw)
+        form.addRow(tr("Owner password"), self.owner_pw)
+        form.addRow(tr(""), self.show_pw)
+        form.addRow(tr("Encryption"), self.method)
         self.body.addWidget(box)
-        pbox = QGroupBox("Allow readers to")
+        pbox = QGroupBox(tr("Allow readers to"))
         grid = QGridLayout(pbox)
         self.perm_checks: dict[str, QCheckBox] = {}
         labels = {
@@ -234,7 +235,7 @@ class SecurityDialog(_Base):
 
 class ResourcesDialog(_Base):
     def __init__(self, doc: Document, parent=None, on_change=None):
-        super().__init__("Document resources", parent, 680)
+        super().__init__(tr("Document resources"), parent, 680)
         self.doc = doc
         self.on_change = on_change
         self.setMinimumHeight(460)
@@ -269,14 +270,14 @@ class ResourcesDialog(_Base):
         lay.addWidget(self.img_table)
         row = QHBoxLayout()
         row.addStretch()
-        b1 = QPushButton("Extract selected…")
-        b2 = QPushButton("Extract all…")
+        b1 = QPushButton(tr("Extract selected…"))
+        b2 = QPushButton(tr("Extract all…"))
         b1.clicked.connect(lambda: self._extract_images(selected=True))
         b2.clicked.connect(lambda: self._extract_images(selected=False))
         row.addWidget(b1)
         row.addWidget(b2)
         lay.addLayout(row)
-        self.tabs.addTab(w, "Images")
+        self.tabs.addTab(w, tr("Images"))
         self.images = self.doc.list_images()
         self.img_table.setRowCount(len(self.images))
         for r, im in enumerate(self.images):
@@ -298,16 +299,16 @@ class ResourcesDialog(_Base):
     def _extract_images(self, selected: bool) -> None:
         rows = sorted({i.row() for i in self.img_table.selectedIndexes()}) if selected else list(range(len(self.images)))
         if not rows:
-            QMessageBox.information(self, "Extract images", "Select one or more images first.")
+            QMessageBox.information(self, tr("Extract images"), tr("Select one or more images first."))
             return
         if len(rows) == 1:
             im = self.images[rows[0]]
             ext, data = self.doc.extract_image(im.xref)
-            path, _ = QFileDialog.getSaveFileName(self, "Save image", f"{im.name}.{ext}", f"Image (*.{ext})")
+            path, _ = QFileDialog.getSaveFileName(self, tr("Save image"), f"{im.name}.{ext}", f"Image (*.{ext})")
             if path:
                 open(path, "wb").write(data)
             return
-        folder = QFileDialog.getExistingDirectory(self, "Choose folder for images")
+        folder = QFileDialog.getExistingDirectory(self, tr("Choose folder for images"))
         if not folder:
             return
         n = 0
@@ -328,20 +329,20 @@ class ResourcesDialog(_Base):
         self.font_table = self._table(["Name", "Type", "Encoding", "Embedded", "Pages"])
         self.font_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         lay.addWidget(self.font_table)
-        note = QLabel("Only embedded fonts can be extracted. Font files are usually subsets and remain subject to the font's licence.")
+        note = QLabel(tr("Only embedded fonts can be extracted. Font files are usually subsets and remain subject to the font's licence."))
         note.setWordWrap(True)
         note.setProperty("role", "muted")
         lay.addWidget(note)
         row = QHBoxLayout()
         row.addStretch()
-        b1 = QPushButton("Extract selected…")
-        b2 = QPushButton("Extract all embedded…")
+        b1 = QPushButton(tr("Extract selected…"))
+        b2 = QPushButton(tr("Extract all embedded…"))
         b1.clicked.connect(lambda: self._extract_fonts(selected=True))
         b2.clicked.connect(lambda: self._extract_fonts(selected=False))
         row.addWidget(b1)
         row.addWidget(b2)
         lay.addLayout(row)
-        self.tabs.addTab(w, "Fonts")
+        self.tabs.addTab(w, tr("Fonts"))
         self.fonts = self.doc.list_fonts()
         self.font_table.setRowCount(len(self.fonts))
         for r, f in enumerate(self.fonts):
@@ -356,16 +357,16 @@ class ResourcesDialog(_Base):
         rows = sorted({i.row() for i in self.font_table.selectedIndexes()}) if selected else [i for i, f in enumerate(self.fonts) if f.embedded]
         rows = [r for r in rows if self.fonts[r].embedded]
         if not rows:
-            QMessageBox.information(self, "Extract fonts", "Select one or more embedded fonts first.")
+            QMessageBox.information(self, tr("Extract fonts"), tr("Select one or more embedded fonts first."))
             return
         if len(rows) == 1:
             f = self.fonts[rows[0]]
             name, ext, data = self.doc.extract_font(f.xref)
-            path, _ = QFileDialog.getSaveFileName(self, "Save font", f"{name}.{ext}", f"Font (*.{ext})")
+            path, _ = QFileDialog.getSaveFileName(self, tr("Save font"), f"{name}.{ext}", f"Font (*.{ext})")
             if path:
                 open(path, "wb").write(data)
             return
-        folder = QFileDialog.getExistingDirectory(self, "Choose folder for fonts")
+        folder = QFileDialog.getExistingDirectory(self, tr("Choose folder for fonts"))
         if not folder:
             return
         n = 0
@@ -386,19 +387,19 @@ class ResourcesDialog(_Base):
         self.att_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         lay.addWidget(self.att_table)
         row = QHBoxLayout()
-        add = QPushButton("Attach file…")
+        add = QPushButton(tr("Attach file…"))
         add.clicked.connect(self._attach)
-        rem = QPushButton("Remove")
+        rem = QPushButton(tr("Remove"))
         rem.setProperty("danger", "true")
         rem.clicked.connect(self._remove_attachment)
-        ext = QPushButton("Save selected…")
+        ext = QPushButton(tr("Save selected…"))
         ext.clicked.connect(self._extract_attachment)
         row.addWidget(add)
         row.addWidget(rem)
         row.addStretch()
         row.addWidget(ext)
         lay.addLayout(row)
-        self.tabs.addTab(w, "Attachments")
+        self.tabs.addTab(w, tr("Attachments"))
         self._reload_attachments()
 
     def _reload_attachments(self) -> None:
@@ -413,7 +414,7 @@ class ResourcesDialog(_Base):
         self.tabs.setTabText(2, f"Attachments ({len(self.attachments)})")
 
     def _attach(self) -> None:
-        paths, _ = QFileDialog.getOpenFileNames(self, "Attach files")
+        paths, _ = QFileDialog.getOpenFileNames(self, tr("Attach files"))
         for p in paths:
             self.doc.add_attachment(p)
         if paths:
@@ -434,15 +435,15 @@ class ResourcesDialog(_Base):
     def _extract_attachment(self) -> None:
         rows = sorted({i.row() for i in self.att_table.selectedIndexes()})
         if not rows:
-            QMessageBox.information(self, "Save attachment", "Select an attachment first.")
+            QMessageBox.information(self, tr("Save attachment"), tr("Select an attachment first."))
             return
         if len(rows) == 1:
             a = self.attachments[rows[0]]
-            path, _ = QFileDialog.getSaveFileName(self, "Save attachment", a.filename)
+            path, _ = QFileDialog.getSaveFileName(self, tr("Save attachment"), a.filename)
             if path:
                 open(path, "wb").write(self.doc.extract_attachment(a.name))
             return
-        folder = QFileDialog.getExistingDirectory(self, "Choose folder")
+        folder = QFileDialog.getExistingDirectory(self, tr("Choose folder"))
         if folder:
             for r in rows:
                 a = self.attachments[r]
@@ -452,21 +453,21 @@ class ResourcesDialog(_Base):
 # --- Page decorations ---------------------------------------------------------------------
 
 POSITIONS = [
-    ("Bottom centre", "bottom-center"), ("Bottom left", "bottom-left"), ("Bottom right", "bottom-right"),
-    ("Top centre", "top-center"), ("Top left", "top-left"), ("Top right", "top-right"),
+    (N_("Bottom centre"), "bottom-center"), ("Bottom left", "bottom-left"), ("Bottom right", "bottom-right"),
+    (N_("Top centre"), "top-center"), ("Top left", "top-left"), ("Top right", "top-right"),
 ]
 
 
 class _ScopeMixin:
     def _scope_combo(self, page_count: int, selected: list[int], current: int) -> QComboBox:
         c = QComboBox()
-        c.addItem("All pages", "all")
+        c.addItem(tr("All pages"), "all")
         if len(selected) > 1:
             c.addItem(f"Selected pages ({len(selected)})", "selected")
         c.addItem(f"Current page ({current + 1})", "current")
-        c.addItem("Range…", "range")
+        c.addItem(tr("Range…"), "range")
         self.range_edit = QLineEdit()
-        self.range_edit.setPlaceholderText("e.g. 2-5, 8")
+        self.range_edit.setPlaceholderText(tr("e.g. 2-5, 8"))
         self.range_edit.setVisible(False)
         c.currentIndexChanged.connect(lambda i: self.range_edit.setVisible(c.currentData() == "range"))
         self._page_count, self._selected, self._current = page_count, selected, current
@@ -487,76 +488,76 @@ class _ScopeMixin:
 
 class PageNumbersDialog(_Base, _ScopeMixin):
     def __init__(self, page_count: int, selected: list[int], current: int, parent=None):
-        super().__init__("Add page numbers", parent)
+        super().__init__(tr("Add page numbers"), parent)
         form = QFormLayout()
         self.fmt = QComboBox()
         self.fmt.setEditable(True)
         for f in ("{n}", "Page {n}", "Page {n} of {total}", "- {n} -", "{n} / {total}"):
             self.fmt.addItem(f)
-        form.addRow("Format", self.fmt)
-        hint = QLabel("{n} = number, {total} = count of numbered pages, {page} = physical page number")
+        form.addRow(tr("Format"), self.fmt)
+        hint = QLabel(tr("{n} = number, {total} = count of numbered pages, {page} = physical page number"))
         hint.setProperty("role", "muted")
         hint.setWordWrap(True)
-        form.addRow("", hint)
+        form.addRow(tr(""), hint)
         self.start = QSpinBox()
         self.start.setRange(0, 100000)
         self.start.setValue(1)
-        form.addRow("Start at", self.start)
+        form.addRow(tr("Start at"), self.start)
         self.position = QComboBox()
         for label, key in POSITIONS:
-            self.position.addItem(label, key)
-        form.addRow("Position", self.position)
+            self.position.addItem(tr(label), key)
+        form.addRow(tr("Position"), self.position)
         self.size = QDoubleSpinBox()
         self.size.setRange(4, 72)
         self.size.setValue(10)
         self.size.setSuffix(" pt")
-        form.addRow("Font size", self.size)
+        form.addRow(tr("Font size"), self.size)
         self.margin = QDoubleSpinBox()
         self.margin.setRange(0, 300)
         self.margin.setValue(28)
         self.margin.setSuffix(" pt")
-        form.addRow("Margin", self.margin)
+        form.addRow(tr("Margin"), self.margin)
         self.scope = self._scope_combo(page_count, selected, current)
-        form.addRow("Apply to", self.scope)
-        form.addRow("", self.range_edit)
+        form.addRow(tr("Apply to"), self.scope)
+        form.addRow(tr(""), self.range_edit)
         self.body.addLayout(form)
         self.add_buttons("Add numbers")
 
 
 class WatermarkDialog(_Base, _ScopeMixin):
     def __init__(self, page_count: int, selected: list[int], current: int, parent=None):
-        super().__init__("Add watermark", parent)
+        super().__init__(tr("Add watermark"), parent)
         form = QFormLayout()
         self.text = QLineEdit("DRAFT")
-        form.addRow("Text", self.text)
+        form.addRow(tr("Text"), self.text)
         self.size = QDoubleSpinBox()
         self.size.setRange(6, 400)
         self.size.setValue(60)
         self.size.setSuffix(" pt")
-        form.addRow("Font size", self.size)
+        form.addRow(tr("Font size"), self.size)
         self.rotation = QSpinBox()
         self.rotation.setRange(-180, 180)
         self.rotation.setValue(45)
         self.rotation.setSuffix("°")
-        form.addRow("Rotation", self.rotation)
+        form.addRow(tr("Rotation"), self.rotation)
         self.opacity = QSlider(Qt.Orientation.Horizontal)
         self.opacity.setRange(5, 100)
         self.opacity.setValue(25)
-        form.addRow("Opacity", self.opacity)
+        form.addRow(tr("Opacity"), self.opacity)
         self.color = QComboBox()
         for label, rgb in (("Grey", (0.5, 0.5, 0.5)), ("Red", (0.85, 0.1, 0.1)), ("Blue", (0.1, 0.3, 0.8)), ("Black", (0, 0, 0))):
             self.color.addItem(label, rgb)
-        form.addRow("Colour", self.color)
+        form.addRow(tr("Colour"), self.color)
         self.scope = self._scope_combo(page_count, selected, current)
-        form.addRow("Apply to", self.scope)
-        form.addRow("", self.range_edit)
+        form.addRow(tr("Apply to"), self.scope)
+        form.addRow(tr(""), self.range_edit)
         self.body.addLayout(form)
         self.add_buttons("Add watermark")
 
 
 LABEL_STYLES = [
-    ("Decimal (1, 2, 3)", "D"), ("Roman upper (I, II, III)", "R"), ("Roman lower (i, ii, iii)", "r"),
-    ("Letters upper (A, B, C)", "A"), ("Letters lower (a, b, c)", "a"), ("Prefix only (no number)", ""),
+    (N_("Decimal (1, 2, 3)"), "D"), ("Roman upper (I, II, III)", "R"), ("Roman lower (i, ii, iii)", "r"),
+    (N_("Letters upper (A, B, C)"), "A"), ("Letters lower (a, b, c)", "a"), ("Prefix only (no number)", ""),
 ]
 
 
@@ -564,10 +565,10 @@ class PageLabelsDialog(_Base):
     """Edit the page-label ranges (how pages are numbered in viewers)."""
 
     def __init__(self, page_count: int, rules: list[dict], parent=None):
-        super().__init__("Page labels", parent, 560)
-        info = QLabel("Each rule numbers pages from its start page until the next rule. For example a rule "
+        super().__init__(tr("Page labels"), parent, 560)
+        info = QLabel(tr("Each rule numbers pages from its start page until the next rule. For example a rule "
                       "starting at page 1 with lower-case roman numerals and a second rule starting at page 5 with "
-                      "decimal numbers gives i, ii, iii, iv, 1, 2, …")
+                      "decimal numbers gives i, ii, iii, iv, 1, 2, …"))
         info.setWordWrap(True)
         info.setProperty("role", "muted")
         self.body.addWidget(info)
@@ -579,11 +580,11 @@ class PageLabelsDialog(_Base):
         self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.body.addWidget(self.table)
         row = QHBoxLayout()
-        add = QPushButton("Add rule")
+        add = QPushButton(tr("Add rule"))
         add.clicked.connect(lambda: self._add_row())
-        rem = QPushButton("Remove rule")
+        rem = QPushButton(tr("Remove rule"))
         rem.clicked.connect(self._remove_row)
-        clear = QPushButton("Remove all labels")
+        clear = QPushButton(tr("Remove all labels"))
         clear.clicked.connect(lambda: self.table.setRowCount(0))
         row.addWidget(add)
         row.addWidget(rem)
@@ -605,7 +606,7 @@ class PageLabelsDialog(_Base):
         start.setValue(int(rule.get("startpage", 0)) + 1)
         style = QComboBox()
         for label, key in LABEL_STYLES:
-            style.addItem(label, key)
+            style.addItem(tr(label), key)
         style.setCurrentIndex(max(style.findData(rule.get("style", "D") or ""), 0))
         prefix = QLineEdit(str(rule.get("prefix", "") or ""))
         first = QSpinBox()
@@ -633,26 +634,60 @@ class PageLabelsDialog(_Base):
         return out
 
 
+class OcrDialog(_Base, _ScopeMixin):
+    def __init__(self, page_count: int, selected: list[int], current: int, languages: list[str], parent=None):
+        super().__init__(tr("Recognize text (OCR)"), parent)
+        info = QLabel(tr("Adds an invisible, searchable text layer over scanned pages. The page image is not changed. "
+                      "Pages that already contain text are skipped unless you choose otherwise."))
+        info.setWordWrap(True)
+        self.body.addWidget(info)
+        form = QFormLayout()
+        self.language = QComboBox()
+        self.language.setEditable(True)
+        for lang in languages:
+            self.language.addItem(lang)
+        idx = self.language.findText("eng")
+        if idx >= 0:
+            self.language.setCurrentIndex(idx)
+        form.addRow(tr("Language"), self.language)
+        hint = QLabel(tr("Combine languages with +, e.g. eng+deu"))
+        hint.setProperty("role", "muted")
+        form.addRow(tr(""), hint)
+        self.dpi = QSpinBox()
+        self.dpi.setRange(100, 600)
+        self.dpi.setValue(300)
+        self.dpi.setSuffix(" dpi")
+        form.addRow(tr("Resolution"), self.dpi)
+        self.skip_text = QCheckBox(tr("Skip pages that already have text"))
+        self.skip_text.setChecked(True)
+        form.addRow(tr(""), self.skip_text)
+        self.scope = self._scope_combo(page_count, selected, current)
+        form.addRow(tr("Apply to"), self.scope)
+        form.addRow(tr(""), self.range_edit)
+        self.body.addLayout(form)
+        self.add_buttons("Recognize")
+
+
 class ExportImageDialog(_Base):
     def __init__(self, page_count: int, current: int, parent=None):
-        super().__init__("Export page as image", parent)
+        super().__init__(tr("Export page as image"), parent)
         form = QFormLayout()
         self.format = QComboBox()
         for label, ext in (("PNG", "png"), ("JPEG", "jpg"), ("SVG (vector)", "svg")):
             self.format.addItem(label, ext)
-        form.addRow("Format", self.format)
+        form.addRow(tr("Format"), self.format)
         self.dpi = QSpinBox()
         self.dpi.setRange(36, 1200)
         self.dpi.setValue(150)
         self.dpi.setSuffix(" dpi")
-        form.addRow("Resolution", self.dpi)
+        form.addRow(tr("Resolution"), self.dpi)
         self.scope = QComboBox()
         self.scope.addItem(f"Current page ({current + 1})", "current")
-        self.scope.addItem("All pages (one file each)", "all")
-        form.addRow("Pages", self.scope)
-        self.annots = QCheckBox("Include annotations and form fields")
+        self.scope.addItem(tr("All pages (one file each)"), "all")
+        form.addRow(tr("Pages"), self.scope)
+        self.annots = QCheckBox(tr("Include annotations and form fields"))
         self.annots.setChecked(True)
-        form.addRow("", self.annots)
+        form.addRow(tr(""), self.annots)
         self.body.addLayout(form)
         self.format.currentIndexChanged.connect(lambda i: self.dpi.setEnabled(self.format.currentData() != "svg"))
         self.add_buttons("Export…")
@@ -660,47 +695,56 @@ class ExportImageDialog(_Base):
 
 class PreferencesDialog(_Base):
     def __init__(self, parent=None):
-        super().__init__("Preferences", parent)
+        super().__init__(tr("Preferences"), parent)
         from PySide6.QtCore import QSettings
 
         self.settings = QSettings(APP_ID, APP_ID)
         form = QFormLayout()
         self.theme = QComboBox()
-        self.theme.addItem("Follow system", "system")
-        self.theme.addItem("Light", "light")
-        self.theme.addItem("Dark", "dark")
+        self.theme.addItem(tr("Follow system"), "system")
+        self.theme.addItem(tr("Light"), "light")
+        self.theme.addItem(tr("Dark"), "dark")
         if self.settings.contains("ui/dark"):
             self.theme.setCurrentIndex(2 if self.settings.value("ui/dark", False, type=bool) else 1)
-        form.addRow("Theme", self.theme)
+        form.addRow(tr("Theme"), self.theme)
         self.units = QComboBox()
         for u in UNITS:
             if u != "px":
                 self.units.addItem({"pt": "Points (pt)", "mm": "Millimetres (mm)", "cm": "Centimetres (cm)", "in": "Inches (in)"}[u], u)
         self.units.setCurrentIndex(max(self.units.findData(current_unit()), 0))
-        form.addRow("Units", self.units)
-        self.scale_stroke = QCheckBox("Scale stroke width when resizing objects")
+        form.addRow(tr("Units"), self.units)
+        self.scale_stroke = QCheckBox(tr("Scale stroke width when resizing objects"))
         self.scale_stroke.setChecked(self.settings.value("edit/scaleStroke", True, type=bool))
-        form.addRow("", self.scale_stroke)
+        form.addRow(tr(""), self.scale_stroke)
         self.author = QLineEdit(self.settings.value("user/author", "", type=str))
-        self.author.setPlaceholderText("Name shown on comments you add")
-        form.addRow("Your name", self.author)
+        self.author.setPlaceholderText(tr("Name shown on comments you add"))
+        form.addRow(tr("Your name"), self.author)
+        from pdfeditor import i18n
+
+        self.language_combo = QComboBox()
+        self.language_combo.addItem(tr("System language"), "system")
+        names = {"en": "English", "de": "Deutsch", "fr": "Français", "es": "Español", "it": "Italiano", "pt": "Português", "nl": "Nederlands"}
+        for code in i18n.available_languages():
+            self.language_combo.addItem(names.get(code, code), code)
+        self.language_combo.setCurrentIndex(max(self.language_combo.findData(self.settings.value("ui/language", "system", type=str)), 0))
+        form.addRow(tr("Language"), self.language_combo)
         self.fit_on_open = QComboBox()
-        self.fit_on_open.addItem("Fit page", "page")
-        self.fit_on_open.addItem("Fit width", "width")
-        self.fit_on_open.addItem("Actual size", "100")
+        self.fit_on_open.addItem(tr("Fit page"), "page")
+        self.fit_on_open.addItem(tr("Fit width"), "width")
+        self.fit_on_open.addItem(tr("Actual size"), "100")
         self.fit_on_open.setCurrentIndex(max(self.fit_on_open.findData(self.settings.value("view/fitOnOpen", "page")), 0))
-        form.addRow("Zoom when opening", self.fit_on_open)
+        form.addRow(tr("Zoom when opening"), self.fit_on_open)
         self.grid_size = QDoubleSpinBox()
         self.grid_size.setRange(1, 500)
         self.grid_size.setDecimals(1)
         self.grid_size.setSuffix(" pt")
         self.grid_size.setValue(self.settings.value("view/gridSize", 10.0, type=float))
-        form.addRow("Grid spacing", self.grid_size)
+        form.addRow(tr("Grid spacing"), self.grid_size)
         self.snap_tol = QSpinBox()
         self.snap_tol.setRange(1, 30)
         self.snap_tol.setSuffix(" px")
         self.snap_tol.setValue(int(self.settings.value("view/snapTolerance", 6.0, type=float)))
-        form.addRow("Snap distance", self.snap_tol)
+        form.addRow(tr("Snap distance"), self.snap_tol)
         self.body.addLayout(form)
         self.add_buttons("Save")
 
@@ -714,26 +758,28 @@ class PreferencesDialog(_Base):
         self.settings.setValue("edit/scaleStroke", self.scale_stroke.isChecked())
         self.settings.setValue("user/author", self.author.text())
         self.settings.setValue("view/fitOnOpen", self.fit_on_open.currentData())
+        self.settings.setValue("ui/language", self.language_combo.currentData())
         self.settings.setValue("view/gridSize", float(self.grid_size.value()))
         self.settings.setValue("view/snapTolerance", float(self.snap_tol.value()))
-        return {"theme": t, "units": self.units.currentData(), "scale_stroke": self.scale_stroke.isChecked()}
+        return {"theme": t, "units": self.units.currentData(), "scale_stroke": self.scale_stroke.isChecked(),
+                "language": self.language_combo.currentData()}
 
 
 class ShortcutsDialog(_Base):
     def __init__(self, actions: list[QAction], parent=None):
-        super().__init__("Keyboard shortcuts", parent, 520)
+        super().__init__(tr("Keyboard shortcuts"), parent, 520)
         self.setMinimumHeight(520)
         tree = QTreeWidget()
-        tree.setHeaderLabels(["Command", "Shortcut"])
+        tree.setHeaderLabels([tr("Command"), tr("Shortcut")])
         tree.setRootIsDecorated(False)
         tree.setAlternatingRowColors(True)
         tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         extra = [
-            ("Canvas: zoom", "Ctrl + mouse wheel"), ("Canvas: pan", "Middle mouse drag, or Hand tool"),
-            ("Canvas: add to selection", "Shift + click"), ("Canvas: constrain move / square / circle / 45°", "Hold Shift"),
-            ("Canvas: free resize (ignore aspect)", "Shift + drag handle"), ("Canvas: nudge selection", "Arrow keys (Shift = 10 pt)"),
-            ("Canvas: edit text line", "Double-click text, Enter, or F2"), ("Canvas: edit path nodes", "Double-click a shape"),
-            ("Pen tool: finish / close", "Enter or double-click / click first point"), ("Any tool: back to Select", "Esc"),
+            (N_("Canvas: zoom"), "Ctrl + mouse wheel"), ("Canvas: pan", "Middle mouse drag, or Hand tool"),
+            (N_("Canvas: add to selection"), "Shift + click"), ("Canvas: constrain move / square / circle / 45°", "Hold Shift"),
+            (N_("Canvas: free resize (ignore aspect)"), "Shift + drag handle"), ("Canvas: nudge selection", "Arrow keys (Shift = 10 pt)"),
+            (N_("Canvas: edit text line"), "Double-click text, Enter, or F2"), ("Canvas: edit path nodes", "Double-click a shape"),
+            (N_("Pen tool: finish / close"), "Enter or double-click / click first point"), ("Any tool: back to Select", "Esc"),
         ]
         for a in actions:
             if not a.text() or a.shortcut().isEmpty():

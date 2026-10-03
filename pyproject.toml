@@ -25,7 +25,7 @@ pdfeditor = "pdfeditor.app:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-pdfeditor = ["help/*.md"]
+pdfeditor = ["help/*.md", "locale/*.pot", "locale/*/LC_MESSAGES/*.po", "locale/*/LC_MESSAGES/*.mo"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

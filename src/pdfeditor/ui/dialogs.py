@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
 )
 
 from pdfeditor import APP_NAME, __version__
+from pdfeditor.i18n import N_, tr
 
 
 def parse_page_ranges(text: str, page_count: int) -> list[int]:
@@ -71,13 +72,13 @@ class _Dialog(QDialog):
 
 class PasswordDialog(_Dialog):
     def __init__(self, filename: str, parent=None):
-        super().__init__("Password required", parent)
+        super().__init__(tr("Password required"), parent)
         lbl = QLabel(f"“{filename}” is encrypted. Enter the password to open it.")
         lbl.setWordWrap(True)
         self.body.insertWidget(0, lbl)
         self.edit = QLineEdit()
         self.edit.setEchoMode(QLineEdit.EchoMode.Password)
-        self.form.addRow("Password", self.edit)
+        self.form.addRow(tr("Password"), self.edit)
         self.edit.setFocus()
 
     def password(self) -> str:
@@ -86,27 +87,27 @@ class PasswordDialog(_Dialog):
 
 class InsertPagesDialog(_Dialog):
     def __init__(self, page_count: int, current: int, parent=None):
-        super().__init__("Insert pages from file", parent)
+        super().__init__(tr("Insert pages from file"), parent)
         row = QHBoxLayout()
         self.path = QLineEdit()
-        self.path.setPlaceholderText("Choose a PDF…")
-        browse = QPushButton("Browse…")
+        self.path.setPlaceholderText(tr("Choose a PDF…"))
+        browse = QPushButton(tr("Browse…"))
         browse.clicked.connect(self._browse)
         row.addWidget(self.path)
         row.addWidget(browse)
-        self.form.addRow("File", row)
+        self.form.addRow(tr("File"), row)
         self.pages = QLineEdit("all")
-        self.pages.setPlaceholderText("all, or e.g. 1-3, 5")
-        self.form.addRow("Pages", self.pages)
+        self.pages.setPlaceholderText(tr("all, or e.g. 1-3, 5"))
+        self.form.addRow(tr("Pages"), self.pages)
         self.position = QComboBox()
         self.position.addItem(f"After page {current + 1}", current + 1)
         self.position.addItem(f"Before page {current + 1}", current)
-        self.position.addItem("At the beginning", 0)
-        self.position.addItem("At the end", page_count)
-        self.form.addRow("Insert", self.position)
+        self.position.addItem(tr("At the beginning"), 0)
+        self.position.addItem(tr("At the end"), page_count)
+        self.form.addRow(tr("Insert"), self.position)
 
     def _browse(self) -> None:
-        p, _ = QFileDialog.getOpenFileName(self, "Choose PDF", "", "PDF files (*.pdf);;All files (*)")
+        p, _ = QFileDialog.getOpenFileName(self, tr("Choose PDF"), "", "PDF files (*.pdf);;All files (*)")
         if p:
             self.path.setText(p)
 
@@ -116,13 +117,13 @@ class InsertPagesDialog(_Dialog):
 
 class ExtractPagesDialog(_Dialog):
     def __init__(self, page_count: int, selected: list[int], parent=None):
-        super().__init__("Extract pages", parent)
-        lbl = QLabel("Save the chosen pages to a new PDF. The current document is not changed.")
+        super().__init__(tr("Extract pages"), parent)
+        lbl = QLabel(tr("Save the chosen pages to a new PDF. The current document is not changed."))
         lbl.setWordWrap(True)
         self.body.insertWidget(0, lbl)
         default = ",".join(str(i + 1) for i in selected) if selected else "all"
         self.pages = QLineEdit(default)
-        self.form.addRow("Pages", self.pages)
+        self.form.addRow(tr("Pages"), self.pages)
         self.page_count = page_count
 
     def indices(self) -> list[int]:
@@ -131,14 +132,14 @@ class ExtractPagesDialog(_Dialog):
 
 class SplitDialog(_Dialog):
     def __init__(self, page_count: int, parent=None):
-        super().__init__("Split document", parent)
-        lbl = QLabel("Write the document as several files, each with the given number of pages.")
+        super().__init__(tr("Split document"), parent)
+        lbl = QLabel(tr("Write the document as several files, each with the given number of pages."))
         lbl.setWordWrap(True)
         self.body.insertWidget(0, lbl)
         self.chunk = QSpinBox()
         self.chunk.setRange(1, max(1, page_count))
         self.chunk.setValue(1)
-        self.form.addRow("Pages per file", self.chunk)
+        self.form.addRow(tr("Pages per file"), self.chunk)
 
     def chunk_size(self) -> int:
         return self.chunk.value()
@@ -146,8 +147,8 @@ class SplitDialog(_Dialog):
 
 class CropDialog(_Dialog):
     def __init__(self, page_count: int, selected: list[int], parent=None):
-        super().__init__("Crop pages", parent)
-        lbl = QLabel("Trim margins (in points) from the visible page area. Content outside the crop box is hidden, not deleted.")
+        super().__init__(tr("Crop pages"), parent)
+        lbl = QLabel(tr("Trim margins (in points) from the visible page area. Content outside the crop box is hidden, not deleted."))
         lbl.setWordWrap(True)
         self.body.insertWidget(0, lbl)
         self.spins: dict[str, QDoubleSpinBox] = {}
@@ -159,11 +160,11 @@ class CropDialog(_Dialog):
             self.spins[key] = s
             self.form.addRow(key, s)
         self.scope = QComboBox()
-        self.scope.addItem("Current page", "current")
+        self.scope.addItem(tr("Current page"), "current")
         if len(selected) > 1:
             self.scope.addItem(f"Selected pages ({len(selected)})", "selected")
-        self.scope.addItem("All pages", "all")
-        self.form.addRow("Apply to", self.scope)
+        self.scope.addItem(tr("All pages"), "all")
+        self.form.addRow(tr("Apply to"), self.scope)
 
     def margins(self) -> tuple[float, float, float, float]:
         return tuple(self.spins[k].value() for k in ("Left", "Top", "Right", "Bottom"))  # type: ignore[return-value]
@@ -184,19 +185,19 @@ class BlankPageDialog(_Dialog):
     }
 
     def __init__(self, current_size: tuple[float, float], current: int, parent=None):
-        super().__init__("Insert blank page", parent)
+        super().__init__(tr("Insert blank page"), parent)
         self.current_size = current_size
         self.size = QComboBox()
         for name in self.SIZES:
             self.size.addItem(name)
-        self.form.addRow("Size", self.size)
+        self.form.addRow(tr("Size"), self.size)
         self.landscape = QComboBox()
         self.landscape.addItems(["Portrait", "Landscape"])
-        self.form.addRow("Orientation", self.landscape)
+        self.form.addRow(tr("Orientation"), self.landscape)
         self.position = QComboBox()
         self.position.addItem(f"After page {current + 1}", current + 1)
         self.position.addItem(f"Before page {current + 1}", current)
-        self.form.addRow("Insert", self.position)
+        self.form.addRow(tr("Insert"), self.position)
 
     def values(self) -> tuple[int, float, float]:
         sz = self.SIZES[self.size.currentText()] or self.current_size
@@ -219,9 +220,9 @@ class AboutDialog(QDialog):
         ver = QLabel(f"Version {__version__}")
         ver.setProperty("role", "muted")
         desc = QLabel(
-            "A free and open-source PDF editor combining vector object editing with page management.\n\n"
+            tr("A free and open-source PDF editor combining vector object editing with page management.\n\n"
             "Licensed under the GNU Affero General Public License v3.0 or later.\n"
-            "Built with PySide6 (Qt) and PyMuPDF (MuPDF)."
+            "Built with PySide6 (Qt) and PyMuPDF (MuPDF).")
         )
         desc.setWordWrap(True)
         lay.addWidget(title)

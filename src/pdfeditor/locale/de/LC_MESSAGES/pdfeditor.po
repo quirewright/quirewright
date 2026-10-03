@@ -1,0 +1,664 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: pdfeditor\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "&File"
+msgstr "&Datei"
+
+msgid "&Edit"
+msgstr "&Bearbeiten"
+
+msgid "&Object"
+msgstr "&Objekt"
+
+msgid "&Insert"
+msgstr "E&infügen"
+
+msgid "&View"
+msgstr "&Ansicht"
+
+msgid "&Page"
+msgstr "&Seite"
+
+msgid "&Document"
+msgstr "D&okument"
+
+msgid "&Help"
+msgstr "&Hilfe"
+
+msgid "&New"
+msgstr "&Neu"
+
+msgid "&Open…"
+msgstr "&Öffnen…"
+
+msgid "Open &Recent"
+msgstr "&Zuletzt geöffnet"
+
+msgid "&Save"
+msgstr "&Speichern"
+
+msgid "Save &As…"
+msgstr "Speichern &unter…"
+
+msgid "Save &Reduced Size Copy…"
+msgstr "&Verkleinerte Kopie speichern…"
+
+msgid "&Export"
+msgstr "&Exportieren"
+
+msgid "Export Page as &Image…"
+msgstr "Seite als &Bild exportieren…"
+
+msgid "Export &Text…"
+msgstr "&Text exportieren…"
+
+msgid "&Print…"
+msgstr "&Drucken…"
+
+msgid "&Close"
+msgstr "S&chließen"
+
+msgid "&Quit"
+msgstr "&Beenden"
+
+msgid "&Insert Pages from File…"
+msgstr "Seiten aus Datei e&infügen…"
+
+msgid "&Extract Pages…"
+msgstr "Seiten &extrahieren…"
+
+msgid "S&plit Document…"
+msgstr "Dokument &teilen…"
+
+msgid "&Undo"
+msgstr "&Rückgängig"
+
+msgid "&Redo"
+msgstr "&Wiederholen"
+
+msgid "&Delete"
+msgstr "&Löschen"
+
+msgid "Select &All"
+msgstr "&Alles auswählen"
+
+msgid "D&eselect"
+msgstr "Auswahl auf&heben"
+
+msgid "&Copy Text"
+msgstr "Text &kopieren"
+
+msgid "D&uplicate"
+msgstr "D&uplizieren"
+
+msgid "Edit &Text Line"
+msgstr "Text&zeile bearbeiten"
+
+msgid "Edit &Paragraph"
+msgstr "A&bsatz bearbeiten"
+
+msgid "&Find…"
+msgstr "&Suchen…"
+
+msgid "Find &Next"
+msgstr "&Weitersuchen"
+
+msgid "Find &Previous"
+msgstr "&Rückwärts suchen"
+
+msgid "&Preferences…"
+msgstr "&Einstellungen…"
+
+msgid "&Group"
+msgstr "&Gruppieren"
+
+msgid "&Ungroup"
+msgstr "Gruppierung &aufheben"
+
+msgid "&Enter Group"
+msgstr "Gruppe &betreten"
+
+msgid "E&xit Group"
+msgstr "Gruppe &verlassen"
+
+msgid "Bring to &Front"
+msgstr "In den &Vordergrund"
+
+msgid "Send to &Back"
+msgstr "In den &Hintergrund"
+
+msgid "Flip &Horizontal"
+msgstr "&Horizontal spiegeln"
+
+msgid "Flip &Vertical"
+msgstr "&Vertikal spiegeln"
+
+msgid "&Align"
+msgstr "&Ausrichten"
+
+msgid "Align &Left"
+msgstr "&Linksbündig"
+
+msgid "Align &Centre"
+msgstr "&Zentriert"
+
+msgid "Align &Right"
+msgstr "&Rechtsbündig"
+
+msgid "Align &Top"
+msgstr "&Oben"
+
+msgid "Align &Middle"
+msgstr "&Mittig"
+
+msgid "Align &Bottom"
+msgstr "&Unten"
+
+msgid "Select"
+msgstr "Auswählen"
+
+msgid "Nodes"
+msgstr "Knoten"
+
+msgid "Text"
+msgstr "Text"
+
+msgid "Pan"
+msgstr "Verschieben"
+
+msgid "Rectangle"
+msgstr "Rechteck"
+
+msgid "Ellipse"
+msgstr "Ellipse"
+
+msgid "Line"
+msgstr "Linie"
+
+msgid "Pen"
+msgstr "Stift"
+
+msgid "Text field"
+msgstr "Textfeld"
+
+msgid "Checkbox"
+msgstr "Kontrollkästchen"
+
+msgid "Radio button"
+msgstr "Optionsfeld"
+
+msgid "Dropdown"
+msgstr "Auswahlliste"
+
+msgid "List box"
+msgstr "Listenfeld"
+
+msgid "Push button"
+msgstr "Schaltfläche"
+
+msgid "Form Field"
+msgstr "Formularfeld"
+
+msgid "Form &Field"
+msgstr "Formular&feld"
+
+msgid "&Comment"
+msgstr "&Kommentar"
+
+msgid "Highlight"
+msgstr "Hervorheben"
+
+msgid "Underline"
+msgstr "Unterstreichen"
+
+msgid "Strike Out"
+msgstr "Durchstreichen"
+
+msgid "Sticky Note"
+msgstr "Notiz"
+
+msgid "Crop Tool"
+msgstr "Zuschneiden"
+
+msgid "Redact Area"
+msgstr "Bereich schwärzen"
+
+msgid "Insert &Image…"
+msgstr "&Bild einfügen…"
+
+msgid "Zoom &In"
+msgstr "Ver&größern"
+
+msgid "Zoom &Out"
+msgstr "Ver&kleinern"
+
+msgid "&Fit Page"
+msgstr "&Ganze Seite"
+
+msgid "Fit &Width"
+msgstr "Seiten&breite"
+
+msgid "&Actual Size"
+msgstr "&Originalgröße"
+
+msgid "&Previous Page"
+msgstr "&Vorherige Seite"
+
+msgid "&Next Page"
+msgstr "&Nächste Seite"
+
+msgid "&First Page"
+msgstr "&Erste Seite"
+
+msgid "&Last Page"
+msgstr "&Letzte Seite"
+
+msgid "&Go to Page…"
+msgstr "&Gehe zu Seite…"
+
+msgid "&Continuous Scrolling"
+msgstr "&Fortlaufend blättern"
+
+msgid "Show &Rulers"
+msgstr "&Lineale anzeigen"
+
+msgid "Show &Guides"
+msgstr "&Hilfslinien anzeigen"
+
+msgid "Show Gr&id"
+msgstr "&Raster anzeigen"
+
+msgid "S&napping"
+msgstr "Ein&rasten"
+
+msgid "&Snap"
+msgstr "&Einrasten"
+
+msgid "Snap to &Objects"
+msgstr "An &Objekten einrasten"
+
+msgid "Snap to Gri&d"
+msgstr "Am &Raster einrasten"
+
+msgid "Clear Guides on This Page"
+msgstr "Hilfslinien dieser Seite entfernen"
+
+msgid "Clear All Guides"
+msgstr "Alle Hilfslinien entfernen"
+
+msgid "&Dark Mode"
+msgstr "&Dunkles Design"
+
+msgid "Show &Navigation Panel"
+msgstr "&Navigationsleiste anzeigen"
+
+msgid "Show &Inspector"
+msgstr "&Inspektor anzeigen"
+
+msgid "Next &Tab"
+msgstr "Nächster &Tab"
+
+msgid "Previous Ta&b"
+msgstr "Vorheriger Ta&b"
+
+msgid "Rotate &Clockwise"
+msgstr "Im &Uhrzeigersinn drehen"
+
+msgid "Rotate Counter-cloc&kwise"
+msgstr "&Gegen den Uhrzeigersinn drehen"
+
+msgid "Rotate &180°"
+msgstr "Um &180° drehen"
+
+msgid "&Delete Page(s)"
+msgstr "Seite(n) &löschen"
+
+msgid "D&uplicate Page(s)"
+msgstr "Seite(n) d&uplizieren"
+
+msgid "Insert &Blank Page…"
+msgstr "&Leere Seite einfügen…"
+
+msgid "Move Page &Up"
+msgstr "Seite nach &oben"
+
+msgid "Move Page Do&wn"
+msgstr "Seite nach &unten"
+
+msgid "&Reverse Page Order"
+msgstr "Seiten&reihenfolge umkehren"
+
+msgid "Crop by &Margins…"
+msgstr "Nach &Rändern zuschneiden…"
+
+msgid "Reset Cr&op"
+msgstr "Zuschnitt &zurücksetzen"
+
+msgid "Add Page &Numbers…"
+msgstr "Seiten&zahlen hinzufügen…"
+
+msgid "Add &Watermark…"
+msgstr "&Wasserzeichen hinzufügen…"
+
+msgid "Page &Labels…"
+msgstr "Seiten&beschriftungen…"
+
+msgid "&Properties…"
+msgstr "&Eigenschaften…"
+
+msgid "&Security…"
+msgstr "&Sicherheit…"
+
+msgid "&Resources (Images, Fonts, Attachments)…"
+msgstr "&Ressourcen (Bilder, Schriften, Anhänge)…"
+
+msgid "&Attach File…"
+msgstr "Datei &anhängen…"
+
+msgid "&Flatten Forms and Comments"
+msgstr "Formulare und Kommentare &einbetten"
+
+msgid "Recognize &Text (OCR)…"
+msgstr "&Texterkennung (OCR)…"
+
+msgid "&Keyboard Shortcuts"
+msgstr "&Tastenkürzel"
+
+msgid "&User Guide"
+msgstr "&Benutzerhandbuch"
+
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "Inspector"
+msgstr "Inspektor"
+
+msgid "Pages"
+msgstr "Seiten"
+
+msgid "Bookmarks"
+msgstr "Lesezeichen"
+
+msgid "Page"
+msgstr "Seite"
+
+msgid "No document"
+msgstr "Kein Dokument"
+
+msgid "Open a PDF to get started."
+msgstr "Öffnen Sie ein PDF, um zu beginnen."
+
+msgid "Document"
+msgstr "Dokument"
+
+msgid "Selection"
+msgstr "Auswahl"
+
+msgid "Geometry"
+msgstr "Geometrie"
+
+msgid "Fill & Stroke"
+msgstr "Füllung & Kontur"
+
+msgid "Fill"
+msgstr "Füllung"
+
+msgid "Stroke"
+msgstr "Kontur"
+
+msgid "Stroke width"
+msgstr "Konturbreite"
+
+msgid "Keep aspect"
+msgstr "Seitenverhältnis beibehalten"
+
+msgid "Rotate"
+msgstr "Drehen"
+
+msgid "Font"
+msgstr "Schrift"
+
+msgid "Size"
+msgstr "Größe"
+
+msgid "Colour"
+msgstr "Farbe"
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "Apply"
+msgstr "Anwenden"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "Value"
+msgstr "Wert"
+
+msgid "Options"
+msgstr "Optionen"
+
+msgid "Caption"
+msgstr "Beschriftung"
+
+msgid "Font size"
+msgstr "Schriftgröße"
+
+msgid "Text colour"
+msgstr "Textfarbe"
+
+msgid "Background"
+msgstr "Hintergrund"
+
+msgid "Border"
+msgstr "Rahmen"
+
+msgid "Border width"
+msgstr "Rahmenbreite"
+
+msgid "Read-only"
+msgstr "Schreibgeschützt"
+
+msgid "Required"
+msgstr "Pflichtfeld"
+
+msgid "Multiline"
+msgstr "Mehrzeilig"
+
+msgid "Form field"
+msgstr "Formularfeld"
+
+msgid "Comment"
+msgstr "Kommentar"
+
+msgid "Author"
+msgstr "Autor"
+
+msgid "Icon"
+msgstr "Symbol"
+
+msgid "Opacity"
+msgstr "Deckkraft"
+
+msgid "New object style"
+msgstr "Stil für neue Objekte"
+
+msgid "Edit paragraph…"
+msgstr "Absatz bearbeiten…"
+
+msgid "Open PDF…"
+msgstr "PDF öffnen…"
+
+msgid "New blank document"
+msgstr "Neues leeres Dokument"
+
+msgid "You can also drop a PDF anywhere in this window."
+msgstr "Sie können auch ein PDF in dieses Fenster ziehen."
+
+msgid "RECENT FILES"
+msgstr "ZULETZT GEÖFFNET"
+
+msgid "Find in document…"
+msgstr "Im Dokument suchen…"
+
+msgid "Match case"
+msgstr "Groß-/Kleinschreibung"
+
+msgid "No matches"
+msgstr "Keine Treffer"
+
+msgid "Unsaved changes"
+msgstr "Ungespeicherte Änderungen"
+
+msgid "Do you want to save them?"
+msgstr "Möchten Sie sie speichern?"
+
+msgid "Open PDF"
+msgstr "PDF öffnen"
+
+msgid "Save PDF as"
+msgstr "PDF speichern unter"
+
+msgid "Preferences"
+msgstr "Einstellungen"
+
+msgid "Theme"
+msgstr "Design"
+
+msgid "Follow system"
+msgstr "Systemeinstellung"
+
+msgid "Light"
+msgstr "Hell"
+
+msgid "Dark"
+msgstr "Dunkel"
+
+msgid "Units"
+msgstr "Einheiten"
+
+msgid "Language"
+msgstr "Sprache"
+
+msgid "System language"
+msgstr "Systemsprache"
+
+msgid "Your name"
+msgstr "Ihr Name"
+
+msgid "Zoom when opening"
+msgstr "Zoom beim Öffnen"
+
+msgid "Grid spacing"
+msgstr "Rasterabstand"
+
+msgid "Snap distance"
+msgstr "Einrastabstand"
+
+msgid "Save"
+msgstr "Speichern"
+
+msgid "Document properties"
+msgstr "Dokumenteigenschaften"
+
+msgid "Description"
+msgstr "Beschreibung"
+
+msgid "Details"
+msgstr "Details"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Subject"
+msgstr "Thema"
+
+msgid "Keywords"
+msgstr "Schlüsselwörter"
+
+msgid "Creator"
+msgstr "Erstellt mit"
+
+msgid "Producer"
+msgstr "Erzeuger"
+
+msgid "Created"
+msgstr "Erstellt"
+
+msgid "Modified"
+msgstr "Geändert"
+
+msgid "Document security"
+msgstr "Dokumentsicherheit"
+
+msgid "Keep the current security settings"
+msgstr "Aktuelle Sicherheitseinstellungen beibehalten"
+
+msgid "No password or restrictions"
+msgstr "Kein Passwort und keine Einschränkungen"
+
+msgid "Protect with passwords and permissions"
+msgstr "Mit Passwörtern und Berechtigungen schützen"
+
+msgid "Passwords"
+msgstr "Passwörter"
+
+msgid "Open password"
+msgstr "Passwort zum Öffnen"
+
+msgid "Owner password"
+msgstr "Besitzerpasswort"
+
+msgid "Show passwords"
+msgstr "Passwörter anzeigen"
+
+msgid "Encryption"
+msgstr "Verschlüsselung"
+
+msgid "Allow readers to"
+msgstr "Lesern erlauben"
+
+msgid "Print"
+msgstr "Drucken"
+
+msgid "Document resources"
+msgstr "Dokumentressourcen"
+
+msgid "Images"
+msgstr "Bilder"
+
+msgid "Fonts"
+msgstr "Schriften"
+
+msgid "Attachments"
+msgstr "Anhänge"
+
+msgid "Recognize text (OCR)"
+msgstr "Texterkennung (OCR)"
+
+msgid "Recognize"
+msgstr "Erkennen"
+
+msgid "Keyboard shortcuts"
+msgstr "Tastenkürzel"
+
+msgid "Command"
+msgstr "Befehl"
+
+msgid "Shortcut"
+msgstr "Tastenkürzel"
+
+msgid "Close"
+msgstr "Schließen"
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "The new language is used after you restart the application."
+msgstr "Die neue Sprache wird nach einem Neustart der Anwendung verwendet."

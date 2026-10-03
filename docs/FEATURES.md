@@ -48,7 +48,7 @@ Checked items are implemented and covered by tests.
 - [x] Fill forms (set values)
 - [x] Flatten forms and annotations into page content
 - [x] Radio buttons (shared name = group; created via a checkbox workaround for a PyMuPDF limitation)
-- [ ] Calculation/validation scripts
+- [x] Calculation, format and validation scripts (Acrobat-compatible), evaluated locally for preview
 
 ## Annotations (comments)
 - [x] Highlight, underline, strike-out text (drag over words)
@@ -65,7 +65,7 @@ Checked items are implemented and covered by tests.
 - [x] Redact an area (removes underlying text and images)
 - [x] Print
 - [ ] Digital signatures / certificates (out of scope for now)
-- [ ] OCR
+- [x] OCR via Tesseract (invisible text layer)
 
 ## Quality of life
 - [x] Keyboard shortcuts for every tool; shortcut reference dialog; in-app help viewer (F1)
@@ -73,4 +73,4 @@ Checked items are implemented and covered by tests.
 - [x] Status bar hints per tool, unsaved-changes guard, save-in-place safety (atomic write)
 - [x] Desktop integration files (launcher, icon)
 - [ ] Autosave / crash recovery
-- [ ] Localisation
+- [x] Localisation (gettext; German sample catalogue; Qt dialog translations)

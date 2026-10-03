@@ -48,6 +48,7 @@ from pdfeditor.core.content.writer import ContentEditor, wrap_text
 from pdfeditor.core.annotations import AnnotInfo
 from pdfeditor.core.document import Document, WidgetInfo
 from pdfeditor.core.geometry import Matrix, Rect
+from pdfeditor.i18n import N_, tr
 from pdfeditor.ui import theme
 from pdfeditor.ui.render import RenderCache, render_page
 
@@ -1513,7 +1514,7 @@ class PageCanvas(QGraphicsView):
                 self.doc.transform_annotations(self.page_index, movable, self.to_local_matrix(m_scene))
                 self.pageEdited.emit(self.page_index)
             else:
-                self.statusMessage.emit("Text markup annotations follow the text and cannot be moved.")
+                self.statusMessage.emit(tr("Text markup annotations follow the text and cannot be moved."))
             return
         if self.widget_selection and self.doc is not None:
             self.doc.transform_widgets(self.page_index, list(self.widget_selection), self.to_local_matrix(m_scene))
@@ -1611,7 +1612,7 @@ class PageCanvas(QGraphicsView):
             return
         obj = self.items_by_id[self.selection[0]].obj
         if not isinstance(obj, XObjectRef) or obj.subtype != "Form":
-            self.statusMessage.emit("Select a group (form XObject) to ungroup.")
+            self.statusMessage.emit(tr("Select a group (form XObject) to ungroup."))
             return
         self.selection = []
         self.doc.ungroup_object(self.page_index, self.doc_path(), obj.id)
@@ -1655,7 +1656,7 @@ class PageCanvas(QGraphicsView):
     # -- arrangement -----------------------------------------------------------------
     def duplicate_selection(self, offset: float = 10.0) -> None:
         if self.widget_selection or self.annot_selection:
-            self.statusMessage.emit("Only page content can be duplicated.")
+            self.statusMessage.emit(tr("Only page content can be duplicated."))
             return
         ed = self._editor()
         if ed is None or not self.selection:
@@ -1805,7 +1806,7 @@ class PageCanvas(QGraphicsView):
             font = item.obj.font_info.display_name if item.obj.font_info else item.obj.font
             self.statusMessage.emit(f"Some characters are not in the embedded font “{font}”; substituted a built-in font.")
             return True
-        self.statusMessage.emit("Text could not be encoded.")
+        self.statusMessage.emit(tr("Text could not be encoded."))
         return False
 
     def set_text(self, oid: int, text: str) -> bool:
@@ -1969,7 +1970,7 @@ class PageCanvas(QGraphicsView):
         if fi is None or fi.encode(text.replace("\n", "")) is None:
             try:
                 font_name, fi = self.doc.ensure_substitute_font(self.page_index, self.doc.substitute_font_name(fi))
-                self.statusMessage.emit("Some characters are not in the original font; a built-in font was substituted.")
+                self.statusMessage.emit(tr("Some characters are not in the original font; a built-in font was substituted."))
             except Exception as exc:
                 self.statusMessage.emit(f"Could not add font: {exc}")
                 return
@@ -1979,7 +1980,7 @@ class PageCanvas(QGraphicsView):
         angle = math.degrees(math.atan2(tm.b, tm.a))
         width = max(p["width"] * 1.02, p["size"] * 2)
         if not ed.append_text_block(x, y, width, text, font_name, fi, p["size"], p["color"], leading=p["leading"], rotation=angle):
-            self.statusMessage.emit("Text could not be encoded.")
+            self.statusMessage.emit(tr("Text could not be encoded."))
             return
         self.selection = []
         self._commit(ed, "Edit paragraph")
@@ -2004,7 +2005,7 @@ class PageCanvas(QGraphicsView):
         x, y = inv.apply(top_left.x(), top_left.y())
         angle = -math.degrees(math.atan2(inv.b, inv.a))
         if not ed.append_text_block(x, y, rect.width() * k, text, name, fi, size, style.text_color, rotation=angle):
-            self.statusMessage.emit("Some characters are not available in the chosen font.")
+            self.statusMessage.emit(tr("Some characters are not available in the chosen font."))
             return
         self._commit(ed, "Add text box", select_new=True)
 
@@ -2042,7 +2043,7 @@ class PageCanvas(QGraphicsView):
             )
             edit.setMinimumWidth(int(max(rect.width() * 1.15 + 48, 160)))
             edit.setFixedHeight(int(max(rect.height() * 1.1 + 16, size_pt * 1.35 * max(lines_hint, 2) + 16)))
-            edit.setPlaceholderText("Type text… (Ctrl+Enter applies, Esc cancels)")
+            edit.setPlaceholderText(tr("Type text… (Ctrl+Enter applies, Esc cancels)"))
             edit.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
         else:
             edit = QLineEdit(text)
@@ -2051,7 +2052,7 @@ class PageCanvas(QGraphicsView):
                 f"QLineEdit {{ background: {t.panel}; color: {t.text}; border: 1px solid {t.accent}; border-radius: 2px; padding: 0 2px; }}"
             )
             edit.setMinimumWidth(int(max(rect.width() + 24, 80)))
-            edit.setPlaceholderText("Type text…")
+            edit.setPlaceholderText(tr("Type text…"))
         proxy = self._scene.addWidget(edit)
         proxy.setZValue(5000)
         proxy.setPos(rect.left() - 3, rect.top() - 2)
@@ -2068,7 +2069,7 @@ class PageCanvas(QGraphicsView):
         edit.setFocus(Qt.FocusReason.OtherFocusReason)
         if text and isinstance(edit, QLineEdit):
             edit.selectAll()
-        self.statusMessage.emit("Editing paragraph: Ctrl+Enter applies, Esc cancels" if multiline else "Editing text: Enter applies, Esc cancels")
+        self.statusMessage.emit(tr("Editing paragraph: Ctrl+Enter applies, Esc cancels") if multiline else "Editing text: Enter applies, Esc cancels")
 
     def _end_text_edit(self, commit: bool) -> None:
         proxy = self.text_proxy
@@ -2155,7 +2156,7 @@ class PageCanvas(QGraphicsView):
             line_width=style.line_width * k,
         )
         if style.fill is None and style.stroke is None:
-            self.statusMessage.emit("New objects need a fill or a stroke colour (see the Inspector).")
+            self.statusMessage.emit(tr("New objects need a fill or a stroke colour (see the Inspector)."))
             return
         self._commit(ed, label, select_new=True)
 
@@ -2197,7 +2198,7 @@ class PageCanvas(QGraphicsView):
         angle = -math.degrees(math.atan2(inv.b, inv.a))
         size = style.font_size * inv.expansion()
         if not ed.append_text(x, y, text, name, fi, size, style.text_color, rotation=angle):
-            self.statusMessage.emit("Some characters are not available in the chosen font.")
+            self.statusMessage.emit(tr("Some characters are not available in the chosen font."))
             return
         self._commit(ed, "Add text", select_new=True)
 
@@ -2580,7 +2581,7 @@ class PageCanvas(QGraphicsView):
                 limit = self.page_rect.height() if orientation == "h" else self.page_rect.width()
                 if local < 0 or local > limit:
                     guides.pop(gi)
-                    self.statusMessage.emit("Guide removed")
+                    self.statusMessage.emit(tr("Guide removed"))
             self._build_guides()
             return
         if d.mode in ("create", "textbox") and not self.is_markup_tool:
@@ -2664,7 +2665,7 @@ class PageCanvas(QGraphicsView):
         if self.is_markup_tool:
             words = self.doc.words_in_rect(self.page_index, rect)
             if not words:
-                self.statusMessage.emit("No text in that area.")
+                self.statusMessage.emit(tr("No text in that area."))
                 return
             self.doc.add_markup(self.page_index, self.markup_kind(), words, author=self.author)
             self.pageEdited.emit(self.page_index)

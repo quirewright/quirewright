@@ -3,6 +3,9 @@
 ## Unreleased
 
 ### Added
+- Form field calculations, number/percent/date formats and range validation (Acrobat-compatible scripts), evaluated locally
+- OCR text layer via Tesseract (Document › Recognize Text)
+- Interface translations (gettext) with a German catalogue and a language preference
 - Group / ungroup (groups are form XObjects) and editing inside form XObjects, nested
 - Document tabs
 - Rulers, draggable guides, grid, and smart snapping to page edges, objects, guides and grid (Alt bypasses)

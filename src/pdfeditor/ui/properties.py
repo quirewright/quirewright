@@ -19,22 +19,33 @@ from PySide6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QSlider,
+    QSpinBox,
     QVBoxLayout,
     QWidget,
 )
 
 from pdfeditor.core.annotations import NOTE_ICONS, AnnotInfo
 from pdfeditor.core.content.model import Color, GObject, PathObject, TextRun, XObjectRef
-from pdfeditor.core.document import WIDGET_TYPES, WidgetInfo
+from pdfeditor.core.document import (
+    WIDGET_TYPES,
+    WidgetInfo,
+    calc_script,
+    date_format_script,
+    number_format_script,
+    number_keystroke_script,
+    percent_format_script,
+    range_validate_script,
+)
 from pdfeditor.core.geometry import Matrix
+from pdfeditor.i18n import N_, tr
 from pdfeditor.ui import theme
 from pdfeditor.ui.canvas import DRAW_TOOLS, TOOL_TEXT, PageCanvas
 from pdfeditor.ui.units import LengthSpin, format_length
 
 FONT_CHOICES = [
-    ("Helvetica", "helv"), ("Helvetica Bold", "hebo"), ("Helvetica Italic", "heit"), ("Helvetica Bold Italic", "hebi"),
-    ("Times", "tiro"), ("Times Bold", "tibo"), ("Times Italic", "tiit"), ("Times Bold Italic", "tibi"),
-    ("Courier", "cour"), ("Courier Bold", "cobo"), ("Courier Italic", "coit"), ("Courier Bold Italic", "cobi"),
+    (N_("Helvetica"), "helv"), ("Helvetica Bold", "hebo"), ("Helvetica Italic", "heit"), ("Helvetica Bold Italic", "hebi"),
+    (N_("Times"), "tiro"), ("Times Bold", "tibo"), ("Times Italic", "tiit"), ("Times Bold Italic", "tibi"),
+    (N_("Courier"), "cour"), ("Courier Bold", "cobo"), ("Courier Italic", "coit"), ("Courier Bold Italic", "cobi"),
 ]
 
 FLAG_READONLY = 1
@@ -60,7 +71,7 @@ class ColorButton(QPushButton):
         t = theme.current()
         if color is None:
             self.setStyleSheet(f"QPushButton {{ background: {t.panel_alt}; border: 1px dashed {t.text_muted}; border-radius: 4px; }}")
-            self.setToolTip("No colour / unknown colour space")
+            self.setToolTip(tr("No colour / unknown colour space"))
         else:
             self.setStyleSheet(f"QPushButton {{ background: {color.name()}; border: 1px solid {t.border}; border-radius: 4px; }}")
             self.setToolTip(color.name())
@@ -96,6 +107,15 @@ def _spin(minimum: float, maximum: float, decimals: int = 2, step: float = 1.0, 
     s.setButtonSymbols(QDoubleSpinBox.ButtonSymbols.NoButtons)
     s.setAlignment(Qt.AlignmentFlag.AlignRight)
     return s
+
+
+def _form() -> QFormLayout:
+    f = QFormLayout()
+    f.setContentsMargins(0, 0, 0, 0)
+    f.setHorizontalSpacing(8)
+    f.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapLongRows)
+    f.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+    return f
 
 
 def _section(title: str) -> tuple[QWidget, QVBoxLayout]:
@@ -155,21 +175,21 @@ class PropertiesPanel(QScrollArea):
 
     # -- sections -------------------------------------------------------------
     def _build_page_section(self) -> None:
-        self.page_box, pl = _section("Page")
+        self.page_box, pl = _section(tr("Page"))
         self.page_title = self.page_box.findChild(QLabel)
-        self.page_info = QLabel("")
+        self.page_info = QLabel(tr(""))
         self.page_info.setProperty("role", "muted")
         self.page_info.setWordWrap(True)
-        self.doc_info = QLabel("")
+        self.doc_info = QLabel(tr(""))
         self.doc_info.setProperty("role", "muted")
         self.doc_info.setWordWrap(True)
         pl.addWidget(self.page_info)
         pl.addWidget(_hline())
-        pl.addWidget(_heading("Document"))
+        pl.addWidget(_heading(tr("Document")))
         pl.addWidget(self.doc_info)
         hint = QLabel(
-            "Click an object to inspect and edit it. Drag to move, use the handles to resize, double-click text "
-            "to edit a line, double-click a shape to edit its nodes. Use the drawing tools to add shapes, text and form fields."
+            tr("Click an object to inspect and edit it. Drag to move, use the handles to resize, double-click text "
+            "to edit a line, double-click a shape to edit its nodes. Use the drawing tools to add shapes, text and form fields.")
         )
         hint.setWordWrap(True)
         hint.setProperty("role", "muted")
@@ -178,15 +198,15 @@ class PropertiesPanel(QScrollArea):
         self.layout_.addWidget(self.page_box)
 
     def _build_defaults_section(self) -> None:
-        self.defaults_box, dl = _section("New object style")
-        sub = QLabel("Used for shapes, lines and text you create.")
+        self.defaults_box, dl = _section(tr("New object style"))
+        sub = QLabel(tr("Used for shapes, lines and text you create."))
         sub.setProperty("role", "muted")
         sub.setWordWrap(True)
         dl.addWidget(sub)
         row = QHBoxLayout()
-        self.d_fill_check = QCheckBox("Fill")
+        self.d_fill_check = QCheckBox(tr("Fill"))
         self.d_fill_color = ColorButton()
-        self.d_stroke_check = QCheckBox("Stroke")
+        self.d_stroke_check = QCheckBox(tr("Stroke"))
         self.d_stroke_color = ColorButton()
         row.addWidget(self.d_fill_check)
         row.addWidget(self.d_fill_color)
@@ -198,15 +218,15 @@ class PropertiesPanel(QScrollArea):
         form.setContentsMargins(0, 0, 0, 0)
         form.setHorizontalSpacing(8)
         self.d_width = LengthSpin(0, 1e3, 0.5)
-        form.addRow("Stroke width", self.d_width)
+        form.addRow(tr("Stroke width"), self.d_width)
         self.d_font = QComboBox()
         for label, name in FONT_CHOICES:
-            self.d_font.addItem(label, name)
-        form.addRow("Font", self.d_font)
+            self.d_font.addItem(tr(label), name)
+        form.addRow(tr("Font"), self.d_font)
         self.d_size = _spin(1, 500, 1, 1, " pt")
-        form.addRow("Text size", self.d_size)
+        form.addRow(tr("Text size"), self.d_size)
         self.d_text_color = ColorButton()
-        form.addRow("Text colour", self.d_text_color)
+        form.addRow(tr("Text colour"), self.d_text_color)
         dl.addLayout(form)
         self.layout_.addWidget(self.defaults_box)
         self.d_fill_check.toggled.connect(self._defaults_changed)
@@ -220,13 +240,13 @@ class PropertiesPanel(QScrollArea):
         self._load_defaults()
 
     def _build_selection_section(self) -> None:
-        self.sel_box, sl = _section("Selection")
+        self.sel_box, sl = _section(tr("Selection"))
         self.sel_title = self.sel_box.findChild(QLabel)
-        self.sel_sub = QLabel("")
+        self.sel_sub = QLabel(tr(""))
         self.sel_sub.setProperty("role", "muted")
         self.sel_sub.setWordWrap(True)
         sl.addWidget(self.sel_sub)
-        sl.addWidget(_heading("Geometry"))
+        sl.addWidget(_heading(tr("Geometry")))
         grid = QGridLayout()
         grid.setHorizontalSpacing(8)
         grid.setVerticalSpacing(6)
@@ -238,9 +258,9 @@ class PropertiesPanel(QScrollArea):
         for i, (lbl, w) in enumerate((("X", self.x), ("Y", self.y), ("W", self.w), ("H", self.h))):
             grid.addWidget(QLabel(lbl), i // 2, (i % 2) * 2)
             grid.addWidget(w, i // 2, (i % 2) * 2 + 1)
-        grid.addWidget(QLabel("Rotate"), 2, 0)
+        grid.addWidget(QLabel(tr("Rotate")), 2, 0)
         grid.addWidget(self.rot, 2, 1)
-        self.lock = QCheckBox("Keep aspect")
+        self.lock = QCheckBox(tr("Keep aspect"))
         self.lock.setChecked(True)
         grid.addWidget(self.lock, 2, 2, 1, 2)
         sl.addLayout(grid)
@@ -252,11 +272,11 @@ class PropertiesPanel(QScrollArea):
         st = QVBoxLayout(self.style_box)
         st.setContentsMargins(0, 0, 0, 0)
         st.setSpacing(6)
-        st.addWidget(_heading("Fill & Stroke"))
+        st.addWidget(_heading(tr("Fill & Stroke")))
         row = QHBoxLayout()
-        self.fill_check = QCheckBox("Fill")
+        self.fill_check = QCheckBox(tr("Fill"))
         self.fill_color = ColorButton()
-        self.stroke_check = QCheckBox("Stroke")
+        self.stroke_check = QCheckBox(tr("Stroke"))
         self.stroke_color = ColorButton()
         row.addWidget(self.fill_check)
         row.addWidget(self.fill_color)
@@ -268,7 +288,7 @@ class PropertiesPanel(QScrollArea):
         form.setContentsMargins(0, 0, 0, 0)
         form.setHorizontalSpacing(8)
         self.width = LengthSpin(0, 1e4, 0.5)
-        form.addRow("Stroke width", self.width)
+        form.addRow(tr("Stroke width"), self.width)
         st.addLayout(form)
         sl.addWidget(self.style_box)
         self.fill_check.toggled.connect(lambda on: self._style(fill=on))
@@ -281,27 +301,27 @@ class PropertiesPanel(QScrollArea):
         tl = QVBoxLayout(self.text_box)
         tl.setContentsMargins(0, 0, 0, 0)
         tl.setSpacing(6)
-        tl.addWidget(_heading("Text"))
+        tl.addWidget(_heading(tr("Text")))
         self.text_edit = QLineEdit()
-        self.text_edit.setPlaceholderText("Text content (Enter applies)")
+        self.text_edit.setPlaceholderText(tr("Text content (Enter applies)"))
         tl.addWidget(self.text_edit)
         tform = QFormLayout()
         tform.setContentsMargins(0, 0, 0, 0)
         tform.setHorizontalSpacing(8)
-        self.font_label = QLabel("")
+        self.font_label = QLabel(tr(""))
         self.font_label.setProperty("role", "muted")
         self.font_size = _spin(0.1, 1000, 2, 1, " pt")
         self.text_color = ColorButton()
-        tform.addRow("Font", self.font_label)
-        tform.addRow("Size", self.font_size)
-        tform.addRow("Colour", self.text_color)
+        tform.addRow(tr("Font"), self.font_label)
+        tform.addRow(tr("Size"), self.font_size)
+        tform.addRow(tr("Colour"), self.text_color)
         tl.addLayout(tform)
-        self.text_note = QLabel("")
+        self.text_note = QLabel(tr(""))
         self.text_note.setProperty("role", "muted")
         self.text_note.setWordWrap(True)
         tl.addWidget(self.text_note)
-        self.para_btn = QPushButton("Edit paragraph…")
-        self.para_btn.setToolTip("Edit all lines of this paragraph with word wrapping (Ctrl+E)")
+        self.para_btn = QPushButton(tr("Edit paragraph…"))
+        self.para_btn.setToolTip(tr("Edit all lines of this paragraph with word wrapping (Ctrl+E)"))
         self.para_btn.clicked.connect(lambda: self.canvas.begin_paragraph_edit(self.canvas.selection[0]) if self.canvas.selection else None)
         tl.addWidget(self.para_btn)
         sl.addWidget(self.text_box)
@@ -309,13 +329,13 @@ class PropertiesPanel(QScrollArea):
         self.font_size.editingFinished.connect(lambda: self.canvas.set_text_size(self.font_size.value()))
         self.text_color.colorChanged.connect(lambda c: self.canvas.set_selection_style(fill_color=_to_color(c)))
 
-        self.other_info = QLabel("")
+        self.other_info = QLabel(tr(""))
         self.other_info.setProperty("role", "muted")
         self.other_info.setWordWrap(True)
         sl.addWidget(self.other_info)
         sl.addWidget(_hline())
         btns = QHBoxLayout()
-        self.delete_btn = QPushButton("Delete")
+        self.delete_btn = QPushButton(tr("Delete"))
         self.delete_btn.setProperty("danger", "true")
         self.delete_btn.clicked.connect(self.canvas.delete_selection)
         btns.addStretch()
@@ -324,9 +344,9 @@ class PropertiesPanel(QScrollArea):
         self.layout_.addWidget(self.sel_box)
 
     def _build_widget_section(self) -> None:
-        self.widget_box, wl = _section("Form field")
+        self.widget_box, wl = _section(tr("Form field"))
         self.widget_title = self.widget_box.findChild(QLabel)
-        self.w_sub = QLabel("")
+        self.w_sub = QLabel(tr(""))
         self.w_sub.setProperty("role", "muted")
         self.w_sub.setWordWrap(True)
         wl.addWidget(self.w_sub)
@@ -334,35 +354,35 @@ class PropertiesPanel(QScrollArea):
         form.setContentsMargins(0, 0, 0, 0)
         form.setHorizontalSpacing(8)
         self.w_name = QLineEdit()
-        form.addRow("Name", self.w_name)
+        form.addRow(tr("Name"), self.w_name)
         self.w_value = QLineEdit()
         self.w_value_row = form.rowCount()
-        form.addRow("Value", self.w_value)
-        self.w_checked = QCheckBox("Checked")
-        form.addRow("", self.w_checked)
+        form.addRow(tr("Value"), self.w_value)
+        self.w_checked = QCheckBox(tr("Checked"))
+        form.addRow(tr(""), self.w_checked)
         self.w_choice = QComboBox()
-        form.addRow("Selected", self.w_choice)
+        form.addRow(tr("Selected"), self.w_choice)
         self.w_choices = QPlainTextEdit()
-        self.w_choices.setPlaceholderText("One option per line")
+        self.w_choices.setPlaceholderText(tr("One option per line"))
         self.w_choices.setMaximumHeight(90)
-        form.addRow("Options", self.w_choices)
+        form.addRow(tr("Options"), self.w_choices)
         self.w_caption = QLineEdit()
-        form.addRow("Caption", self.w_caption)
+        form.addRow(tr("Caption"), self.w_caption)
         self.w_font_size = _spin(0, 200, 1, 1, " pt")
-        form.addRow("Font size", self.w_font_size)
+        form.addRow(tr("Font size"), self.w_font_size)
         self.w_text_color = ColorButton()
-        form.addRow("Text colour", self.w_text_color)
+        form.addRow(tr("Text colour"), self.w_text_color)
         self.w_fill_color = ColorButton()
-        form.addRow("Background", self.w_fill_color)
+        form.addRow(tr("Background"), self.w_fill_color)
         self.w_border_color = ColorButton()
-        form.addRow("Border", self.w_border_color)
+        form.addRow(tr("Border"), self.w_border_color)
         self.w_border_width = _spin(0, 20, 1, 0.5, " pt")
-        form.addRow("Border width", self.w_border_width)
+        form.addRow(tr("Border width"), self.w_border_width)
         wl.addLayout(form)
         flags = QHBoxLayout()
-        self.w_readonly = QCheckBox("Read-only")
-        self.w_required = QCheckBox("Required")
-        self.w_multiline = QCheckBox("Multiline")
+        self.w_readonly = QCheckBox(tr("Read-only"))
+        self.w_required = QCheckBox(tr("Required"))
+        self.w_multiline = QCheckBox(tr("Multiline"))
         flags.addWidget(self.w_readonly)
         flags.addWidget(self.w_required)
         flags.addWidget(self.w_multiline)
@@ -373,11 +393,69 @@ class PropertiesPanel(QScrollArea):
             fld = form.itemAt(i, QFormLayout.ItemRole.FieldRole)
             if fld is not None and fld.widget() is not None:
                 self.w_form_labels[fld.widget()] = lbl.widget() if lbl is not None else None
+        # -- scripts (calculations, formats, validation)
+        self.w_scripts_box = QWidget()
+        sc = QVBoxLayout(self.w_scripts_box)
+        sc.setContentsMargins(0, 0, 0, 0)
+        sc.setSpacing(6)
+        sc.addWidget(_heading(tr("Calculation & format")))
+        sform = _form()
+        self.w_calc = QComboBox()
+        for label, key in (("None", "none"), ("Sum of fields", "sum"), ("Product of fields", "product"), ("Average of fields", "average"),
+                           (N_("Minimum of fields"), "minimum"), ("Maximum of fields", "maximum"), ("Custom JavaScript", "custom")):
+            self.w_calc.addItem(label, key)
+        sform.addRow(tr("Calculate"), self.w_calc)
+        self.w_calc_fields = QLineEdit()
+        self.w_calc_fields.setPlaceholderText(tr("Field names, comma separated (e.g. a, b, c)"))
+        sform.addRow(tr("From"), self.w_calc_fields)
+        self.w_format = QComboBox()
+        for label, key in (("As typed", "none"), ("Number", "number"), ("Percent", "percent"), ("Date", "date"), ("Custom JavaScript", "custom")):
+            self.w_format.addItem(label, key)
+        sform.addRow(tr("Format"), self.w_format)
+        self.w_decimals = QSpinBox()
+        self.w_decimals.setRange(0, 10)
+        self.w_decimals.setValue(2)
+        sform.addRow(tr("Decimals"), self.w_decimals)
+        self.w_thousands = QCheckBox(tr("Thousands separator"))
+        sform.addRow(tr(""), self.w_thousands)
+        self.w_currency = QLineEdit()
+        self.w_currency.setPlaceholderText(tr("Currency symbol (optional)"))
+        sform.addRow(tr("Currency"), self.w_currency)
+        self.w_date_fmt = QComboBox()
+        self.w_date_fmt.setEditable(True)
+        self.w_date_fmt.addItems(["yyyy-mm-dd", "dd/mm/yyyy", "mm/dd/yyyy", "d mmm yyyy", "mmmm d, yyyy"])
+        sform.addRow(tr("Date format"), self.w_date_fmt)
+        self.w_validate = QCheckBox(tr("Require a value between"))
+        sform.addRow(tr("Validate"), self.w_validate)
+        rng = QHBoxLayout()
+        self.w_min = QDoubleSpinBox()
+        self.w_min.setRange(-1e9, 1e9)
+        self.w_max = QDoubleSpinBox()
+        self.w_max.setRange(-1e9, 1e9)
+        self.w_max.setValue(100)
+        rng.addWidget(self.w_min)
+        rng.addWidget(QLabel(tr("and")))
+        rng.addWidget(self.w_max)
+        sform.addRow(tr(""), rng)
+        self.w_js = QPlainTextEdit()
+        self.w_js.setPlaceholderText(tr("JavaScript run by the viewer (Acrobat AF* helpers available)"))
+        self.w_js.setMaximumHeight(90)
+        sform.addRow(tr("Script"), self.w_js)
+        sc.addLayout(sform)
+        self.w_scripts_note = QLabel(tr("Scripts are stored as PDF JavaScript actions (Acrobat-compatible). Sum/product/average/min/max are also evaluated here when you fill in values."))
+        self.w_scripts_note.setProperty("role", "muted")
+        self.w_scripts_note.setWordWrap(True)
+        sc.addWidget(self.w_scripts_note)
+        wl.addWidget(self.w_scripts_box)
+        self.w_calc.currentIndexChanged.connect(lambda i: self._sync_script_rows())
+        self.w_format.currentIndexChanged.connect(lambda i: self._sync_script_rows())
+        self.w_validate.toggled.connect(lambda on: self._sync_script_rows())
+        self.w_script_form = sform
         wl.addWidget(_hline())
         btns = QHBoxLayout()
-        self.w_apply = QPushButton("Apply")
+        self.w_apply = QPushButton(tr("Apply"))
         self.w_apply.setProperty("primary", "true")
-        self.w_delete = QPushButton("Delete")
+        self.w_delete = QPushButton(tr("Delete"))
         self.w_delete.setProperty("danger", "true")
         btns.addStretch()
         btns.addWidget(self.w_delete)
@@ -392,9 +470,9 @@ class PropertiesPanel(QScrollArea):
         self.w_choice.activated.connect(lambda i: None if self._updating else self._apply_widget())
 
     def _build_annot_section(self) -> None:
-        self.annot_box, al = _section("Comment")
+        self.annot_box, al = _section(tr("Comment"))
         self.annot_title = self.annot_box.findChild(QLabel)
-        self.a_sub = QLabel("")
+        self.a_sub = QLabel(tr(""))
         self.a_sub.setProperty("role", "muted")
         self.a_sub.setWordWrap(True)
         al.addWidget(self.a_sub)
@@ -402,19 +480,19 @@ class PropertiesPanel(QScrollArea):
         form.setContentsMargins(0, 0, 0, 0)
         form.setHorizontalSpacing(8)
         self.a_author = QLineEdit()
-        form.addRow("Author", self.a_author)
+        form.addRow(tr("Author"), self.a_author)
         self.a_contents = QPlainTextEdit()
-        self.a_contents.setPlaceholderText("Comment text")
+        self.a_contents.setPlaceholderText(tr("Comment text"))
         self.a_contents.setMaximumHeight(110)
-        form.addRow("Text", self.a_contents)
+        form.addRow(tr("Text"), self.a_contents)
         self.a_icon = QComboBox()
         self.a_icon.addItems(NOTE_ICONS)
-        form.addRow("Icon", self.a_icon)
+        form.addRow(tr("Icon"), self.a_icon)
         self.a_color = ColorButton()
-        form.addRow("Colour", self.a_color)
+        form.addRow(tr("Colour"), self.a_color)
         self.a_opacity = QSlider(Qt.Orientation.Horizontal)
         self.a_opacity.setRange(10, 100)
-        form.addRow("Opacity", self.a_opacity)
+        form.addRow(tr("Opacity"), self.a_opacity)
         al.addLayout(form)
         self.a_form_labels = {}
         for i in range(form.rowCount()):
@@ -424,9 +502,9 @@ class PropertiesPanel(QScrollArea):
                 self.a_form_labels[fld.widget()] = lbl.widget() if lbl is not None else None
         al.addWidget(_hline())
         btns = QHBoxLayout()
-        self.a_apply = QPushButton("Apply")
+        self.a_apply = QPushButton(tr("Apply"))
         self.a_apply.setProperty("primary", "true")
-        self.a_delete = QPushButton("Delete")
+        self.a_delete = QPushButton(tr("Delete"))
         self.a_delete.setProperty("danger", "true")
         btns.addStretch()
         btns.addWidget(self.a_delete)
@@ -440,7 +518,7 @@ class PropertiesPanel(QScrollArea):
     def _refresh_annot(self, annots: list[AnnotInfo]) -> None:
         a = annots[0]
         multi = len(annots) > 1
-        self.annot_title.setText(a.type_name if not multi else f"{len(annots)} comments")
+        self.annot_title.setText(tr(a.type_name) if not multi else tr("{n} comments").format(n=len(annots)))
         self.a_sub.setText((a.modified and f"Modified {a.modified[2:10]}") or "")
         self.a_author.setText(a.author)
         self.a_contents.setPlainText(a.contents)
@@ -494,9 +572,9 @@ class PropertiesPanel(QScrollArea):
             self.sel_box.setVisible(bool(objs) and not widgets and not annots)
             self.page_box.setVisible(not any_sel and not show_defaults)
             if doc is None:
-                self.page_title.setText("No document")
-                self.page_info.setText("Open a PDF to get started.")
-                self.doc_info.setText("")
+                self.page_title.setText(tr("No document"))
+                self.page_info.setText(tr("Open a PDF to get started."))
+                self.doc_info.setText(tr(""))
                 return
             if annots:
                 self._refresh_annot(annots)
@@ -526,7 +604,7 @@ class PropertiesPanel(QScrollArea):
                 self.sel_sub.setText(_describe(objs[0]))
             else:
                 self.sel_title.setText(f"{len(objs)} objects")
-                self.sel_sub.setText(", ".join(sorted({_kind_label(o) for o in objs})))
+                self.sel_sub.setText(tr(", ").join(sorted({_kind_label(o) for o in objs})))
             rect = self.canvas._selection_rect().translated(-self.canvas.page_offset)
             self.x.set_value_pt(rect.x())
             self.y.set_value_pt(rect.y())
@@ -551,10 +629,10 @@ class PropertiesPanel(QScrollArea):
                 multi_line = len(baselines) > 1
                 self.text_edit.setEnabled(not multi_line)
                 if multi_line:
-                    self.text_edit.setText("")
+                    self.text_edit.setText(tr(""))
                     self.text_edit.setPlaceholderText(f"{len(baselines)} lines selected — use Edit paragraph")
                 else:
-                    self.text_edit.setPlaceholderText("Text content (Enter applies)")
+                    self.text_edit.setPlaceholderText(tr("Text content (Enter applies)"))
                     self.text_edit.setText(self.canvas._line_text(sorted(ids, key=lambda i: self.canvas.items_by_id[i].obj.tm.e)))
                 fi = t.font_info
                 self.font_label.setText(fi.display_name if fi else t.font)
@@ -567,18 +645,18 @@ class PropertiesPanel(QScrollArea):
                     notes.append("Subset font: characters not already used in the document fall back to a built-in font.")
                 if t.invisible:
                     notes.append("Invisible text (e.g. OCR layer).")
-                self.text_note.setText(" ".join(notes))
+                self.text_note.setText(tr(" ").join(notes))
             others = [o for o in objs if o.kind in ("image", "form", "inline_image", "shading")]
             self.other_info.setVisible(bool(others) and not paths and not texts)
             if others:
-                self.other_info.setText("\n".join(_describe(o) for o in others[:5]))
+                self.other_info.setText(tr("\n").join(_describe(o) for o in others[:5]))
         finally:
             self._updating = False
 
     def _refresh_widget(self, widgets: list[WidgetInfo]) -> None:
         w = widgets[0]
         multi = len(widgets) > 1
-        self.widget_title.setText(w.type_name if not multi else f"{len(widgets)} form fields")
+        self.widget_title.setText(tr(w.type_name) if not multi else tr("{n} form fields").format(n=len(widgets)))
         self.w_sub.setText(f"{format_length(w.rect.width)} × {format_length(w.rect.height)}" + (" · editing the first one" if multi else ""))
         self.w_name.setText(w.field_name)
         ft = w.field_type
@@ -615,12 +693,113 @@ class PropertiesPanel(QScrollArea):
         self.w_readonly.setChecked(bool(w.flags & FLAG_READONLY))
         self.w_required.setChecked(bool(w.flags & FLAG_REQUIRED))
         self.w_multiline.setChecked(bool(w.flags & FLAG_MULTILINE))
+        self.w_scripts_box.setVisible(is_text or is_choice)
+        if is_text or is_choice:
+            self._load_scripts(w)
 
     def _show_row(self, widget: QWidget, on: bool) -> None:
         widget.setVisible(on)
         lbl = self.w_form_labels.get(widget)
         if lbl is not None:
             lbl.setVisible(on)
+
+    def _sync_script_rows(self) -> None:
+        f = self.w_script_form
+        calc = self.w_calc.currentData()
+        fmt = self.w_format.currentData()
+        custom = calc == "custom" or fmt == "custom"
+
+        def row(widget, on):
+            widget.setVisible(on)
+            lbl = f.labelForField(widget)
+            if lbl is not None:
+                lbl.setVisible(on)
+
+        row(self.w_calc_fields, calc not in ("none", "custom"))
+        row(self.w_decimals, fmt in ("number", "percent"))
+        row(self.w_thousands, fmt == "number")
+        row(self.w_currency, fmt == "number")
+        row(self.w_date_fmt, fmt == "date")
+        row(self.w_js, custom)
+        for w in (self.w_min, self.w_max):
+            w.setEnabled(self.w_validate.isChecked())
+
+    def _load_scripts(self, w: WidgetInfo) -> None:
+        import re
+
+        calc = "none"
+        fields = ""
+        m = re.search(r'AFSimple_Calculate\(\s*"(SUM|PRD|AVG|MIN|MAX)"\s*,\s*(?:new\s+Array\s*\(|\[)\s*([^\])]*)', w.script_calc or "")
+        if m:
+            calc = {"SUM": "sum", "PRD": "product", "AVG": "average", "MIN": "minimum", "MAX": "maximum"}[m.group(1)]
+            fields = ", ".join(n.strip().strip('"\'') for n in m.group(2).split(",") if n.strip())
+        elif w.script_calc.strip():
+            calc = "custom"
+        self.w_calc.setCurrentIndex(max(self.w_calc.findData(calc), 0))
+        self.w_calc_fields.setText(fields)
+        fmt = "none"
+        self.w_thousands.setChecked(False)
+        self.w_currency.setText(tr(""))
+        m = re.search(r'AFNumber_Format\(\s*(\d+)\s*,\s*(\d+)\s*,\s*\d+\s*,\s*\d+\s*,\s*"([^"]*)"', w.script_format or "")
+        if m:
+            fmt = "number"
+            self.w_decimals.setValue(int(m.group(1)))
+            self.w_thousands.setChecked(m.group(2) == "0")
+            self.w_currency.setText(m.group(3))
+        else:
+            m = re.search(r"AFPercent_Format\(\s*(\d+)", w.script_format or "")
+            if m:
+                fmt = "percent"
+                self.w_decimals.setValue(int(m.group(1)))
+            else:
+                m = re.search(r'AFDate_FormatEx\("([^"]*)"', w.script_format or "")
+                if m:
+                    fmt = "date"
+                    self.w_date_fmt.setEditText(m.group(1))
+                elif w.script_format.strip():
+                    fmt = "custom"
+        self.w_format.setCurrentIndex(max(self.w_format.findData(fmt), 0))
+        m = re.search(r"AFRange_Validate\(\s*(true|false)\s*,\s*([-\d.]+)\s*,\s*(true|false)\s*,\s*([-\d.]+)", w.script_validate or "")
+        self.w_validate.setChecked(bool(m))
+        if m:
+            self.w_min.setValue(float(m.group(2)))
+            self.w_max.setValue(float(m.group(4)))
+        custom_js = ""
+        if calc == "custom":
+            custom_js = w.script_calc
+        elif fmt == "custom":
+            custom_js = w.script_format
+        self.w_js.setPlainText(custom_js)
+        self._sync_script_rows()
+
+    def _script_props(self, w: WidgetInfo) -> dict:
+        props: dict = {}
+        calc = self.w_calc.currentData()
+        fmt = self.w_format.currentData()
+        if calc == "none":
+            props["script_calc"] = ""
+        elif calc == "custom":
+            props["script_calc"] = self.w_js.toPlainText()
+        else:
+            fields = [f.strip() for f in self.w_calc_fields.text().split(",") if f.strip()]
+            props["script_calc"] = calc_script(calc, fields) if fields else ""
+        if fmt == "none":
+            props["script_format"] = ""
+            props["script_keystroke"] = ""
+        elif fmt == "number":
+            sep = 0 if self.w_thousands.isChecked() else 1
+            props["script_format"] = number_format_script(self.w_decimals.value(), sep, 0, self.w_currency.text())
+            props["script_keystroke"] = number_keystroke_script(self.w_decimals.value(), sep, 0, self.w_currency.text())
+        elif fmt == "percent":
+            props["script_format"] = percent_format_script(self.w_decimals.value())
+            props["script_keystroke"] = f"AFPercent_Keystroke({self.w_decimals.value()}, 0);"
+        elif fmt == "date":
+            props["script_format"] = date_format_script(self.w_date_fmt.currentText().strip() or "yyyy-mm-dd")
+            props["script_keystroke"] = f'AFDate_KeystrokeEx("{self.w_date_fmt.currentText().strip() or "yyyy-mm-dd"}");'
+        elif fmt == "custom":
+            props["script_format"] = self.w_js.toPlainText() if calc != "custom" else w.script_format
+        props["script_validate"] = range_validate_script(self.w_min.value(), self.w_max.value()) if self.w_validate.isChecked() else ""
+        return props
 
     # -- apply -----------------------------------------------------------------
     def _apply_widget(self) -> None:
@@ -668,7 +847,14 @@ class PropertiesPanel(QScrollArea):
         if ft == 7 and self.w_multiline.isChecked():
             flags |= FLAG_MULTILINE
         props["flags"] = flags
+        if ft in (7, 3, 4):
+            props.update(self._script_props(w))
         doc.update_widget(self.canvas.page_index, w.xref, **props)
+        try:
+            if doc.recalculate(self.canvas.page_index):
+                doc._emit("page_content", self.canvas.page_index)
+        except Exception:
+            pass
         self.canvas.pageEdited.emit(self.canvas.page_index)
 
     def _load_defaults(self) -> None:

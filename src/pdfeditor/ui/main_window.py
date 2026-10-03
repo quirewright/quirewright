@@ -30,6 +30,7 @@ from PySide6.QtWidgets import (
 from pdfeditor import APP_ID, APP_NAME
 from pdfeditor.core.document import Document
 from pdfeditor.core.geometry import Rect
+from pdfeditor.i18n import N_, tr
 from pdfeditor.ui import theme
 from pdfeditor.ui.canvas import (
     TOOL_CROP,
@@ -59,6 +60,7 @@ from pdfeditor.ui.dialogs import (
 )
 from pdfeditor.ui.doc_dialogs import (
     ExportImageDialog,
+    OcrDialog,
     PageLabelsDialog,
     PageNumbersDialog,
     PreferencesDialog,
@@ -115,17 +117,17 @@ class MainWindow(QMainWindow):
 
         self.left_tabs = QTabWidget()
         self.left_tabs.setDocumentMode(True)
-        self.left_tabs.addTab(self.pages, "Pages")
-        self.left_tabs.addTab(self.outline, "Bookmarks")
-        self.pages_dock = QDockWidget("Navigation", self)
+        self.left_tabs.addTab(self.pages, tr("Pages"))
+        self.left_tabs.addTab(self.outline, tr("Bookmarks"))
+        self.pages_dock = QDockWidget(tr("Navigation"), self)
         self.pages_dock.setObjectName("pagesDock")
         self.pages_dock.setWidget(self.left_tabs)
         self.pages_dock.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetClosable | QDockWidget.DockWidgetFeature.DockWidgetMovable)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.pages_dock)
-        self.props_dock = QDockWidget("Inspector", self)
+        self.props_dock = QDockWidget(tr("Inspector"), self)
         self.props_dock.setObjectName("inspectorDock")
         self.props_dock.setWidget(self.properties)
-        self.props_dock.setMinimumWidth(280)
+        self.props_dock.setMinimumWidth(340)
         self.props_dock.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetClosable | QDockWidget.DockWidgetFeature.DockWidgetMovable)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.props_dock)
 
@@ -183,154 +185,155 @@ class MainWindow(QMainWindow):
     def _build_actions(self) -> None:
         S = QKeySequence
         # file
-        self.act_new = self._act("&New", "new", S.StandardKey.New, self.new_document, tip="Create a new document with one blank page")
-        self.act_open = self._act("&Open…", "open", S.StandardKey.Open, self.open_dialog, tip="Open a PDF")
-        self.act_save = self._act("&Save", "save", S.StandardKey.Save, self.save, tip="Save the document")
-        self.act_save_as = self._act("Save &As…", None, S.StandardKey.SaveAs, self.save_as)
-        self.act_reduce = self._act("Save &Reduced Size Copy…", "shrink", None, self.save_reduced, tip="Write a smaller copy with recompressed images")
-        self.act_export_image = self._act("Export Page as &Image…", "export", None, self.export_image)
-        self.act_export_text = self._act("Export &Text…", None, None, self.export_text)
-        self.act_print = self._act("&Print…", "print", S.StandardKey.Print, self.print_document, tip="Print the document")
-        self.act_close = self._act("&Close", None, S.StandardKey.Close, self.close_document)
-        self.act_next_tab = self._act("Next &Tab", None, "Ctrl+Tab", lambda: self._cycle_tab(1))
-        self.act_prev_tab = self._act("Previous Ta&b", None, "Ctrl+Shift+Tab", lambda: self._cycle_tab(-1))
-        self.act_quit = self._act("&Quit", None, S.StandardKey.Quit, self.close)
-        self.act_insert_file = self._act("&Insert Pages from File…", "insert", "Ctrl+Shift+I", self.insert_from_file)
-        self.act_extract = self._act("&Extract Pages…", "extract", "Ctrl+Shift+E", self.extract_pages)
-        self.act_split = self._act("S&plit Document…", "split", None, self.split_document)
+        self.act_new = self._act(tr("&New"), "new", S.StandardKey.New, self.new_document, tip=tr("Create a new document with one blank page"))
+        self.act_open = self._act(tr("&Open…"), "open", S.StandardKey.Open, self.open_dialog, tip=tr("Open a PDF"))
+        self.act_save = self._act(tr("&Save"), "save", S.StandardKey.Save, self.save, tip=tr("Save the document"))
+        self.act_save_as = self._act(tr("Save &As…"), None, S.StandardKey.SaveAs, self.save_as)
+        self.act_reduce = self._act(tr("Save &Reduced Size Copy…"), "shrink", None, self.save_reduced, tip=tr("Write a smaller copy with recompressed images"))
+        self.act_export_image = self._act(tr("Export Page as &Image…"), "export", None, self.export_image)
+        self.act_export_text = self._act(tr("Export &Text…"), None, None, self.export_text)
+        self.act_print = self._act(tr("&Print…"), "print", S.StandardKey.Print, self.print_document, tip=tr("Print the document"))
+        self.act_close = self._act(tr("&Close"), None, S.StandardKey.Close, self.close_document)
+        self.act_next_tab = self._act(tr("Next &Tab"), None, "Ctrl+Tab", lambda: self._cycle_tab(1))
+        self.act_prev_tab = self._act(tr("Previous Ta&b"), None, "Ctrl+Shift+Tab", lambda: self._cycle_tab(-1))
+        self.act_quit = self._act(tr("&Quit"), None, S.StandardKey.Quit, self.close)
+        self.act_insert_file = self._act(tr("&Insert Pages from File…"), "insert", "Ctrl+Shift+I", self.insert_from_file)
+        self.act_extract = self._act(tr("&Extract Pages…"), "extract", "Ctrl+Shift+E", self.extract_pages)
+        self.act_split = self._act(tr("S&plit Document…"), "split", None, self.split_document)
         # edit
-        self.act_undo = self._act("&Undo", "undo", S.StandardKey.Undo, self.undo)
-        self.act_redo = self._act("&Redo", "redo", S.StandardKey.Redo, self.redo)
-        self.act_delete = self._act("&Delete", "trash", None, lambda: self.canvas.delete_selection(), tip="Delete selected objects")
-        self.act_select_all = self._act("Select &All", None, S.StandardKey.SelectAll, lambda: self.canvas.select_all())
-        self.act_deselect = self._act("D&eselect", None, "Ctrl+Shift+A", lambda: self.canvas.clear_selection())
-        self.act_copy_text = self._act("&Copy Text", "copy", S.StandardKey.Copy, self.copy_text, tip="Copy the selected text to the clipboard")
-        self.act_duplicate = self._act("D&uplicate", "duplicate", "Ctrl+Shift+D", lambda: self.canvas.duplicate_selection(), tip="Duplicate the selected objects")
-        self.act_edit_text = self._act("Edit &Text Line", "edit", "F2", self.edit_selected_text)
-        self.act_edit_para = self._act("Edit &Paragraph", None, "Ctrl+E", self.edit_selected_paragraph, tip="Edit the whole paragraph around the selected text with word wrapping")
-        self.act_find = self._act("&Find…", "find", S.StandardKey.Find, self.show_find, tip="Find text in the document")
-        self.act_find_next = self._act("Find &Next", None, S.StandardKey.FindNext, lambda: self.findbar.next())
-        self.act_find_prev = self._act("Find &Previous", None, S.StandardKey.FindPrevious, lambda: self.findbar.previous())
-        self.act_prefs = self._act("&Preferences…", "settings", S.StandardKey.Preferences, self.show_preferences)
-        self.act_scale_stroke = self._act("Scale Stroke &Width with Objects", None, None, self._toggle_scale_stroke, checkable=True)
+        self.act_undo = self._act(tr("&Undo"), "undo", S.StandardKey.Undo, self.undo)
+        self.act_redo = self._act(tr("&Redo"), "redo", S.StandardKey.Redo, self.redo)
+        self.act_delete = self._act(tr("&Delete"), "trash", None, lambda: self.canvas.delete_selection(), tip=tr("Delete selected objects"))
+        self.act_select_all = self._act(tr("Select &All"), None, S.StandardKey.SelectAll, lambda: self.canvas.select_all())
+        self.act_deselect = self._act(tr("D&eselect"), None, "Ctrl+Shift+A", lambda: self.canvas.clear_selection())
+        self.act_copy_text = self._act(tr("&Copy Text"), "copy", S.StandardKey.Copy, self.copy_text, tip=tr("Copy the selected text to the clipboard"))
+        self.act_duplicate = self._act(tr("D&uplicate"), "duplicate", "Ctrl+Shift+D", lambda: self.canvas.duplicate_selection(), tip=tr("Duplicate the selected objects"))
+        self.act_edit_text = self._act(tr("Edit &Text Line"), "edit", "F2", self.edit_selected_text)
+        self.act_edit_para = self._act(tr("Edit &Paragraph"), None, "Ctrl+E", self.edit_selected_paragraph, tip=tr("Edit the whole paragraph around the selected text with word wrapping"))
+        self.act_find = self._act(tr("&Find…"), "find", S.StandardKey.Find, self.show_find, tip=tr("Find text in the document"))
+        self.act_find_next = self._act(tr("Find &Next"), None, S.StandardKey.FindNext, lambda: self.findbar.next())
+        self.act_find_prev = self._act(tr("Find &Previous"), None, S.StandardKey.FindPrevious, lambda: self.findbar.previous())
+        self.act_prefs = self._act(tr("&Preferences…"), "settings", S.StandardKey.Preferences, self.show_preferences)
+        self.act_scale_stroke = self._act(tr("Scale Stroke &Width with Objects"), None, None, self._toggle_scale_stroke, checkable=True)
         self.act_scale_stroke.setChecked(True)
         # arrange
-        self.act_group = self._act("&Group", None, "Ctrl+G", lambda: self.canvas.group_selection(), tip="Combine the selected objects into a group (a form XObject)")
-        self.act_ungroup = self._act("&Ungroup", None, "Ctrl+Shift+G", lambda: self.canvas.ungroup_selection(), tip="Split the selected group back into its objects")
-        self.act_enter_group = self._act("&Enter Group", None, "Ctrl+Return", lambda: self.canvas.enter_form(), tip="Edit the objects inside the selected group or form XObject")
-        self.act_exit_group = self._act("E&xit Group", None, "Ctrl+Shift+Return", lambda: self.canvas.exit_form())
-        self.act_front = self._act("Bring to &Front", "front", "Ctrl+Shift+]", lambda: self.canvas.bring_to_front())
-        self.act_back = self._act("Send to &Back", "back", "Ctrl+Shift+[", lambda: self.canvas.send_to_back())
-        self.act_flip_h = self._act("Flip &Horizontal", "flip-h", None, lambda: self.canvas.flip_selection(True))
-        self.act_flip_v = self._act("Flip &Vertical", "flip-v", None, lambda: self.canvas.flip_selection(False))
-        self.act_rot_sel_cw = self._act("Rotate Selection 90° CW", None, "Ctrl+]", lambda: self.canvas.rotate_selection(90))
-        self.act_rot_sel_ccw = self._act("Rotate Selection 90° CCW", None, "Ctrl+[", lambda: self.canvas.rotate_selection(-90))
+        self.act_group = self._act(tr("&Group"), None, "Ctrl+G", lambda: self.canvas.group_selection(), tip=tr("Combine the selected objects into a group (a form XObject)"))
+        self.act_ungroup = self._act(tr("&Ungroup"), None, "Ctrl+Shift+G", lambda: self.canvas.ungroup_selection(), tip=tr("Split the selected group back into its objects"))
+        self.act_enter_group = self._act(tr("&Enter Group"), None, "Ctrl+Return", lambda: self.canvas.enter_form(), tip=tr("Edit the objects inside the selected group or form XObject"))
+        self.act_exit_group = self._act(tr("E&xit Group"), None, "Ctrl+Shift+Return", lambda: self.canvas.exit_form())
+        self.act_front = self._act(tr("Bring to &Front"), "front", "Ctrl+Shift+]", lambda: self.canvas.bring_to_front())
+        self.act_back = self._act(tr("Send to &Back"), "back", "Ctrl+Shift+[", lambda: self.canvas.send_to_back())
+        self.act_flip_h = self._act(tr("Flip &Horizontal"), "flip-h", None, lambda: self.canvas.flip_selection(True))
+        self.act_flip_v = self._act(tr("Flip &Vertical"), "flip-v", None, lambda: self.canvas.flip_selection(False))
+        self.act_rot_sel_cw = self._act(tr("Rotate Selection 90° CW"), None, "Ctrl+]", lambda: self.canvas.rotate_selection(90))
+        self.act_rot_sel_ccw = self._act(tr("Rotate Selection 90° CCW"), None, "Ctrl+[", lambda: self.canvas.rotate_selection(-90))
         self.align_actions = []
         for label, icon_name, mode in (
             ("Align &Left", "align-left", "left"), ("Align &Centre", "align-center-h", "hcenter"), ("Align &Right", "align-right", "right"),
             ("Align &Top", "align-top", "top"), ("Align &Middle", "align-center-v", "vcenter"), ("Align &Bottom", "align-bottom", "bottom"),
         ):
-            self.align_actions.append(self._act(label, icon_name, None, lambda checked=False, m=mode: self.canvas.align_selection(m)))
-        self.act_dist_h = self._act("Distribute Hori&zontally", None, None, lambda: self.canvas.distribute_selection(True))
-        self.act_dist_v = self._act("Distribute &Vertically", None, None, lambda: self.canvas.distribute_selection(False))
+            self.align_actions.append(self._act(tr(label), icon_name, None, lambda checked=False, m=mode: self.canvas.align_selection(m)))
+        self.act_dist_h = self._act(tr("Distribute Hori&zontally"), None, None, lambda: self.canvas.distribute_selection(True))
+        self.act_dist_v = self._act(tr("Distribute &Vertically"), None, None, lambda: self.canvas.distribute_selection(False))
         # tools
         self.tool_group = QActionGroup(self)
         self.tool_group.setExclusive(True)
-        self.act_tool_select = self._tool_act("Select", "select", "S", TOOL_SELECT, "Select and transform objects (S)")
-        self.act_tool_node = self._tool_act("Nodes", "node", "N", TOOL_NODE, "Edit path nodes (N)")
-        self.act_tool_text = self._tool_act("Text", "text", "T", TOOL_TEXT, "Edit or add text (T)")
-        self.act_tool_hand = self._tool_act("Pan", "hand", "H", TOOL_HAND, "Pan the page (H)")
-        self.act_tool_rect = self._tool_act("Rectangle", "rect", "R", TOOL_RECT, "Draw a rectangle (R)")
-        self.act_tool_ellipse = self._tool_act("Ellipse", "ellipse", "E", TOOL_ELLIPSE, "Draw an ellipse (E)")
-        self.act_tool_line = self._tool_act("Line", "line", "L", TOOL_LINE, "Draw a straight line (L)")
-        self.act_tool_pen = self._tool_act("Pen", "pen", "P", TOOL_PEN, "Draw a polyline: click points, Enter or double-click to finish (P)")
+        self.act_tool_select = self._tool_act(tr("Select"), "select", "S", TOOL_SELECT, tr("Select and transform objects (S)"))
+        self.act_tool_node = self._tool_act(tr("Nodes"), "node", "N", TOOL_NODE, tr("Edit path nodes (N)"))
+        self.act_tool_text = self._tool_act(tr("Text"), "text", "T", TOOL_TEXT, tr("Edit or add text (T)"))
+        self.act_tool_hand = self._tool_act(tr("Pan"), "hand", "H", TOOL_HAND, tr("Pan the page (H)"))
+        self.act_tool_rect = self._tool_act(tr("Rectangle"), "rect", "R", TOOL_RECT, tr("Draw a rectangle (R)"))
+        self.act_tool_ellipse = self._tool_act(tr("Ellipse"), "ellipse", "E", TOOL_ELLIPSE, tr("Draw an ellipse (E)"))
+        self.act_tool_line = self._tool_act(tr("Line"), "line", "L", TOOL_LINE, tr("Draw a straight line (L)"))
+        self.act_tool_pen = self._tool_act(tr("Pen"), "pen", "P", TOOL_PEN, tr("Draw a polyline: click points, Enter or double-click to finish (P)"))
         self.field_types = [
-            (7, "Text field", "field-text"), (2, "Checkbox", "field-check"), (5, "Radio button", "field-radio"),
-            (3, "Dropdown", "field-combo"), (4, "List box", "field-list"), (1, "Push button", "field-button"),
+            (7, N_("Text field"), "field-text"), (2, "Checkbox", "field-check"), (5, "Radio button", "field-radio"),
+            (3, N_("Dropdown"), "field-combo"), (4, "List box", "field-list"), (1, "Push button", "field-button"),
         ]
         self.field_actions: list[QAction] = []
         for ftype, label, icon_name in self.field_types:
-            a = self._tool_act(label, icon_name, None, f"{TOOL_FIELD}:{ftype}", f"Drag on the page to add a {label.lower()}")
+            a = self._tool_act(tr(label), icon_name, None, f"{TOOL_FIELD}:{ftype}", tr("Drag on the page to add a {field}").format(field=tr(label).lower()))
             a.setProperty("fieldType", ftype)
             self.field_actions.append(a)
         self._last_field_type = 7
-        self.act_tool_field = self._act("Form Field", "form", "F", lambda: self.canvas.set_tool(f"{TOOL_FIELD}:{self._last_field_type}"), True, "Add form fields (F)")
+        self.act_tool_field = self._act(tr("Form Field"), "form", "F", lambda: self.canvas.set_tool(f"{TOOL_FIELD}:{self._last_field_type}"), True, "Add form fields (F)")
         self.tool_group.addAction(self.act_tool_field)
-        self.act_tool_highlight = self._tool_act("Highlight", "highlight", "Ctrl+Alt+H", f"{TOOL_MARKUP}:highlight", "Drag over text to highlight it")
-        self.act_tool_underline = self._tool_act("Underline", "underline", "Ctrl+Alt+U", f"{TOOL_MARKUP}:underline", "Drag over text to underline it")
-        self.act_tool_strike = self._tool_act("Strike Out", "strikeout", "Ctrl+Alt+K", f"{TOOL_MARKUP}:strikeout", "Drag over text to strike it out")
-        self.act_tool_note = self._tool_act("Sticky Note", "note", "Ctrl+Alt+N", TOOL_NOTE, "Click to add a comment")
-        self.act_tool_crop = self._tool_act("Crop Tool", "crop", "C", TOOL_CROP, "Drag a rectangle to crop the page to it (C)")
-        self.act_tool_redact = self._tool_act("Redact Area", "redact", None, TOOL_REDACT, "Drag a rectangle to permanently remove its content")
+        self.act_tool_highlight = self._tool_act(tr("Highlight"), "highlight", "Ctrl+Alt+H", f"{TOOL_MARKUP}:highlight", tr("Drag over text to highlight it"))
+        self.act_tool_underline = self._tool_act(tr("Underline"), "underline", "Ctrl+Alt+U", f"{TOOL_MARKUP}:underline", tr("Drag over text to underline it"))
+        self.act_tool_strike = self._tool_act(tr("Strike Out"), "strikeout", "Ctrl+Alt+K", f"{TOOL_MARKUP}:strikeout", tr("Drag over text to strike it out"))
+        self.act_tool_note = self._tool_act(tr("Sticky Note"), "note", "Ctrl+Alt+N", TOOL_NOTE, tr("Click to add a comment"))
+        self.act_tool_crop = self._tool_act(tr("Crop Tool"), "crop", "C", TOOL_CROP, tr("Drag a rectangle to crop the page to it (C)"))
+        self.act_tool_redact = self._tool_act(tr("Redact Area"), "redact", None, TOOL_REDACT, tr("Drag a rectangle to permanently remove its content"))
         self.act_tool_select.setChecked(True)
-        self.act_insert_image = self._act("Insert &Image…", "image", "Ctrl+Shift+M", self.insert_image, tip="Place an image on the page")
+        self.act_insert_image = self._act(tr("Insert &Image…"), "image", "Ctrl+Shift+M", self.insert_image, tip=tr("Place an image on the page"))
         # view
-        self.act_zoom_in = self._act("Zoom &In", "zoom-in", S.StandardKey.ZoomIn, lambda: self.canvas.zoom_in())
-        self.act_zoom_out = self._act("Zoom &Out", "zoom-out", S.StandardKey.ZoomOut, lambda: self.canvas.zoom_out())
-        self.act_zoom_fit = self._act("&Fit Page", "zoom-fit", "Ctrl+0", lambda: self.canvas.zoom_fit(), tip="Fit the whole page")
-        self.act_zoom_width = self._act("Fit &Width", "zoom-width", "Ctrl+2", lambda: self.canvas.zoom_width(), tip="Fit page width")
-        self.act_zoom_100 = self._act("&Actual Size", None, "Ctrl+1", lambda: self.canvas.zoom_actual())
-        self.act_prev = self._act("&Previous Page", "chevron-left", "PgUp", lambda: self.go_to_page(self.canvas.page_index - 1))
-        self.act_next = self._act("&Next Page", "chevron-right", "PgDown", lambda: self.go_to_page(self.canvas.page_index + 1))
-        self.act_first = self._act("&First Page", None, "Ctrl+Home", lambda: self.go_to_page(0))
-        self.act_last = self._act("&Last Page", None, "Ctrl+End", lambda: self.go_to_page(10**9))
-        self.act_goto = self._act("&Go to Page…", None, "Ctrl+J", self.focus_page_entry)
-        self.act_continuous = self._act("&Continuous Scrolling", None, "Ctrl+Shift+C", self._toggle_continuous, checkable=True, tip="Show all pages in one scrolling column")
+        self.act_zoom_in = self._act(tr("Zoom &In"), "zoom-in", S.StandardKey.ZoomIn, lambda: self.canvas.zoom_in())
+        self.act_zoom_out = self._act(tr("Zoom &Out"), "zoom-out", S.StandardKey.ZoomOut, lambda: self.canvas.zoom_out())
+        self.act_zoom_fit = self._act(tr("&Fit Page"), "zoom-fit", "Ctrl+0", lambda: self.canvas.zoom_fit(), tip=tr("Fit the whole page"))
+        self.act_zoom_width = self._act(tr("Fit &Width"), "zoom-width", "Ctrl+2", lambda: self.canvas.zoom_width(), tip=tr("Fit page width"))
+        self.act_zoom_100 = self._act(tr("&Actual Size"), None, "Ctrl+1", lambda: self.canvas.zoom_actual())
+        self.act_prev = self._act(tr("&Previous Page"), "chevron-left", "PgUp", lambda: self.go_to_page(self.canvas.page_index - 1))
+        self.act_next = self._act(tr("&Next Page"), "chevron-right", "PgDown", lambda: self.go_to_page(self.canvas.page_index + 1))
+        self.act_first = self._act(tr("&First Page"), None, "Ctrl+Home", lambda: self.go_to_page(0))
+        self.act_last = self._act(tr("&Last Page"), None, "Ctrl+End", lambda: self.go_to_page(10**9))
+        self.act_goto = self._act(tr("&Go to Page…"), None, "Ctrl+J", self.focus_page_entry)
+        self.act_continuous = self._act(tr("&Continuous Scrolling"), None, "Ctrl+Shift+C", self._toggle_continuous, checkable=True, tip=tr("Show all pages in one scrolling column"))
         self.act_continuous.setChecked(True)
-        self.act_rulers = self._act("Show &Rulers", None, "Ctrl+Shift+U", lambda on: self._apply_view_option("rulers", on), checkable=True, tip="Rulers in your preferred units; drag from a ruler to add a guide")
-        self.act_guides = self._act("Show &Guides", None, None, lambda on: self._apply_view_option("guides", on), checkable=True)
-        self.act_grid = self._act("Show Gr&id", None, "Ctrl+'", lambda on: self._apply_view_option("grid", on), checkable=True)
-        self.act_snap = self._act("&Snap", None, "Ctrl+Shift+;", lambda on: self._apply_view_option("snap", on), checkable=True, tip="Snap to page edges, guides and other objects while dragging (hold Alt to disable temporarily)")
-        self.act_snap_objects = self._act("Snap to &Objects", None, None, lambda on: self._apply_view_option("snap_objects", on), checkable=True)
-        self.act_snap_grid = self._act("Snap to Gri&d", None, None, lambda on: self._apply_view_option("snap_grid", on), checkable=True)
-        self.act_clear_guides = self._act("Clear Guides on This Page", None, None, lambda: self.canvas.clear_guides(False))
-        self.act_clear_all_guides = self._act("Clear All Guides", None, None, lambda: self.canvas.clear_guides(True))
+        self.act_rulers = self._act(tr("Show &Rulers"), None, "Ctrl+Shift+U", lambda on: self._apply_view_option("rulers", on), checkable=True, tip=tr("Rulers in your preferred units; drag from a ruler to add a guide"))
+        self.act_guides = self._act(tr("Show &Guides"), None, None, lambda on: self._apply_view_option("guides", on), checkable=True)
+        self.act_grid = self._act(tr("Show Gr&id"), None, "Ctrl+'", lambda on: self._apply_view_option("grid", on), checkable=True)
+        self.act_snap = self._act(tr("&Snap"), None, "Ctrl+Shift+;", lambda on: self._apply_view_option("snap", on), checkable=True, tip=tr("Snap to page edges, guides and other objects while dragging (hold Alt to disable temporarily)"))
+        self.act_snap_objects = self._act(tr("Snap to &Objects"), None, None, lambda on: self._apply_view_option("snap_objects", on), checkable=True)
+        self.act_snap_grid = self._act(tr("Snap to Gri&d"), None, None, lambda on: self._apply_view_option("snap_grid", on), checkable=True)
+        self.act_clear_guides = self._act(tr("Clear Guides on This Page"), None, None, lambda: self.canvas.clear_guides(False))
+        self.act_clear_all_guides = self._act(tr("Clear All Guides"), None, None, lambda: self.canvas.clear_guides(True))
         for a, key, default in ((self.act_rulers, "view/rulers", True), (self.act_guides, "view/guides", True), (self.act_grid, "view/grid", False),
                                 (self.act_snap, "view/snap", True), (self.act_snap_objects, "view/snapObjects", True), (self.act_snap_grid, "view/snapGrid", False)):
             a.setChecked(self.settings.value(key, default, type=bool))
-        self.act_dark = self._act("&Dark Mode", "moon", None, self.toggle_dark, checkable=True)
+        self.act_dark = self._act(tr("&Dark Mode"), "moon", None, self.toggle_dark, checkable=True)
         self.act_dark.setChecked(theme.current().dark)
         self.act_show_pages = self.pages_dock.toggleViewAction()
-        self.act_show_pages.setText("Show &Navigation Panel")
+        self.act_show_pages.setText(tr("Show &Navigation Panel"))
         self.act_show_pages.setIcon(theme.icon("pages"))
         self.act_show_props = self.props_dock.toggleViewAction()
-        self.act_show_props.setText("Show &Inspector")
+        self.act_show_props.setText(tr("Show &Inspector"))
         self.act_show_props.setIcon(theme.icon("inspector"))
         # page
-        self.act_rot_cw = self._act("Rotate &Clockwise", "rotate-right", "Ctrl+R", lambda: self.rotate_pages(90), tip="Rotate page(s) 90° clockwise")
-        self.act_rot_ccw = self._act("Rotate Counter-cloc&kwise", "rotate-left", "Ctrl+Shift+R", lambda: self.rotate_pages(-90), tip="Rotate page(s) 90° counter-clockwise")
-        self.act_rot_180 = self._act("Rotate &180°", None, None, lambda: self.rotate_pages(180))
-        self.act_del_page = self._act("&Delete Page(s)", "trash", "Ctrl+Shift+Delete", self.delete_pages, tip="Delete the selected page(s)")
-        self.act_dup_page = self._act("D&uplicate Page(s)", "duplicate", "Ctrl+D", self.duplicate_pages, tip="Duplicate the selected page(s)")
-        self.act_blank = self._act("Insert &Blank Page…", "add-page", "Ctrl+Shift+N", self.insert_blank, tip="Insert a blank page")
-        self.act_move_up = self._act("Move Page &Up", None, "Ctrl+Shift+Up", lambda: self.move_pages(-1))
-        self.act_move_down = self._act("Move Page Do&wn", None, "Ctrl+Shift+Down", lambda: self.move_pages(1))
-        self.act_reverse = self._act("&Reverse Page Order", "reverse", None, self.reverse_pages)
-        self.act_crop = self._act("Crop by &Margins…", "crop", None, self.crop_pages, tip="Crop page margins")
-        self.act_uncrop = self._act("Reset Cr&op", None, None, self.reset_crop)
-        self.act_numbers = self._act("Add Page &Numbers…", "page-number", None, self.add_page_numbers)
-        self.act_labels = self._act("Page &Labels…", None, None, self.edit_page_labels, tip="How pages are numbered in viewers (i, ii, 1, 2, A-1 …)")
-        self.act_watermark = self._act("Add &Watermark…", "watermark", None, self.add_watermark)
+        self.act_rot_cw = self._act(tr("Rotate &Clockwise"), "rotate-right", "Ctrl+R", lambda: self.rotate_pages(90), tip=tr("Rotate page(s) 90° clockwise"))
+        self.act_rot_ccw = self._act(tr("Rotate Counter-cloc&kwise"), "rotate-left", "Ctrl+Shift+R", lambda: self.rotate_pages(-90), tip=tr("Rotate page(s) 90° counter-clockwise"))
+        self.act_rot_180 = self._act(tr("Rotate &180°"), None, None, lambda: self.rotate_pages(180))
+        self.act_del_page = self._act(tr("&Delete Page(s)"), "trash", "Ctrl+Shift+Delete", self.delete_pages, tip=tr("Delete the selected page(s)"))
+        self.act_dup_page = self._act(tr("D&uplicate Page(s)"), "duplicate", "Ctrl+D", self.duplicate_pages, tip=tr("Duplicate the selected page(s)"))
+        self.act_blank = self._act(tr("Insert &Blank Page…"), "add-page", "Ctrl+Shift+N", self.insert_blank, tip=tr("Insert a blank page"))
+        self.act_move_up = self._act(tr("Move Page &Up"), None, "Ctrl+Shift+Up", lambda: self.move_pages(-1))
+        self.act_move_down = self._act(tr("Move Page Do&wn"), None, "Ctrl+Shift+Down", lambda: self.move_pages(1))
+        self.act_reverse = self._act(tr("&Reverse Page Order"), "reverse", None, self.reverse_pages)
+        self.act_crop = self._act(tr("Crop by &Margins…"), "crop", None, self.crop_pages, tip=tr("Crop page margins"))
+        self.act_uncrop = self._act(tr("Reset Cr&op"), None, None, self.reset_crop)
+        self.act_numbers = self._act(tr("Add Page &Numbers…"), "page-number", None, self.add_page_numbers)
+        self.act_labels = self._act(tr("Page &Labels…"), None, None, self.edit_page_labels, tip=tr("How pages are numbered in viewers (i, ii, 1, 2, A-1 …)"))
+        self.act_watermark = self._act(tr("Add &Watermark…"), "watermark", None, self.add_watermark)
         # document
-        self.act_properties = self._act("&Properties…", "info", "Ctrl+I", self.show_properties, tip="Title, author, keywords and file details")
-        self.act_security = self._act("&Security…", "lock", None, self.show_security, tip="Passwords and permissions")
-        self.act_resources = self._act("&Resources (Images, Fonts, Attachments)…", "resources", "Ctrl+Shift+O", self.show_resources, tip="Browse and extract images, fonts and attachments")
-        self.act_attach = self._act("&Attach File…", "attach", None, self.attach_file)
-        self.act_flatten = self._act("&Flatten Forms and Comments", "flatten", None, self.flatten)
+        self.act_properties = self._act(tr("&Properties…"), "info", "Ctrl+I", self.show_properties, tip=tr("Title, author, keywords and file details"))
+        self.act_security = self._act(tr("&Security…"), "lock", None, self.show_security, tip=tr("Passwords and permissions"))
+        self.act_resources = self._act(tr("&Resources (Images, Fonts, Attachments)…"), "resources", "Ctrl+Shift+O", self.show_resources, tip=tr("Browse and extract images, fonts and attachments"))
+        self.act_attach = self._act(tr("&Attach File…"), "attach", None, self.attach_file)
+        self.act_flatten = self._act(tr("&Flatten Forms and Comments"), "flatten", None, self.flatten)
+        self.act_ocr = self._act(tr("Recognize &Text (OCR)…"), "search", None, self.run_ocr, tip=tr("Make scanned pages searchable and selectable"))
         # help
         self.act_about = self._act(f"&About {APP_NAME}", "info", None, lambda: AboutDialog(self).exec())
-        self.act_shortcuts = self._act("&Keyboard Shortcuts", "keyboard", "Ctrl+/", self.show_shortcuts)
-        self.act_guide = self._act("&User Guide", None, "F1", self.open_guide)
+        self.act_shortcuts = self._act(tr("&Keyboard Shortcuts"), "keyboard", "Ctrl+/", self.show_shortcuts)
+        self.act_guide = self._act(tr("&User Guide"), None, "F1", self.open_guide)
 
     def _build_menus(self) -> None:
         mb = self.menuBar()
-        m = mb.addMenu("&File")
+        m = mb.addMenu(tr("&File"))
         m.addActions([self.act_new, self.act_open])
-        self.recent_menu = m.addMenu("Open &Recent")
+        self.recent_menu = m.addMenu(tr("Open &Recent"))
         m.addSeparator()
         m.addActions([self.act_save, self.act_save_as, self.act_reduce])
         m.addSeparator()
-        ex = m.addMenu("&Export")
+        ex = m.addMenu(tr("&Export"))
         ex.addActions([self.act_export_image, self.act_export_text])
         m.addActions([self.act_insert_file, self.act_extract, self.act_split])
         m.addSeparator()
@@ -338,7 +341,7 @@ class MainWindow(QMainWindow):
         m.addSeparator()
         m.addActions([self.act_close, self.act_quit])
 
-        m = mb.addMenu("&Edit")
+        m = mb.addMenu(tr("&Edit"))
         m.addActions([self.act_undo, self.act_redo])
         m.addSeparator()
         m.addActions([self.act_copy_text, self.act_duplicate, self.act_delete, self.act_select_all, self.act_deselect])
@@ -350,31 +353,31 @@ class MainWindow(QMainWindow):
         m.addAction(self.act_scale_stroke)
         m.addAction(self.act_prefs)
 
-        m = mb.addMenu("&Object")
+        m = mb.addMenu(tr("&Object"))
         m.addActions([self.act_group, self.act_ungroup, self.act_enter_group, self.act_exit_group])
         m.addSeparator()
         m.addActions([self.act_front, self.act_back])
         m.addSeparator()
         m.addActions([self.act_flip_h, self.act_flip_v, self.act_rot_sel_cw, self.act_rot_sel_ccw])
         m.addSeparator()
-        al = m.addMenu("&Align")
+        al = m.addMenu(tr("&Align"))
         al.addActions(self.align_actions)
         al.addSeparator()
         al.addActions([self.act_dist_h, self.act_dist_v])
 
-        m = mb.addMenu("&Insert")
+        m = mb.addMenu(tr("&Insert"))
         m.addActions([self.act_tool_rect, self.act_tool_ellipse, self.act_tool_line, self.act_tool_pen, self.act_tool_text])
         m.addSeparator()
         m.addAction(self.act_insert_image)
         m.addSeparator()
-        fm = m.addMenu("Form &Field")
+        fm = m.addMenu(tr("Form &Field"))
         fm.setIcon(theme.icon("form"))
         fm.addActions(self.field_actions)
-        cm = m.addMenu("&Comment")
+        cm = m.addMenu(tr("&Comment"))
         cm.setIcon(theme.icon("note"))
         cm.addActions([self.act_tool_highlight, self.act_tool_underline, self.act_tool_strike, self.act_tool_note])
 
-        m = mb.addMenu("&View")
+        m = mb.addMenu(tr("&View"))
         m.addActions([self.act_tool_select, self.act_tool_node, self.act_tool_text, self.act_tool_hand])
         m.addSeparator()
         m.addActions([self.act_zoom_in, self.act_zoom_out, self.act_zoom_fit, self.act_zoom_width, self.act_zoom_100])
@@ -383,7 +386,7 @@ class MainWindow(QMainWindow):
         m.addSeparator()
         m.addAction(self.act_continuous)
         m.addActions([self.act_rulers, self.act_guides, self.act_grid])
-        sn = m.addMenu("S&napping")
+        sn = m.addMenu(tr("S&napping"))
         sn.addActions([self.act_snap, self.act_snap_objects, self.act_snap_grid])
         sn.addSeparator()
         sn.addActions([self.act_clear_guides, self.act_clear_all_guides])
@@ -392,7 +395,7 @@ class MainWindow(QMainWindow):
         m.addSeparator()
         m.addActions([self.act_next_tab, self.act_prev_tab])
 
-        m = mb.addMenu("&Page")
+        m = mb.addMenu(tr("&Page"))
         m.addActions([self.act_rot_cw, self.act_rot_ccw, self.act_rot_180])
         m.addSeparator()
         m.addActions([self.act_blank, self.act_dup_page, self.act_del_page])
@@ -403,19 +406,19 @@ class MainWindow(QMainWindow):
         m.addSeparator()
         m.addActions([self.act_numbers, self.act_watermark, self.act_labels])
 
-        m = mb.addMenu("&Document")
+        m = mb.addMenu(tr("&Document"))
         m.addActions([self.act_properties, self.act_security, self.act_resources, self.act_attach])
         m.addSeparator()
-        m.addActions([self.act_tool_redact, self.act_flatten])
+        m.addActions([self.act_ocr, self.act_tool_redact, self.act_flatten])
 
-        m = mb.addMenu("&Help")
+        m = mb.addMenu(tr("&Help"))
         m.addActions([self.act_guide, self.act_shortcuts])
         m.addSeparator()
         m.addAction(self.act_about)
         self._update_recent_menu()
 
     def _build_toolbar(self) -> None:
-        tb = QToolBar("Main")
+        tb = QToolBar(tr("Main"))
         tb.setObjectName("mainToolbar")
         tb.setMovable(False)
         tb.setIconSize(theme.icon_size())
@@ -451,10 +454,10 @@ class MainWindow(QMainWindow):
         self.page_entry.setFixedWidth(44)
         self.page_entry.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.page_entry.setValidator(QIntValidator(1, 999999))
-        self.page_entry.setToolTip("Page number (Ctrl+G)")
+        self.page_entry.setToolTip(tr("Page number (Ctrl+G)"))
         self.page_entry.returnPressed.connect(self._page_from_entry)
         tb.addWidget(self.page_entry)
-        self.page_total = QLabel("/ –")
+        self.page_total = QLabel(tr("/ –"))
         self.page_total.setMinimumWidth(40)
         tb.addWidget(self.page_total)
         tb.addAction(self.act_next)
@@ -476,14 +479,14 @@ class MainWindow(QMainWindow):
 
     def _build_statusbar(self) -> None:
         sb = self.statusBar()
-        self.status_msg = QLabel("")
-        self.status_hint = QLabel("")
+        self.status_msg = QLabel(tr(""))
+        self.status_hint = QLabel(tr(""))
         self.status_hint.setProperty("role", "muted")
         sb.addWidget(self.status_msg, 1)
         sb.addPermanentWidget(self.status_hint)
         self._msg_timer = QTimer(self)
         self._msg_timer.setSingleShot(True)
-        self._msg_timer.timeout.connect(lambda: self.status_msg.setText(""))
+        self._msg_timer.timeout.connect(lambda: self.status_msg.setText(tr("")))
 
     def _connect_view(self, view: DocumentView) -> None:
         c = view.canvas
@@ -548,7 +551,7 @@ class MainWindow(QMainWindow):
                   self.act_zoom_width, self.act_zoom_100, self.act_rot_cw, self.act_rot_ccw, self.act_rot_180, self.act_dup_page,
                   self.act_blank, self.act_reverse, self.act_crop, self.act_uncrop, self.act_select_all, self.act_find, self.act_find_next,
                   self.act_find_prev, self.act_numbers, self.act_watermark, self.act_properties, self.act_security, self.act_resources,
-                  self.act_attach, self.act_flatten, self.act_insert_image, self.act_goto, self.act_tool_field, self.act_tool_crop,
+                  self.act_attach, self.act_flatten, self.act_ocr, self.act_insert_image, self.act_goto, self.act_tool_field, self.act_tool_crop,
                   self.act_tool_redact, self.act_tool_highlight, self.act_tool_underline, self.act_tool_strike, self.act_tool_note,
                   self.act_tool_rect, self.act_tool_ellipse, self.act_tool_line, self.act_tool_pen, *self.field_actions):
             a.setEnabled(has)
@@ -631,22 +634,22 @@ class MainWindow(QMainWindow):
                     self.comment_button.setDefaultAction(a)
         self.act_tool_field.setChecked(tool.startswith(TOOL_FIELD))
         hints = {
-            TOOL_SELECT: "Click to select · drag to move · Shift+click to add · handles resize · double-click text to edit, a shape for nodes, a group to enter it",
-            TOOL_NODE: "Drag anchors (squares) and control points (circles) · Esc returns to Select",
-            TOOL_TEXT: "Click text to edit the line · Ctrl+E edits the paragraph · click or drag on empty space for new text · Enter applies · Esc cancels",
-            TOOL_HAND: "Drag to pan · Ctrl+wheel zooms",
-            TOOL_RECT: "Drag to draw a rectangle · Shift for a square",
-            TOOL_ELLIPSE: "Drag to draw an ellipse · Shift for a circle",
-            TOOL_LINE: "Drag to draw a line · Shift snaps to 45°",
-            TOOL_PEN: "Click for corners, click-and-drag for curves · double-click or Enter finishes · click the first point to close · Esc cancels",
-            TOOL_NOTE: "Click on the page to add a sticky note, then type its text in the Inspector",
-            TOOL_CROP: "Drag a rectangle to crop the page to that area (content outside is hidden, not deleted)",
-            TOOL_REDACT: "Drag a rectangle to permanently remove everything inside it",
+            TOOL_SELECT: tr("Click to select · drag to move · Shift+click to add · handles resize · double-click text to edit, a shape for nodes, a group to enter it"),
+            TOOL_NODE: tr("Drag anchors (squares) and control points (circles) · Esc returns to Select"),
+            TOOL_TEXT: tr("Click text to edit the line · Ctrl+E edits the paragraph · click or drag on empty space for new text · Enter applies · Esc cancels"),
+            TOOL_HAND: tr("Drag to pan · Ctrl+wheel zooms"),
+            TOOL_RECT: tr("Drag to draw a rectangle · Shift for a square"),
+            TOOL_ELLIPSE: tr("Drag to draw an ellipse · Shift for a circle"),
+            TOOL_LINE: tr("Drag to draw a line · Shift snaps to 45°"),
+            TOOL_PEN: tr("Click for corners, click-and-drag for curves · double-click or Enter finishes · click the first point to close · Esc cancels"),
+            TOOL_NOTE: tr("Click on the page to add a sticky note, then type its text in the Inspector"),
+            TOOL_CROP: tr("Drag a rectangle to crop the page to that area (content outside is hidden, not deleted)"),
+            TOOL_REDACT: tr("Drag a rectangle to permanently remove everything inside it"),
         }
         if tool.startswith(TOOL_MARKUP):
-            hint = "Drag over words to mark them up · select a comment to edit it in the Inspector"
+            hint = tr("Drag over words to mark them up · select a comment to edit it in the Inspector")
         elif tool.startswith(TOOL_FIELD):
-            hint = "Drag on the page to place the field · select a field to edit it in the Inspector"
+            hint = tr("Drag on the page to place the field · select a field to edit it in the Inspector")
         else:
             hint = hints.get(tool, "")
         self.status_hint.setText(hint)
@@ -747,11 +750,11 @@ class MainWindow(QMainWindow):
 
     def new_document(self) -> None:
         self._add_document(Document())
-        self.show_message("New document with one blank page")
+        self.show_message(tr("New document with one blank page"))
 
     def open_dialog(self) -> None:
         start = self.settings.value("files/lastDir", "")
-        path, _ = QFileDialog.getOpenFileName(self, "Open PDF", start, "PDF files (*.pdf);;All files (*)")
+        path, _ = QFileDialog.getOpenFileName(self, tr("Open PDF"), start, "PDF files (*.pdf);;All files (*)")
         if path:
             self.open_file(path)
 
@@ -774,7 +777,7 @@ class MainWindow(QMainWindow):
                 if doc.authenticate(dlg.password()):
                     doc.security.user_password = dlg.password()
                     break
-                QMessageBox.warning(self, "Wrong password", "The password was not accepted.")
+                QMessageBox.warning(self, tr("Wrong password"), tr("The password was not accepted."))
         self._add_document(doc)
         self.settings.setValue("files/lastDir", os.path.dirname(path))
         self._add_recent(path)
@@ -790,9 +793,9 @@ class MainWindow(QMainWindow):
             return True
         box = QMessageBox(self)
         box.setIcon(QMessageBox.Icon.Warning)
-        box.setWindowTitle("Unsaved changes")
+        box.setWindowTitle(tr("Unsaved changes"))
         box.setText(f"“{self.doc.title}” has unsaved changes.")
-        box.setInformativeText("Do you want to save them?")
+        box.setInformativeText(tr("Do you want to save them?"))
         box.setStandardButtons(QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel)
         box.setDefaultButton(QMessageBox.StandardButton.Save)
         r = box.exec()
@@ -818,7 +821,7 @@ class MainWindow(QMainWindow):
         if self.doc is None:
             return False
         start = self.doc.path or os.path.join(self.settings.value("files/lastDir", ""), self.doc.title)
-        path, _ = QFileDialog.getSaveFileName(self, "Save PDF as", start, "PDF files (*.pdf)")
+        path, _ = QFileDialog.getSaveFileName(self, tr("Save PDF as"), start, "PDF files (*.pdf)")
         if not path:
             return False
         if not path.lower().endswith(".pdf"):
@@ -838,7 +841,7 @@ class MainWindow(QMainWindow):
             return
         stem = os.path.splitext(self.doc.title)[0]
         start = os.path.join(os.path.dirname(self.doc.path or ""), f"{stem}-small.pdf")
-        path, _ = QFileDialog.getSaveFileName(self, "Save reduced size copy", start, "PDF files (*.pdf)")
+        path, _ = QFileDialog.getSaveFileName(self, tr("Save reduced size copy"), start, "PDF files (*.pdf)")
         if not path:
             return
         try:
@@ -862,7 +865,7 @@ class MainWindow(QMainWindow):
         stem = os.path.splitext(self.doc.title)[0]
         if dlg.scope.currentData() == "current":
             start = os.path.join(os.path.dirname(self.doc.path or ""), f"{stem}-page{self.canvas.page_index + 1}.{ext}")
-            path, _ = QFileDialog.getSaveFileName(self, "Export page", start, f"{ext.upper()} (*.{ext})")
+            path, _ = QFileDialog.getSaveFileName(self, tr("Export page"), start, f"{ext.upper()} (*.{ext})")
             if not path:
                 return
             try:
@@ -872,7 +875,7 @@ class MainWindow(QMainWindow):
                 return
             self.show_message(f"Exported {os.path.basename(path)}")
         else:
-            folder = QFileDialog.getExistingDirectory(self, "Choose folder for page images", os.path.dirname(self.doc.path or ""))
+            folder = QFileDialog.getExistingDirectory(self, tr("Choose folder for page images"), os.path.dirname(self.doc.path or ""))
             if not folder:
                 return
             for i in range(self.doc.page_count):
@@ -883,7 +886,7 @@ class MainWindow(QMainWindow):
         if self.doc is None:
             return
         stem = os.path.splitext(self.doc.title)[0]
-        path, _ = QFileDialog.getSaveFileName(self, "Export text", os.path.join(os.path.dirname(self.doc.path or ""), f"{stem}.txt"), "Text (*.txt)")
+        path, _ = QFileDialog.getSaveFileName(self, tr("Export text"), os.path.join(os.path.dirname(self.doc.path or ""), f"{stem}.txt"), "Text (*.txt)")
         if path:
             self.doc.export_text(path)
             self.show_message(f"Exported text to {os.path.basename(path)}")
@@ -916,7 +919,7 @@ class MainWindow(QMainWindow):
                 painter.drawImage(int(x), int(y), img)
         finally:
             painter.end()
-        self.show_message("Sent to printer")
+        self.show_message(tr("Sent to printer"))
 
     # -- recent files -----------------------------------------------------------
     def _recent(self) -> list[str]:
@@ -940,7 +943,7 @@ class MainWindow(QMainWindow):
             a.setToolTip(p)
             a.triggered.connect(lambda checked=False, p=p: self.open_file(p))
         if not rec:
-            a = self.recent_menu.addAction("No recent files")
+            a = self.recent_menu.addAction(tr("No recent files"))
             a.setEnabled(False)
 
     # -- navigation -------------------------------------------------------------
@@ -1020,7 +1023,7 @@ class MainWindow(QMainWindow):
             return
         pages = self._target_pages()
         if len(pages) >= self.doc.page_count:
-            QMessageBox.information(self, "Cannot delete", "A document must keep at least one page.")
+            QMessageBox.information(self, tr("Cannot delete"), tr("A document must keep at least one page."))
             return
         if len(pages) > 1:
             r = QMessageBox.question(self, "Delete pages", f"Delete {len(pages)} pages?")
@@ -1122,7 +1125,7 @@ class MainWindow(QMainWindow):
             return
         path, pages, at = dlg.values()
         if not path or not os.path.exists(path):
-            QMessageBox.warning(self, "Insert pages", "Please choose an existing PDF file.")
+            QMessageBox.warning(self, tr("Insert pages"), tr("Please choose an existing PDF file."))
             return
         try:
             import pymupdf
@@ -1135,7 +1138,7 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Insert pages", f"Could not read the file.\n\n{exc}")
             return
         if not idx:
-            QMessageBox.warning(self, "Insert pages", "No pages matched the given range.")
+            QMessageBox.warning(self, tr("Insert pages"), tr("No pages matched the given range."))
             return
         runs: list[tuple[int, int]] = []
         for i in idx:
@@ -1158,11 +1161,11 @@ class MainWindow(QMainWindow):
             return
         idx = dlg.indices()
         if not idx:
-            QMessageBox.warning(self, "Extract pages", "No pages matched the given range.")
+            QMessageBox.warning(self, tr("Extract pages"), tr("No pages matched the given range."))
             return
         stem = os.path.splitext(self.doc.title)[0]
         start = os.path.join(os.path.dirname(self.doc.path or ""), f"{stem}-extract.pdf")
-        path, _ = QFileDialog.getSaveFileName(self, "Extract pages to", start, "PDF files (*.pdf)")
+        path, _ = QFileDialog.getSaveFileName(self, tr("Extract pages to"), start, "PDF files (*.pdf)")
         if not path:
             return
         try:
@@ -1178,7 +1181,7 @@ class MainWindow(QMainWindow):
         dlg = SplitDialog(self.doc.page_count, self)
         if dlg.exec() != SplitDialog.DialogCode.Accepted:
             return
-        out_dir = QFileDialog.getExistingDirectory(self, "Choose output folder", os.path.dirname(self.doc.path or ""))
+        out_dir = QFileDialog.getExistingDirectory(self, tr("Choose output folder"), os.path.dirname(self.doc.path or ""))
         if not out_dir:
             return
         stem = os.path.splitext(self.doc.title)[0]
@@ -1218,9 +1221,9 @@ class MainWindow(QMainWindow):
             st = dlg.settings()
             self.doc.set_security(st)
             if st.method == "none":
-                self.show_message("Security will be removed when you save.")
+                self.show_message(tr("Security will be removed when you save."))
             elif st.method != "keep":
-                self.show_message("Encryption will be applied when you save. Keep the password somewhere safe.")
+                self.show_message(tr("Encryption will be applied when you save. Keep the password somewhere safe."))
 
     def show_resources(self) -> None:
         if not self.doc:
@@ -1230,7 +1233,7 @@ class MainWindow(QMainWindow):
     def attach_file(self) -> None:
         if not self.doc:
             return
-        paths, _ = QFileDialog.getOpenFileNames(self, "Attach files")
+        paths, _ = QFileDialog.getOpenFileNames(self, tr("Attach files"))
         for p in paths:
             self.doc.add_attachment(p)
         if paths:
@@ -1240,15 +1243,43 @@ class MainWindow(QMainWindow):
         if not self.doc:
             return
         r = QMessageBox.question(
-            self, "Flatten", "Convert all form fields and comments into fixed page content? They can no longer be edited afterwards (undo is available).",
+            self, tr("Flatten"), tr("Convert all form fields and comments into fixed page content? They can no longer be edited afterwards (undo is available)."),
         )
         if r == QMessageBox.StandardButton.Yes:
             self.doc.flatten()
 
+    def run_ocr(self) -> None:
+        if not self.doc:
+            return
+        from pdfeditor.core import ocr
+
+        if not ocr.tesseract_available():
+            QMessageBox.information(self, "Recognize text", ocr.INSTALL_HINT)
+            return
+        dlg = OcrDialog(self.doc.page_count, self._target_pages(), self.canvas.page_index, ocr.languages(), self)
+        if dlg.exec() != OcrDialog.DialogCode.Accepted:
+            return
+        pages = dlg.pages(dlg.scope)
+        lang = dlg.language.currentText().strip() or "eng"
+        done = skipped = 0
+        words_total = 0
+        for i in pages:
+            if dlg.skip_text.isChecked() and ocr.page_has_text(self.doc, i):
+                skipped += 1
+                continue
+            try:
+                words = ocr.recognize(self.doc, i, lang, dlg.dpi.value())
+            except Exception as exc:
+                QMessageBox.critical(self, "Recognize text", f"OCR failed on page {i + 1}:\n\n{exc}")
+                return
+            words_total += ocr.add_text_layer(self.doc, i, words)
+            done += 1
+        self.show_message(f"OCR: {words_total} word(s) recognized on {done} page(s)" + (f", {skipped} skipped" if skipped else ""))
+
     def _confirm_area_tool(self, tool: str, rect: QRectF) -> bool:
         if tool == TOOL_REDACT:
             r = QMessageBox.warning(
-                self, "Redact", "Permanently remove all text and images inside the rectangle and paint it black?",
+                self, tr("Redact"), tr("Permanently remove all text and images inside the rectangle and paint it black?"),
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel,
             )
             return r == QMessageBox.StandardButton.Yes
@@ -1272,7 +1303,7 @@ class MainWindow(QMainWindow):
         if not self.doc:
             return
         start = self.settings.value("files/lastImageDir", "")
-        path, _ = QFileDialog.getOpenFileName(self, "Insert image", start, "Images (*.png *.jpg *.jpeg *.gif *.bmp *.tif *.tiff *.webp *.svg);;All files (*)")
+        path, _ = QFileDialog.getOpenFileName(self, tr("Insert image"), start, "Images (*.png *.jpg *.jpeg *.gif *.bmp *.tif *.tiff *.webp *.svg);;All files (*)")
         if not path:
             return
         self.settings.setValue("files/lastImageDir", os.path.dirname(path))
@@ -1304,6 +1335,11 @@ class MainWindow(QMainWindow):
         if dlg.exec() != PreferencesDialog.DialogCode.Accepted:
             return
         res = dlg.apply()
+        from pdfeditor import i18n
+
+        if res.get("language") and res["language"] != self.settings.value("ui/languageApplied", "system", type=str):
+            self.settings.setValue("ui/languageApplied", res["language"])
+            QMessageBox.information(self, tr("Language"), tr("The new language is used after you restart the application."))
         t = res["theme"]
         dark = theme.system_prefers_dark() if t == "system" else (t == "dark")
         if dark != theme.current().dark:

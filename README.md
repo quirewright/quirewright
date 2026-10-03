@@ -148,6 +148,16 @@ all three platforms. Packaging with PyInstaller/briefcase is the expected route;
 file dialogs, shortcuts (`QKeySequence.StandardKey`) and settings (`QSettings`)
 already follow platform conventions.
 
+## Translating
+
+```bash
+python scripts/extract_strings.py      # refresh src/pdfeditor/locale/pdfeditor.pot
+cp src/pdfeditor/locale/pdfeditor.pot src/pdfeditor/locale/fr/LC_MESSAGES/pdfeditor.po   # new language
+python scripts/compile_catalogs.py     # build .mo files
+```
+
+Then pick the language in Edit › Preferences.
+
 ## Licence
 
 GNU Affero General Public License v3.0 or later (see `LICENSE`). PyMuPDF/MuPDF
@@ -163,6 +173,6 @@ installs a launcher and icon for the current user.
 
 ## Roadmap
 
-See [docs/FEATURES.md](docs/FEATURES.md). Highlights still open: continuous
-multi-page view and tabs, multi-line text boxes, bezier drawing in the Pen
-tool, grouping, editing inside form XObjects, page labels, OCR.
+See [docs/FEATURES.md](docs/FEATURES.md) for the full checklist. Everything on
+it is implemented except digital signatures, which are intentionally out of
+scope for now.

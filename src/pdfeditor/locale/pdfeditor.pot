@@ -1,0 +1,1712 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: pdfeditor\n"
+"POT-Creation-Date: 2026-10-03 07:41-0400\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ui/properties.py:180 ui/properties.py:183 ui/properties.py:245 ui/properties.py:311
+msgid ""
+msgstr ""
+
+#: ui/properties.py:652
+msgid "\n"
+msgstr ""
+
+#: ui/properties.py:648
+msgid " "
+msgstr ""
+
+#: ui/main_window.py:274
+msgid "&Actual Size"
+msgstr ""
+
+#: ui/main_window.py:363
+msgid "&Align"
+msgstr ""
+
+#: ui/main_window.py:320
+msgid "&Attach File…"
+msgstr ""
+
+#: ui/main_window.py:196
+msgid "&Close"
+msgstr ""
+
+#: ui/main_window.py:376
+msgid "&Comment"
+msgstr ""
+
+#: ui/main_window.py:280
+msgid "&Continuous Scrolling"
+msgstr ""
+
+#: ui/main_window.py:209
+msgid "&Copy Text"
+msgstr ""
+
+#: ui/main_window.py:293
+msgid "&Dark Mode"
+msgstr ""
+
+#: ui/main_window.py:206
+msgid "&Delete"
+msgstr ""
+
+#: ui/main_window.py:305
+msgid "&Delete Page(s)"
+msgstr ""
+
+#: ui/main_window.py:409
+msgid "&Document"
+msgstr ""
+
+#: ui/main_window.py:344
+msgid "&Edit"
+msgstr ""
+
+#: ui/main_window.py:222
+msgid "&Enter Group"
+msgstr ""
+
+#: ui/main_window.py:336
+msgid "&Export"
+msgstr ""
+
+#: ui/main_window.py:201
+msgid "&Extract Pages…"
+msgstr ""
+
+#: ui/main_window.py:330
+msgid "&File"
+msgstr ""
+
+#: ui/main_window.py:213
+msgid "&Find…"
+msgstr ""
+
+#: ui/main_window.py:277
+msgid "&First Page"
+msgstr ""
+
+#: ui/main_window.py:272
+msgid "&Fit Page"
+msgstr ""
+
+#: ui/main_window.py:321
+msgid "&Flatten Forms and Comments"
+msgstr ""
+
+#: ui/main_window.py:279
+msgid "&Go to Page…"
+msgstr ""
+
+#: ui/main_window.py:220
+msgid "&Group"
+msgstr ""
+
+#: ui/main_window.py:414
+msgid "&Help"
+msgstr ""
+
+#: ui/main_window.py:368
+msgid "&Insert"
+msgstr ""
+
+#: ui/main_window.py:200
+msgid "&Insert Pages from File…"
+msgstr ""
+
+#: ui/main_window.py:325
+msgid "&Keyboard Shortcuts"
+msgstr ""
+
+#: ui/main_window.py:278
+msgid "&Last Page"
+msgstr ""
+
+#: ui/main_window.py:188
+msgid "&New"
+msgstr ""
+
+#: ui/main_window.py:276
+msgid "&Next Page"
+msgstr ""
+
+#: ui/main_window.py:356
+msgid "&Object"
+msgstr ""
+
+#: ui/main_window.py:189
+msgid "&Open…"
+msgstr ""
+
+#: ui/main_window.py:398
+msgid "&Page"
+msgstr ""
+
+#: ui/main_window.py:216
+msgid "&Preferences…"
+msgstr ""
+
+#: ui/main_window.py:275
+msgid "&Previous Page"
+msgstr ""
+
+#: ui/main_window.py:195
+msgid "&Print…"
+msgstr ""
+
+#: ui/main_window.py:317
+msgid "&Properties…"
+msgstr ""
+
+#: ui/main_window.py:199
+msgid "&Quit"
+msgstr ""
+
+#: ui/main_window.py:205
+msgid "&Redo"
+msgstr ""
+
+#: ui/main_window.py:319
+msgid "&Resources (Images, Fonts, Attachments)…"
+msgstr ""
+
+#: ui/main_window.py:310
+msgid "&Reverse Page Order"
+msgstr ""
+
+#: ui/main_window.py:190
+msgid "&Save"
+msgstr ""
+
+#: ui/main_window.py:318
+msgid "&Security…"
+msgstr ""
+
+#: ui/main_window.py:285
+msgid "&Snap"
+msgstr ""
+
+#: ui/main_window.py:204
+msgid "&Undo"
+msgstr ""
+
+#: ui/main_window.py:221
+msgid "&Ungroup"
+msgstr ""
+
+#: ui/main_window.py:326
+msgid "&User Guide"
+msgstr ""
+
+#: ui/main_window.py:380
+msgid "&View"
+msgstr ""
+
+#: ui/doc_dialogs.py:139
+msgid "(not set)"
+msgstr ""
+
+#: ui/outline.py:50
+msgid "+"
+msgstr ""
+
+#: ui/properties.py:607
+msgid ", "
+msgstr ""
+
+#: ui/main_window.py:460
+msgid "/ –"
+msgstr ""
+
+#: ui/main_window.py:1026
+msgid "A document must keep at least one page."
+msgstr ""
+
+#: ui/dialogs.py:223
+msgid "A free and open-source PDF editor combining vector object editing with page management.\n\nLicensed under the GNU Affero General Public License v3.0 or later.\nBuilt with PySide6 (Qt) and PyMuPDF (MuPDF)."
+msgstr ""
+
+#: ui/doc_dialogs.py:186
+msgid "AES 128-bit"
+msgstr ""
+
+#: ui/doc_dialogs.py:185
+msgid "AES 256-bit (recommended)"
+msgstr ""
+
+#: ui/doc_dialogs.py:734
+msgid "Actual size"
+msgstr ""
+
+#: ui/main_window.py:315
+msgid "Add &Watermark…"
+msgstr ""
+
+#: ui/main_window.py:313
+msgid "Add Page &Numbers…"
+msgstr ""
+
+#: ui/outline.py:51
+msgid "Add a bookmark for the current page"
+msgstr ""
+
+#: ui/outline.py:55
+msgid "Add a child bookmark under the selected one"
+msgstr ""
+
+#: ui/outline.py:161
+msgid "Add bookmark here"
+msgstr ""
+
+#: ui/outline.py:162
+msgid "Add child bookmark"
+msgstr ""
+
+#: ui/doc_dialogs.py:491
+msgid "Add page numbers"
+msgstr ""
+
+#: ui/doc_dialogs.py:583
+msgid "Add rule"
+msgstr ""
+
+#: ui/doc_dialogs.py:529
+msgid "Add watermark"
+msgstr ""
+
+#: ui/doc_dialogs.py:640
+msgid "Adds an invisible, searchable text layer over scanned pages. The page image is not changed. Pages that already contain text are skipped unless you choose otherwise."
+msgstr ""
+
+#: ui/dialogs.py:166 ui/doc_dialogs.py:464
+msgid "All pages"
+msgstr ""
+
+#: ui/doc_dialogs.py:686
+msgid "All pages (one file each)"
+msgstr ""
+
+#: ui/doc_dialogs.py:195
+msgid "Allow readers to"
+msgstr ""
+
+#: ui/properties.py:456 ui/properties.py:505
+msgid "Apply"
+msgstr ""
+
+#: ui/dialogs.py:167 ui/doc_dialogs.py:521 ui/doc_dialogs.py:552 ui/doc_dialogs.py:665
+msgid "Apply to"
+msgstr ""
+
+#: ui/dialogs.py:105
+msgid "At the beginning"
+msgstr ""
+
+#: ui/dialogs.py:106
+msgid "At the end"
+msgstr ""
+
+#: ui/doc_dialogs.py:417 ui/main_window.py:1236
+msgid "Attach files"
+msgstr ""
+
+#: ui/doc_dialogs.py:390
+msgid "Attach file…"
+msgstr ""
+
+#: ui/doc_dialogs.py:402
+msgid "Attachments"
+msgstr ""
+
+#: ui/properties.py:483
+msgid "Author"
+msgstr ""
+
+#: ui/help.py:72
+msgid "Back (Alt+Left)"
+msgstr ""
+
+#: ui/properties.py:376
+msgid "Background"
+msgstr ""
+
+#: ui/main_window.py:121
+msgid "Bookmarks"
+msgstr ""
+
+#: ui/properties.py:378
+msgid "Border"
+msgstr ""
+
+#: ui/properties.py:380
+msgid "Border width"
+msgstr ""
+
+#: ui/main_window.py:224
+msgid "Bring to &Front"
+msgstr ""
+
+#: ui/main_window.py:319
+msgid "Browse and extract images, fonts and attachments"
+msgstr ""
+
+#: ui/dialogs.py:94
+msgid "Browse…"
+msgstr ""
+
+#: ui/properties.py:407
+msgid "Calculate"
+msgstr ""
+
+#: ui/properties.py:401
+msgid "Calculation & format"
+msgstr ""
+
+#: ui/main_window.py:1026
+msgid "Cannot delete"
+msgstr ""
+
+#: ui/properties.py:370
+msgid "Caption"
+msgstr ""
+
+#: ui/properties.py:361
+msgid "Checked"
+msgstr ""
+
+#: ui/dialogs.py:110
+msgid "Choose PDF"
+msgstr ""
+
+#: ui/dialogs.py:93
+msgid "Choose a PDF…"
+msgstr ""
+
+#: ui/doc_dialogs.py:446
+msgid "Choose folder"
+msgstr ""
+
+#: ui/doc_dialogs.py:369
+msgid "Choose folder for fonts"
+msgstr ""
+
+#: ui/doc_dialogs.py:311
+msgid "Choose folder for images"
+msgstr ""
+
+#: ui/main_window.py:878
+msgid "Choose folder for page images"
+msgstr ""
+
+#: ui/main_window.py:1184
+msgid "Choose output folder"
+msgstr ""
+
+#: ui/main_window.py:289
+msgid "Clear All Guides"
+msgstr ""
+
+#: ui/main_window.py:288
+msgid "Clear Guides on This Page"
+msgstr ""
+
+#: ui/properties.py:191
+msgid "Click an object to inspect and edit it. Drag to move, use the handles to resize, double-click text to edit a line, double-click a shape to edit its nodes. Use the drawing tools to add shapes, text and form fields."
+msgstr ""
+
+#: ui/main_window.py:644
+msgid "Click for corners, click-and-drag for curves · double-click or Enter finishes · click the first point to close · Esc cancels"
+msgstr ""
+
+#: ui/main_window.py:645
+msgid "Click on the page to add a sticky note, then type its text in the Inspector"
+msgstr ""
+
+#: ui/main_window.py:639
+msgid "Click text to edit the line · Ctrl+E edits the paragraph · click or drag on empty space for new text · Enter applies · Esc cancels"
+msgstr ""
+
+#: ui/main_window.py:264
+msgid "Click to add a comment"
+msgstr ""
+
+#: ui/main_window.py:637
+msgid "Click to select · drag to move · Shift+click to add · handles resize · double-click text to edit, a shape for nodes, a group to enter it"
+msgstr ""
+
+#: ui/findbar.py:49
+msgid "Close (Esc)"
+msgstr ""
+
+#: ui/properties.py:317 ui/properties.py:492 ui/doc_dialogs.py:550
+msgid "Colour"
+msgstr ""
+
+#: ui/doc_dialogs.py:653
+msgid "Combine languages with +, e.g. eng+deu"
+msgstr ""
+
+#: ui/main_window.py:220
+msgid "Combine the selected objects into a group (a form XObject)"
+msgstr ""
+
+#: ui/doc_dialogs.py:773
+msgid "Command"
+msgstr ""
+
+#: ui/properties.py:473
+msgid "Comment"
+msgstr ""
+
+#: ui/properties.py:485
+msgid "Comment text"
+msgstr ""
+
+#: ui/main_window.py:1246
+msgid "Convert all form fields and comments into fixed page content? They can no longer be edited afterwards (undo is available)."
+msgstr ""
+
+#: ui/main_window.py:209
+msgid "Copy the selected text to the clipboard"
+msgstr ""
+
+#: ui/main_window.py:188
+msgid "Create a new document with one blank page"
+msgstr ""
+
+#: ui/doc_dialogs.py:99
+msgid "Created"
+msgstr ""
+
+#: ui/main_window.py:265
+msgid "Crop Tool"
+msgstr ""
+
+#: ui/main_window.py:311
+msgid "Crop by &Margins…"
+msgstr ""
+
+#: ui/main_window.py:311
+msgid "Crop page margins"
+msgstr ""
+
+#: ui/dialogs.py:150
+msgid "Crop pages"
+msgstr ""
+
+#: ui/properties.py:423
+msgid "Currency"
+msgstr ""
+
+#: ui/properties.py:422
+msgid "Currency symbol (optional)"
+msgstr ""
+
+#: ui/dialogs.py:163
+msgid "Current page"
+msgstr ""
+
+#: ui/main_window.py:208
+msgid "D&eselect"
+msgstr ""
+
+#: ui/main_window.py:210
+msgid "D&uplicate"
+msgstr ""
+
+#: ui/main_window.py:306
+msgid "D&uplicate Page(s)"
+msgstr ""
+
+#: ui/doc_dialogs.py:706
+msgid "Dark"
+msgstr ""
+
+#: ui/properties.py:427
+msgid "Date format"
+msgstr ""
+
+#: ui/properties.py:418
+msgid "Decimals"
+msgstr ""
+
+#: ui/properties.py:338 ui/properties.py:458 ui/properties.py:507 ui/outline.py:167
+msgid "Delete"
+msgstr ""
+
+#: ui/main_window.py:206
+msgid "Delete selected objects"
+msgstr ""
+
+#: ui/outline.py:59
+msgid "Delete the selected bookmark"
+msgstr ""
+
+#: ui/main_window.py:305
+msgid "Delete the selected page(s)"
+msgstr ""
+
+#: ui/doc_dialogs.py:101
+msgid "Description"
+msgstr ""
+
+#: ui/doc_dialogs.py:124
+msgid "Details"
+msgstr ""
+
+#: ui/main_window.py:237
+msgid "Distribute &Vertically"
+msgstr ""
+
+#: ui/main_window.py:236
+msgid "Distribute Hori&zontally"
+msgstr ""
+
+#: ui/main_window.py:798
+msgid "Do you want to save them?"
+msgstr ""
+
+#: ui/properties.py:188
+msgid "Document"
+msgstr ""
+
+#: ui/doc_dialogs.py:83
+msgid "Document properties"
+msgstr ""
+
+#: ui/doc_dialogs.py:238
+msgid "Document resources"
+msgstr ""
+
+#: ui/doc_dialogs.py:159
+msgid "Document security"
+msgstr ""
+
+#: ui/main_window.py:265
+msgid "Drag a rectangle to crop the page to it (C)"
+msgstr ""
+
+#: ui/main_window.py:646
+msgid "Drag a rectangle to crop the page to that area (content outside is hidden, not deleted)"
+msgstr ""
+
+#: ui/main_window.py:647
+msgid "Drag a rectangle to permanently remove everything inside it"
+msgstr ""
+
+#: ui/main_window.py:266
+msgid "Drag a rectangle to permanently remove its content"
+msgstr ""
+
+#: ui/main_window.py:638
+msgid "Drag anchors (squares) and control points (circles) · Esc returns to Select"
+msgstr ""
+
+#: ui/main_window.py:255
+msgid "Drag on the page to add a {field}"
+msgstr ""
+
+#: ui/main_window.py:652
+msgid "Drag on the page to place the field · select a field to edit it in the Inspector"
+msgstr ""
+
+#: ui/rulers.py:34
+msgid "Drag onto the page to create a guide"
+msgstr ""
+
+#: ui/main_window.py:261
+msgid "Drag over text to highlight it"
+msgstr ""
+
+#: ui/main_window.py:263
+msgid "Drag over text to strike it out"
+msgstr ""
+
+#: ui/main_window.py:262
+msgid "Drag over text to underline it"
+msgstr ""
+
+#: ui/main_window.py:650
+msgid "Drag over words to mark them up · select a comment to edit it in the Inspector"
+msgstr ""
+
+#: ui/main_window.py:643
+msgid "Drag to draw a line · Shift snaps to 45°"
+msgstr ""
+
+#: ui/main_window.py:641
+msgid "Drag to draw a rectangle · Shift for a square"
+msgstr ""
+
+#: ui/main_window.py:642
+msgid "Drag to draw an ellipse · Shift for a circle"
+msgstr ""
+
+#: ui/main_window.py:640
+msgid "Drag to pan · Ctrl+wheel zooms"
+msgstr ""
+
+#: ui/main_window.py:248
+msgid "Draw a polyline: click points, Enter or double-click to finish (P)"
+msgstr ""
+
+#: ui/main_window.py:245
+msgid "Draw a rectangle (R)"
+msgstr ""
+
+#: ui/main_window.py:247
+msgid "Draw a straight line (L)"
+msgstr ""
+
+#: ui/main_window.py:246
+msgid "Draw an ellipse (E)"
+msgstr ""
+
+#: ui/main_window.py:210
+msgid "Duplicate the selected objects"
+msgstr ""
+
+#: ui/main_window.py:306
+msgid "Duplicate the selected page(s)"
+msgstr ""
+
+#: ui/main_window.py:223
+msgid "E&xit Group"
+msgstr ""
+
+#: ui/doc_dialogs.py:569
+msgid "Each rule numbers pages from its start page until the next rule. For example a rule starting at page 1 with lower-case roman numerals and a second rule starting at page 5 with decimal numbers gives i, ii, iii, iv, 1, 2, …"
+msgstr ""
+
+#: ui/main_window.py:212
+msgid "Edit &Paragraph"
+msgstr ""
+
+#: ui/main_window.py:211
+msgid "Edit &Text Line"
+msgstr ""
+
+#: ui/properties.py:324
+msgid "Edit all lines of this paragraph with word wrapping (Ctrl+E)"
+msgstr ""
+
+#: ui/main_window.py:243
+msgid "Edit or add text (T)"
+msgstr ""
+
+#: ui/properties.py:323
+msgid "Edit paragraph…"
+msgstr ""
+
+#: ui/main_window.py:242
+msgid "Edit path nodes (N)"
+msgstr ""
+
+#: ui/main_window.py:222
+msgid "Edit the objects inside the selected group or form XObject"
+msgstr ""
+
+#: ui/main_window.py:212
+msgid "Edit the whole paragraph around the selected text with word wrapping"
+msgstr ""
+
+#: ui/canvas.py:2072
+msgid "Editing paragraph: Ctrl+Enter applies, Esc cancels"
+msgstr ""
+
+#: ui/main_window.py:246
+msgid "Ellipse"
+msgstr ""
+
+#: ui/doc_dialogs.py:193
+msgid "Encryption"
+msgstr ""
+
+#: ui/main_window.py:1226
+msgid "Encryption will be applied when you save. Keep the password somewhere safe."
+msgstr ""
+
+#: ui/main_window.py:194
+msgid "Export &Text…"
+msgstr ""
+
+#: ui/main_window.py:193
+msgid "Export Page as &Image…"
+msgstr ""
+
+#: ui/main_window.py:868
+msgid "Export page"
+msgstr ""
+
+#: ui/doc_dialogs.py:673
+msgid "Export page as image"
+msgstr ""
+
+#: ui/main_window.py:889
+msgid "Export text"
+msgstr ""
+
+#: ui/doc_dialogs.py:339
+msgid "Extract all embedded…"
+msgstr ""
+
+#: ui/doc_dialogs.py:274
+msgid "Extract all…"
+msgstr ""
+
+#: ui/doc_dialogs.py:360
+msgid "Extract fonts"
+msgstr ""
+
+#: ui/doc_dialogs.py:302
+msgid "Extract images"
+msgstr ""
+
+#: ui/dialogs.py:120 ui/main_window.py:1164
+msgid "Extract pages"
+msgstr ""
+
+#: ui/main_window.py:1168
+msgid "Extract pages to"
+msgstr ""
+
+#: ui/doc_dialogs.py:273 ui/doc_dialogs.py:338
+msgid "Extract selected…"
+msgstr ""
+
+#: ui/properties.py:409
+msgid "Field names, comma separated (e.g. a, b, c)"
+msgstr ""
+
+#: ui/dialogs.py:98
+msgid "File"
+msgstr ""
+
+#: ui/properties.py:207 ui/properties.py:277
+msgid "Fill"
+msgstr ""
+
+#: ui/properties.py:275
+msgid "Fill & Stroke"
+msgstr ""
+
+#: ui/main_window.py:214
+msgid "Find &Next"
+msgstr ""
+
+#: ui/main_window.py:215
+msgid "Find &Previous"
+msgstr ""
+
+#: ui/findbar.py:29
+msgid "Find in document…"
+msgstr ""
+
+#: ui/main_window.py:213
+msgid "Find text in the document"
+msgstr ""
+
+#: ui/main_window.py:273
+msgid "Fit &Width"
+msgstr ""
+
+#: ui/doc_dialogs.py:732
+msgid "Fit page"
+msgstr ""
+
+#: ui/main_window.py:273
+msgid "Fit page width"
+msgstr ""
+
+#: ui/main_window.py:272
+msgid "Fit the whole page"
+msgstr ""
+
+#: ui/doc_dialogs.py:733
+msgid "Fit width"
+msgstr ""
+
+#: ui/main_window.py:1246
+msgid "Flatten"
+msgstr ""
+
+#: ui/main_window.py:226
+msgid "Flip &Horizontal"
+msgstr ""
+
+#: ui/main_window.py:227
+msgid "Flip &Vertical"
+msgstr ""
+
+#: ui/doc_dialogs.py:704
+msgid "Follow system"
+msgstr ""
+
+#: ui/properties.py:225 ui/properties.py:315
+msgid "Font"
+msgstr ""
+
+#: ui/properties.py:372 ui/doc_dialogs.py:514 ui/doc_dialogs.py:537
+msgid "Font size"
+msgstr ""
+
+#: ui/doc_dialogs.py:345
+msgid "Fonts"
+msgstr ""
+
+#: ui/main_window.py:373
+msgid "Form &Field"
+msgstr ""
+
+#: ui/main_window.py:259
+msgid "Form Field"
+msgstr ""
+
+#: ui/properties.py:347
+msgid "Form field"
+msgstr ""
+
+#: ui/properties.py:414 ui/doc_dialogs.py:497 ui/doc_dialogs.py:678
+msgid "Format"
+msgstr ""
+
+#: ui/help.py:75
+msgid "Forward (Alt+Right)"
+msgstr ""
+
+#: ui/properties.py:410
+msgid "From"
+msgstr ""
+
+#: ui/properties.py:249
+msgid "Geometry"
+msgstr ""
+
+#: ui/doc_dialogs.py:742
+msgid "Grid spacing"
+msgstr ""
+
+#: ui/canvas.py:2584
+msgid "Guide removed"
+msgstr ""
+
+#: ui/main_window.py:261
+msgid "Highlight"
+msgstr ""
+
+#: ui/main_window.py:314
+msgid "How pages are numbered in viewers (i, ii, 1, 2, A-1 …)"
+msgstr ""
+
+#: ui/properties.py:490
+msgid "Icon"
+msgstr ""
+
+#: ui/doc_dialogs.py:280
+msgid "Images"
+msgstr ""
+
+#: ui/doc_dialogs.py:688
+msgid "Include annotations and form fields"
+msgstr ""
+
+#: ui/dialogs.py:107 ui/dialogs.py:200
+msgid "Insert"
+msgstr ""
+
+#: ui/main_window.py:307
+msgid "Insert &Blank Page…"
+msgstr ""
+
+#: ui/main_window.py:268
+msgid "Insert &Image…"
+msgstr ""
+
+#: ui/main_window.py:307
+msgid "Insert a blank page"
+msgstr ""
+
+#: ui/dialogs.py:188
+msgid "Insert blank page"
+msgstr ""
+
+#: ui/main_window.py:1306
+msgid "Insert image"
+msgstr ""
+
+#: ui/main_window.py:1128 ui/main_window.py:1141
+msgid "Insert pages"
+msgstr ""
+
+#: ui/dialogs.py:90
+msgid "Insert pages from file"
+msgstr ""
+
+#: ui/main_window.py:127
+msgid "Inspector"
+msgstr ""
+
+#: ui/properties.py:441
+msgid "JavaScript run by the viewer (Acrobat AF* helpers available)"
+msgstr ""
+
+#: ui/properties.py:263
+msgid "Keep aspect"
+msgstr ""
+
+#: ui/doc_dialogs.py:168
+msgid "Keep the current security settings"
+msgstr ""
+
+#: ui/doc_dialogs.py:770
+msgid "Keyboard shortcuts"
+msgstr ""
+
+#: ui/doc_dialogs.py:652 ui/doc_dialogs.py:730 ui/main_window.py:1342
+msgid "Language"
+msgstr ""
+
+#: ui/doc_dialogs.py:705
+msgid "Light"
+msgstr ""
+
+#: ui/main_window.py:247
+msgid "Line"
+msgstr ""
+
+#: ui/main_window.py:421
+msgid "Main"
+msgstr ""
+
+#: ui/main_window.py:322
+msgid "Make scanned pages searchable and selectable"
+msgstr ""
+
+#: ui/doc_dialogs.py:519
+msgid "Margin"
+msgstr ""
+
+#: ui/findbar.py:34
+msgid "Match case"
+msgstr ""
+
+#: ui/doc_dialogs.py:100
+msgid "Modified"
+msgstr ""
+
+#: ui/main_window.py:308
+msgid "Move Page &Up"
+msgstr ""
+
+#: ui/main_window.py:309
+msgid "Move Page Do&wn"
+msgstr ""
+
+#: ui/properties.py:385
+msgid "Multiline"
+msgstr ""
+
+#: ui/properties.py:357
+msgid "Name"
+msgstr ""
+
+#: ui/doc_dialogs.py:720
+msgid "Name shown on comments you add"
+msgstr ""
+
+#: ui/main_window.py:122
+msgid "Navigation"
+msgstr ""
+
+#: ui/welcome.py:50
+msgid "New blank document"
+msgstr ""
+
+#: ui/main_window.py:753
+msgid "New document with one blank page"
+msgstr ""
+
+#: ui/properties.py:201
+msgid "New object style"
+msgstr ""
+
+#: ui/canvas.py:2159
+msgid "New objects need a fill or a stroke colour (see the Inspector)."
+msgstr ""
+
+#: ui/main_window.py:197
+msgid "Next &Tab"
+msgstr ""
+
+#: ui/findbar.py:45
+msgid "Next match (Enter)"
+msgstr ""
+
+#: ui/outline.py:44
+msgid "No bookmarks. Use + to add one for the current page."
+msgstr ""
+
+#: ui/properties.py:74
+msgid "No colour / unknown colour space"
+msgstr ""
+
+#: ui/properties.py:575
+msgid "No document"
+msgstr ""
+
+#: ui/findbar.py:96
+msgid "No matches"
+msgstr ""
+
+#: ui/main_window.py:1141 ui/main_window.py:1164
+msgid "No pages matched the given range."
+msgstr ""
+
+#: ui/doc_dialogs.py:169
+msgid "No password or restrictions"
+msgstr ""
+
+#: ui/main_window.py:946
+msgid "No recent files"
+msgstr ""
+
+#: ui/canvas.py:2668
+msgid "No text in that area."
+msgstr ""
+
+#: ui/main_window.py:242
+msgid "Nodes"
+msgstr ""
+
+#: ui/properties.py:366
+msgid "One option per line"
+msgstr ""
+
+#: ui/doc_dialogs.py:332
+msgid "Only embedded fonts can be extracted. Font files are usually subsets and remain subject to the font's licence."
+msgstr ""
+
+#: ui/canvas.py:1659
+msgid "Only page content can be duplicated."
+msgstr ""
+
+#: ui/properties.py:495 ui/doc_dialogs.py:546
+msgid "Opacity"
+msgstr ""
+
+#: ui/main_window.py:332
+msgid "Open &Recent"
+msgstr ""
+
+#: ui/main_window.py:757
+msgid "Open PDF"
+msgstr ""
+
+#: ui/welcome.py:46
+msgid "Open PDF…"
+msgstr ""
+
+#: ui/main_window.py:189
+msgid "Open a PDF"
+msgstr ""
+
+#: ui/properties.py:576
+msgid "Open a PDF to get started."
+msgstr ""
+
+#: ui/doc_dialogs.py:190
+msgid "Open password"
+msgstr ""
+
+#: ui/help.py:93
+msgid "Open the guide in your default Markdown viewer"
+msgstr ""
+
+#: ui/properties.py:368
+msgid "Options"
+msgstr ""
+
+#: ui/dialogs.py:196
+msgid "Orientation"
+msgstr ""
+
+#: ui/doc_dialogs.py:191
+msgid "Owner password"
+msgstr ""
+
+#: ui/properties.py:178
+msgid "Page"
+msgstr ""
+
+#: ui/main_window.py:314
+msgid "Page &Labels…"
+msgstr ""
+
+#: ui/doc_dialogs.py:568
+msgid "Page labels"
+msgstr ""
+
+#: ui/main_window.py:457
+msgid "Page number (Ctrl+G)"
+msgstr ""
+
+#: ui/dialogs.py:101 ui/dialogs.py:126 ui/doc_dialogs.py:687 ui/main_window.py:120
+msgid "Pages"
+msgstr ""
+
+#: ui/dialogs.py:142
+msgid "Pages per file"
+msgstr ""
+
+#: ui/main_window.py:244
+msgid "Pan"
+msgstr ""
+
+#: ui/main_window.py:244
+msgid "Pan the page (H)"
+msgstr ""
+
+#: ui/dialogs.py:81
+msgid "Password"
+msgstr ""
+
+#: ui/dialogs.py:75
+msgid "Password required"
+msgstr ""
+
+#: ui/doc_dialogs.py:174
+msgid "Passwords"
+msgstr ""
+
+#: ui/main_window.py:318
+msgid "Passwords and permissions"
+msgstr ""
+
+#: ui/main_window.py:248
+msgid "Pen"
+msgstr ""
+
+#: ui/main_window.py:1282
+msgid "Permanently remove all text and images inside the rectangle and paint it black?"
+msgstr ""
+
+#: ui/main_window.py:268
+msgid "Place an image on the page"
+msgstr ""
+
+#: ui/main_window.py:1128
+msgid "Please choose an existing PDF file."
+msgstr ""
+
+#: ui/doc_dialogs.py:509
+msgid "Position"
+msgstr ""
+
+#: ui/doc_dialogs.py:698
+msgid "Preferences"
+msgstr ""
+
+#: ui/main_window.py:198
+msgid "Previous Ta&b"
+msgstr ""
+
+#: ui/findbar.py:41
+msgid "Previous match (Shift+Enter)"
+msgstr ""
+
+#: ui/main_window.py:195
+msgid "Print the document"
+msgstr ""
+
+#: ui/doc_dialogs.py:170
+msgid "Protect with passwords and permissions"
+msgstr ""
+
+#: ui/doc_dialogs.py:187
+msgid "RC4 128-bit (legacy)"
+msgstr ""
+
+#: ui/welcome.py:60
+msgid "RECENT FILES"
+msgstr ""
+
+#: ui/doc_dialogs.py:468
+msgid "Range…"
+msgstr ""
+
+#: ui/properties.py:383
+msgid "Read-only"
+msgstr ""
+
+#: ui/main_window.py:322
+msgid "Recognize &Text (OCR)…"
+msgstr ""
+
+#: ui/doc_dialogs.py:639
+msgid "Recognize text (OCR)"
+msgstr ""
+
+#: ui/main_window.py:245
+msgid "Rectangle"
+msgstr ""
+
+#: ui/main_window.py:1282
+msgid "Redact"
+msgstr ""
+
+#: ui/main_window.py:266
+msgid "Redact Area"
+msgstr ""
+
+#: ui/doc_dialogs.py:392
+msgid "Remove"
+msgstr ""
+
+#: ui/doc_dialogs.py:587
+msgid "Remove all labels"
+msgstr ""
+
+#: ui/doc_dialogs.py:585
+msgid "Remove rule"
+msgstr ""
+
+#: ui/outline.py:143
+msgid "Rename bookmark"
+msgstr ""
+
+#: ui/outline.py:63
+msgid "Rename the selected bookmark"
+msgstr ""
+
+#: ui/outline.py:164
+msgid "Rename…"
+msgstr ""
+
+#: ui/properties.py:428
+msgid "Require a value between"
+msgstr ""
+
+#: ui/properties.py:384
+msgid "Required"
+msgstr ""
+
+#: ui/doc_dialogs.py:181
+msgid "Required to change permissions"
+msgstr ""
+
+#: ui/doc_dialogs.py:178
+msgid "Required to open the document (optional)"
+msgstr ""
+
+#: ui/main_window.py:312
+msgid "Reset Cr&op"
+msgstr ""
+
+#: ui/doc_dialogs.py:660 ui/doc_dialogs.py:683
+msgid "Resolution"
+msgstr ""
+
+#: ui/properties.py:261
+msgid "Rotate"
+msgstr ""
+
+#: ui/main_window.py:304
+msgid "Rotate &180°"
+msgstr ""
+
+#: ui/main_window.py:302
+msgid "Rotate &Clockwise"
+msgstr ""
+
+#: ui/main_window.py:303
+msgid "Rotate Counter-cloc&kwise"
+msgstr ""
+
+#: ui/main_window.py:229
+msgid "Rotate Selection 90° CCW"
+msgstr ""
+
+#: ui/main_window.py:228
+msgid "Rotate Selection 90° CW"
+msgstr ""
+
+#: ui/main_window.py:302
+msgid "Rotate page(s) 90° clockwise"
+msgstr ""
+
+#: ui/main_window.py:303
+msgid "Rotate page(s) 90° counter-clockwise"
+msgstr ""
+
+#: ui/doc_dialogs.py:542
+msgid "Rotation"
+msgstr ""
+
+#: ui/main_window.py:282
+msgid "Rulers in your preferred units; drag from a ruler to add a guide"
+msgstr ""
+
+#: ui/main_window.py:389
+msgid "S&napping"
+msgstr ""
+
+#: ui/main_window.py:202
+msgid "S&plit Document…"
+msgstr ""
+
+#: ui/main_window.py:191
+msgid "Save &As…"
+msgstr ""
+
+#: ui/main_window.py:192
+msgid "Save &Reduced Size Copy…"
+msgstr ""
+
+#: ui/main_window.py:824
+msgid "Save PDF as"
+msgstr ""
+
+#: ui/doc_dialogs.py:438 ui/doc_dialogs.py:442
+msgid "Save attachment"
+msgstr ""
+
+#: ui/doc_dialogs.py:365
+msgid "Save font"
+msgstr ""
+
+#: ui/doc_dialogs.py:307
+msgid "Save image"
+msgstr ""
+
+#: ui/main_window.py:844
+msgid "Save reduced size copy"
+msgstr ""
+
+#: ui/doc_dialogs.py:395
+msgid "Save selected…"
+msgstr ""
+
+#: ui/dialogs.py:121
+msgid "Save the chosen pages to a new PDF. The current document is not changed."
+msgstr ""
+
+#: ui/main_window.py:190
+msgid "Save the document"
+msgstr ""
+
+#: ui/main_window.py:217
+msgid "Scale Stroke &Width with Objects"
+msgstr ""
+
+#: ui/doc_dialogs.py:716
+msgid "Scale stroke width when resizing objects"
+msgstr ""
+
+#: ui/properties.py:443
+msgid "Script"
+msgstr ""
+
+#: ui/properties.py:445
+msgid "Scripts are stored as PDF JavaScript actions (Acrobat-compatible). Sum/product/average/min/max are also evaluated here when you fill in values."
+msgstr ""
+
+#: ui/help.py:80
+msgid "Search the guide…  (Enter: next, Shift+Enter: previous)"
+msgstr ""
+
+#: ui/main_window.py:1224
+msgid "Security will be removed when you save."
+msgstr ""
+
+#: ui/main_window.py:241
+msgid "Select"
+msgstr ""
+
+#: ui/main_window.py:207
+msgid "Select &All"
+msgstr ""
+
+#: ui/canvas.py:1615
+msgid "Select a group (form XObject) to ungroup."
+msgstr ""
+
+#: ui/doc_dialogs.py:438
+msgid "Select an attachment first."
+msgstr ""
+
+#: ui/main_window.py:241
+msgid "Select and transform objects (S)"
+msgstr ""
+
+#: ui/doc_dialogs.py:360
+msgid "Select one or more embedded fonts first."
+msgstr ""
+
+#: ui/doc_dialogs.py:302
+msgid "Select one or more images first."
+msgstr ""
+
+#: ui/properties.py:364
+msgid "Selected"
+msgstr ""
+
+#: ui/properties.py:243
+msgid "Selection"
+msgstr ""
+
+#: ui/main_window.py:225
+msgid "Send to &Back"
+msgstr ""
+
+#: ui/main_window.py:922
+msgid "Sent to printer"
+msgstr ""
+
+#: ui/outline.py:165
+msgid "Set to current page"
+msgstr ""
+
+#: ui/doc_dialogs.py:773
+msgid "Shortcut"
+msgstr ""
+
+#: ui/main_window.py:283
+msgid "Show &Guides"
+msgstr ""
+
+#: ui/main_window.py:299
+msgid "Show &Inspector"
+msgstr ""
+
+#: ui/main_window.py:296
+msgid "Show &Navigation Panel"
+msgstr ""
+
+#: ui/main_window.py:282
+msgid "Show &Rulers"
+msgstr ""
+
+#: ui/main_window.py:284
+msgid "Show Gr&id"
+msgstr ""
+
+#: ui/main_window.py:280
+msgid "Show all pages in one scrolling column"
+msgstr ""
+
+#: ui/doc_dialogs.py:182
+msgid "Show passwords"
+msgstr ""
+
+#: ui/dialogs.py:193 ui/properties.py:316
+msgid "Size"
+msgstr ""
+
+#: ui/doc_dialogs.py:661
+msgid "Skip pages that already have text"
+msgstr ""
+
+#: ui/doc_dialogs.py:747
+msgid "Snap distance"
+msgstr ""
+
+#: ui/main_window.py:286
+msgid "Snap to &Objects"
+msgstr ""
+
+#: ui/main_window.py:287
+msgid "Snap to Gri&d"
+msgstr ""
+
+#: ui/main_window.py:285
+msgid "Snap to page edges, guides and other objects while dragging (hold Alt to disable temporarily)"
+msgstr ""
+
+#: ui/canvas.py:2008 ui/canvas.py:2201
+msgid "Some characters are not available in the chosen font."
+msgstr ""
+
+#: ui/canvas.py:1973
+msgid "Some characters are not in the original font; a built-in font was substituted."
+msgstr ""
+
+#: ui/dialogs.py:135
+msgid "Split document"
+msgstr ""
+
+#: ui/main_window.py:221
+msgid "Split the selected group back into its objects"
+msgstr ""
+
+#: ui/doc_dialogs.py:505
+msgid "Start at"
+msgstr ""
+
+#: ui/main_window.py:264
+msgid "Sticky Note"
+msgstr ""
+
+#: ui/main_window.py:263
+msgid "Strike Out"
+msgstr ""
+
+#: ui/properties.py:209 ui/properties.py:279
+msgid "Stroke"
+msgstr ""
+
+#: ui/properties.py:221 ui/properties.py:291
+msgid "Stroke width"
+msgstr ""
+
+#: ui/doc_dialogs.py:725
+msgid "System language"
+msgstr ""
+
+#: ui/properties.py:487 ui/properties.py:304 ui/doc_dialogs.py:532 ui/main_window.py:243
+msgid "Text"
+msgstr ""
+
+#: ui/properties.py:229 ui/properties.py:374
+msgid "Text colour"
+msgstr ""
+
+#: ui/properties.py:306 ui/properties.py:635
+msgid "Text content (Enter applies)"
+msgstr ""
+
+#: ui/canvas.py:1809 ui/canvas.py:1983
+msgid "Text could not be encoded."
+msgstr ""
+
+#: ui/canvas.py:1517
+msgid "Text markup annotations follow the text and cannot be moved."
+msgstr ""
+
+#: ui/properties.py:227
+msgid "Text size"
+msgstr ""
+
+#: ui/main_window.py:1342
+msgid "The new language is used after you restart the application."
+msgstr ""
+
+#: ui/main_window.py:780
+msgid "The password was not accepted."
+msgstr ""
+
+#: ui/doc_dialogs.py:709
+msgid "Theme"
+msgstr ""
+
+#: ui/properties.py:419
+msgid "Thousands separator"
+msgstr ""
+
+#: ui/main_window.py:317
+msgid "Title, author, keywords and file details"
+msgstr ""
+
+#: ui/outline.py:143
+msgid "Title:"
+msgstr ""
+
+#: ui/dialogs.py:151
+msgid "Trim margins (in points) from the visible page area. Content outside the crop box is hidden, not deleted."
+msgstr ""
+
+#: ui/canvas.py:2055
+msgid "Type text…"
+msgstr ""
+
+#: ui/canvas.py:2046
+msgid "Type text… (Ctrl+Enter applies, Esc cancels)"
+msgstr ""
+
+#: ui/main_window.py:262
+msgid "Underline"
+msgstr ""
+
+#: ui/doc_dialogs.py:715
+msgid "Units"
+msgstr ""
+
+#: ui/main_window.py:796
+msgid "Unsaved changes"
+msgstr ""
+
+#: ui/properties.py:202
+msgid "Used for shapes, lines and text you create."
+msgstr ""
+
+#: ui/properties.py:429
+msgid "Validate"
+msgstr ""
+
+#: ui/properties.py:360
+msgid "Value"
+msgstr ""
+
+#: ui/main_window.py:192
+msgid "Write a smaller copy with recompressed images"
+msgstr ""
+
+#: ui/dialogs.py:136
+msgid "Write the document as several files, each with the given number of pages."
+msgstr ""
+
+#: ui/main_window.py:780
+msgid "Wrong password"
+msgstr ""
+
+#: ui/welcome.py:57
+msgid "You can also drop a PDF anywhere in this window."
+msgstr ""
+
+#: ui/doc_dialogs.py:721
+msgid "Your name"
+msgstr ""
+
+#: ui/main_window.py:270
+msgid "Zoom &In"
+msgstr ""
+
+#: ui/main_window.py:271
+msgid "Zoom &Out"
+msgstr ""
+
+#: ui/doc_dialogs.py:736
+msgid "Zoom when opening"
+msgstr ""
+
+#: ui/dialogs.py:100
+msgid "all, or e.g. 1-3, 5"
+msgstr ""
+
+#: ui/properties.py:437
+msgid "and"
+msgstr ""
+
+#: ui/doc_dialogs.py:470
+msgid "e.g. 2-5, 8"
+msgstr ""
+
+#: ui/doc_dialogs.py:498
+msgid "{n} = number, {total} = count of numbered pages, {page} = physical page number"
+msgstr ""
+
+#: ui/properties.py:521
+msgid "{n} comments"
+msgstr ""
+
+#: ui/properties.py:659
+msgid "{n} form fields"
+msgstr ""
+
+#: ui/outline.py:54
+msgid "↳"
+msgstr ""
+

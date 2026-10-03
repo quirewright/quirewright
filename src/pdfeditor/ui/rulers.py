@@ -6,6 +6,7 @@ from PySide6.QtCore import QPointF, QRectF, Qt, Signal
 from PySide6.QtGui import QColor, QFont, QMouseEvent, QPainter, QPen
 from PySide6.QtWidgets import QWidget
 
+from pdfeditor.i18n import N_, tr
 from pdfeditor.ui import theme
 from pdfeditor.ui.units import UNITS, current_unit
 
@@ -30,7 +31,7 @@ class Ruler(QWidget):
         else:
             self.setFixedWidth(RULER_SIZE)
         self.setMouseTracking(True)
-        self.setToolTip("Drag onto the page to create a guide")
+        self.setToolTip(tr("Drag onto the page to create a guide"))
 
     # -- mapping ---------------------------------------------------------------------
     def _scene_from_px(self, px: float) -> float:

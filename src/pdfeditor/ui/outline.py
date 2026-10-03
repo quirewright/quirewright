@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
 
 from pdfeditor.core.docinfo import OutlineItem
 from pdfeditor.core.document import Document
+from pdfeditor.i18n import N_, tr
 from pdfeditor.ui import theme
 
 
@@ -40,26 +41,26 @@ class OutlinePanel(QWidget):
         self.tree.itemActivated.connect(self._activate)
         self.tree.setFrameShape(QTreeWidget.Shape.NoFrame)
         lay.addWidget(self.tree, 1)
-        self.empty = QLabel("No bookmarks. Use + to add one for the current page.")
+        self.empty = QLabel(tr("No bookmarks. Use + to add one for the current page."))
         self.empty.setProperty("role", "muted")
         self.empty.setWordWrap(True)
         lay.addWidget(self.empty)
         row = QHBoxLayout()
         self.add_btn = QToolButton()
-        self.add_btn.setText("+")
-        self.add_btn.setToolTip("Add a bookmark for the current page")
+        self.add_btn.setText(tr("+"))
+        self.add_btn.setToolTip(tr("Add a bookmark for the current page"))
         self.add_btn.clicked.connect(self.add_bookmark)
         self.sub_btn = QToolButton()
-        self.sub_btn.setText("↳")
-        self.sub_btn.setToolTip("Add a child bookmark under the selected one")
+        self.sub_btn.setText(tr("↳"))
+        self.sub_btn.setToolTip(tr("Add a child bookmark under the selected one"))
         self.sub_btn.clicked.connect(lambda: self.add_bookmark(child=True))
         self.del_btn = QToolButton()
         self.del_btn.setIcon(theme.icon("trash"))
-        self.del_btn.setToolTip("Delete the selected bookmark")
+        self.del_btn.setToolTip(tr("Delete the selected bookmark"))
         self.del_btn.clicked.connect(self.delete_selected)
         self.ren_btn = QToolButton()
         self.ren_btn.setIcon(theme.icon("edit"))
-        self.ren_btn.setToolTip("Rename the selected bookmark")
+        self.ren_btn.setToolTip(tr("Rename the selected bookmark"))
         self.ren_btn.clicked.connect(self.rename_selected)
         for b in (self.add_btn, self.sub_btn, self.ren_btn, self.del_btn):
             row.addWidget(b)
@@ -139,7 +140,7 @@ class OutlinePanel(QWidget):
         sel = self.tree.currentItem()
         if sel is None or self.doc is None:
             return
-        title, ok = QInputDialog.getText(self, "Rename bookmark", "Title:", text=sel.text(0))
+        title, ok = QInputDialog.getText(self, tr("Rename bookmark"), tr("Title:"), text=sel.text(0))
         if ok and title.strip():
             sel.setText(0, title.strip())
             self.doc.set_outline(self._flatten(), "Rename bookmark")
@@ -157,13 +158,13 @@ class OutlinePanel(QWidget):
 
     def _menu(self, pos) -> None:
         menu = QMenu(self)
-        menu.addAction("Add bookmark here", self.add_bookmark)
-        menu.addAction("Add child bookmark", lambda: self.add_bookmark(child=True))
+        menu.addAction(tr("Add bookmark here"), self.add_bookmark)
+        menu.addAction(tr("Add child bookmark"), lambda: self.add_bookmark(child=True))
         if self.tree.currentItem() is not None:
-            menu.addAction("Rename…", self.rename_selected)
-            menu.addAction("Set to current page", self._retarget)
+            menu.addAction(tr("Rename…"), self.rename_selected)
+            menu.addAction(tr("Set to current page"), self._retarget)
             menu.addSeparator()
-            menu.addAction("Delete", self.delete_selected)
+            menu.addAction(tr("Delete"), self.delete_selected)
         menu.exec(self.tree.mapToGlobal(pos))
 
     def _retarget(self) -> None:

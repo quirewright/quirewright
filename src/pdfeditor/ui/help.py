@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 )
 
 from pdfeditor import APP_NAME
+from pdfeditor.i18n import N_, tr
 from pdfeditor.ui import theme
 
 GUIDE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "help", "USER_GUIDE.md")
@@ -68,19 +69,19 @@ class HelpWindow(QMainWindow):
         self.addToolBar(tb)
         self.back_btn = QToolButton()
         self.back_btn.setIcon(theme.icon("chevron-left"))
-        self.back_btn.setToolTip("Back (Alt+Left)")
+        self.back_btn.setToolTip(tr("Back (Alt+Left)"))
         self.fwd_btn = QToolButton()
         self.fwd_btn.setIcon(theme.icon("chevron-right"))
-        self.fwd_btn.setToolTip("Forward (Alt+Right)")
+        self.fwd_btn.setToolTip(tr("Forward (Alt+Right)"))
         tb.addWidget(self.back_btn)
         tb.addWidget(self.fwd_btn)
         tb.addSeparator()
         self.search = QLineEdit()
-        self.search.setPlaceholderText("Search the guide…  (Enter: next, Shift+Enter: previous)")
+        self.search.setPlaceholderText(tr("Search the guide…  (Enter: next, Shift+Enter: previous)"))
         self.search.setClearButtonEnabled(True)
         self.search.setMinimumWidth(320)
         tb.addWidget(self.search)
-        self.match_label = QLabel("")
+        self.match_label = QLabel(tr(""))
         self.match_label.setProperty("role", "muted")
         self.match_label.setContentsMargins(10, 0, 10, 0)
         tb.addWidget(self.match_label)
@@ -89,7 +90,7 @@ class HelpWindow(QMainWindow):
         tb.addWidget(spacer)
         self.open_ext = QToolButton()
         self.open_ext.setIcon(theme.icon("export"))
-        self.open_ext.setToolTip("Open the guide in your default Markdown viewer")
+        self.open_ext.setToolTip(tr("Open the guide in your default Markdown viewer"))
         self.open_ext.clicked.connect(lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(GUIDE_PATH)))
         tb.addWidget(self.open_ext)
 
@@ -199,7 +200,7 @@ class HelpWindow(QMainWindow):
     def _search_changed(self, text: str) -> None:
         self.browser.moveCursor(QTextCursor.MoveOperation.Start)
         if not text:
-            self.match_label.setText("")
+            self.match_label.setText(tr(""))
             return
         self._search_next()
 

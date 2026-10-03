@@ -157,6 +157,15 @@ name, value, options, caption, font size, colours, border and flags
 (read-only, required, multiline). Filling a form is just selecting a field
 and typing its value.
 
+**Calculations and formats.** For text fields and dropdowns the Inspector has
+a *Calculation & format* section: calculate the field as the sum, product,
+average, minimum or maximum of other fields (type their names), format it as
+a number (decimals, thousands separator, currency), a percentage or a date,
+require a value in a range, or write your own JavaScript. These are stored as
+standard Acrobat-compatible field actions so other viewers run them; the
+editor itself evaluates the built-in calculations as soon as you change a
+value, so the form previews correctly here too.
+
 **Document › Flatten** bakes fields and comments into the page content.
 
 ## Comments
@@ -195,12 +204,31 @@ and whether it is embedded) and attachment in the file. Select rows and
 extract them to disk; attach new files or remove attachments from the same
 dialog, or use Document › Attach File.
 
+## Recognizing text in scans (OCR)
+
+Document › Recognize Text runs the Tesseract engine on scanned pages and
+adds an invisible text layer on top of the image: the page looks exactly the
+same but becomes searchable, selectable and copyable, and the words show up
+as (dashed) text objects you can inspect. Choose the language(s) and
+resolution; pages that already contain text are skipped by default.
+Tesseract and its language packs must be installed on the system (the dialog
+explains how if they are missing).
+
 ## Redaction
 
 Document › Redact Area: drag a rectangle; after confirmation the text and
 images inside it are removed from the page (not just covered) and the area is
 painted black. This is destructive by design; undo is available until you
 save.
+
+## Language
+
+Edit › Preferences › Language switches the interface language (restart to
+apply). Translations live in `pdfeditor/locale/<lang>/LC_MESSAGES`; run
+`scripts/extract_strings.py` to refresh the template and
+`scripts/compile_catalogs.py` after editing a `.po` file. A German catalogue
+is included as a starting point; contributions for other languages are
+welcome.
 
 ## Preferences
 
