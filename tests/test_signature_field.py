@@ -106,3 +106,29 @@ def test_tool_click_and_inspector(app, tmp_path):
     for v in list(win.views()):
         win._remove_view(v)
     win.close()
+
+
+def test_signed_field_state_and_overlay(tmp_path, app):
+    from pdfeditor.ui.canvas import WidgetItem
+
+    pdf = pymupdf.open()
+    pdf.new_page(width=300, height=200)
+    p = str(tmp_path / "u.pdf")
+    pdf.save(p)
+    doc = Document(p)
+    doc.add_widget(0, 6, Rect(20, 20, 180, 76), name="sig1")
+    info = doc.widgets(0)[0]
+    assert not info.signed and WidgetItem(info).is_unsigned_signature
+    cert = str(tmp_path / "c.p12")
+    signing.generate_self_signed("Field Signer", cert, "pw")
+    signed = signing.sign_pdf(doc.pdf.tobytes(), cert, "pw", field_name="sig1")
+    out = str(tmp_path / "signed.pdf")
+    open(out, "wb").write(signed)
+    doc2 = Document(out)
+    info2 = doc2.widgets(0)[0]
+    assert info2.field_type == 6 and info2.signed
+    assert not WidgetItem(info2).is_unsigned_signature  # the stamp is shown, not the placeholder
+    assert "Field Signer" in doc2.page_text(0)
+    # editing the field's caption must not regenerate the placeholder over the signature
+    doc2.update_widget(0, info2.xref, label="x")
+    assert "Field Signer" in doc2.page_text(0) and doc2.widgets(0)[0].signed

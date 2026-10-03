@@ -682,7 +682,7 @@ class PropertiesPanel(QScrollArea):
         self.w_sign_btn.setVisible(is_sig)
         self.w_signed_note.setVisible(is_sig)
         if is_sig:
-            signed = bool(w.value) and str(w.value) not in ("", "None")
+            signed = w.signed
             self.w_signed_note.setText(tr("This field is signed. Use Document › Signatures to verify it.") if signed
                                        else tr("Unsigned. The caption and colours set how the placeholder looks until it is signed."))
             self.w_sign_btn.setEnabled(not signed)

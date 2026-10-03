@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: pdfeditor\n"
-"POT-Creation-Date: 2026-10-03 08:28-0400\n"
+"POT-Creation-Date: 2026-10-03 08:33-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -786,7 +786,7 @@ msgstr ""
 msgid "Edit the whole paragraph around the selected text with word wrapping"
 msgstr ""
 
-#: ui/canvas.py:2108
+#: ui/canvas.py:2107
 msgid "Editing paragraph: Ctrl+Enter applies, Esc cancels"
 msgstr ""
 
@@ -970,7 +970,7 @@ msgstr ""
 msgid "Grid spacing"
 msgstr ""
 
-#: ui/canvas.py:2622
+#: ui/canvas.py:2621
 msgid "Guide removed"
 msgstr ""
 
@@ -1122,7 +1122,7 @@ msgstr ""
 msgid "New object style"
 msgstr ""
 
-#: ui/canvas.py:2195
+#: ui/canvas.py:2194
 msgid "New objects need a fill or a stroke colour (see the Inspector)."
 msgstr ""
 
@@ -1162,7 +1162,7 @@ msgstr ""
 msgid "No recent files"
 msgstr ""
 
-#: ui/canvas.py:2706
+#: ui/canvas.py:2705
 msgid "No text in that area."
 msgstr ""
 
@@ -1178,7 +1178,7 @@ msgstr ""
 msgid "Only embedded fonts can be extracted. Font files are usually subsets and remain subject to the font's licence."
 msgstr ""
 
-#: ui/canvas.py:1695
+#: ui/canvas.py:1694
 msgid "Only page content can be duplicated."
 msgstr ""
 
@@ -1550,7 +1550,7 @@ msgstr ""
 msgid "Select &All"
 msgstr ""
 
-#: ui/canvas.py:1651
+#: ui/canvas.py:1650
 msgid "Select a group (form XObject) to ungroup."
 msgstr ""
 
@@ -1702,11 +1702,11 @@ msgstr ""
 msgid "Snap to page edges, guides and other objects while dragging (hold Alt to disable temporarily)"
 msgstr ""
 
-#: ui/canvas.py:2044 ui/canvas.py:2237
+#: ui/canvas.py:2043 ui/canvas.py:2236
 msgid "Some characters are not available in the chosen font."
 msgstr ""
 
-#: ui/canvas.py:2009
+#: ui/canvas.py:2008
 msgid "Some characters are not in the original font; a built-in font was substituted."
 msgstr ""
 
@@ -1758,11 +1758,11 @@ msgstr ""
 msgid "Text content (Enter applies)"
 msgstr ""
 
-#: ui/canvas.py:1845 ui/canvas.py:2019
+#: ui/canvas.py:1844 ui/canvas.py:2018
 msgid "Text could not be encoded."
 msgstr ""
 
-#: ui/canvas.py:1553
+#: ui/canvas.py:1552
 msgid "Text markup annotations follow the text and cannot be moved."
 msgstr ""
 
@@ -1834,11 +1834,11 @@ msgstr ""
 msgid "Trusted"
 msgstr ""
 
-#: ui/canvas.py:2091
+#: ui/canvas.py:2090
 msgid "Type text…"
 msgstr ""
 
-#: ui/canvas.py:2082
+#: ui/canvas.py:2081
 msgid "Type text… (Ctrl+Enter applies, Esc cancels)"
 msgstr ""
 

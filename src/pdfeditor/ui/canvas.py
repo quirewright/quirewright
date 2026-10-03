@@ -193,8 +193,7 @@ class WidgetItem(QGraphicsItem):
 
     @property
     def is_unsigned_signature(self) -> bool:
-        info = self.info
-        return info.field_type == 6 and (info.value in (None, "", False) or str(info.value) in ("None", "Off"))
+        return self.info.field_type == 6 and not self.info.signed
 
     def _paint_signature_placeholder(self, painter: QPainter) -> None:
         """Draw the 'sign here' placeholder the way the stored appearance stream looks

@@ -161,6 +161,7 @@ class WidgetInfo:
     border_width: float = 1.0
     label: str = ""
     on_state: str | None = None
+    signed: bool = False  # signature fields: a signature value is present
     script_calc: str = ""
     script_format: str = ""
     script_validate: str = ""  # "change" action in PyMuPDF terms (field value validation)
@@ -295,6 +296,7 @@ class _DocumentExtras:
                     border_width=float(w.border_width or 0),
                     label=(w.field_label or "") if w.field_type == 6 else (w.button_caption or w.field_label or ""),
                     on_state=w.on_state() if w.field_type in (2, 5) else None,
+                    signed=(w.field_type == 6 and self.pdf.xref_get_key(w.xref, "V")[0] not in ("null", "")),
                     script_calc=w.script_calc or "",
                     script_format=w.script_format or "",
                     script_validate=w.script_change or "",
