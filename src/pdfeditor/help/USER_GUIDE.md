@@ -20,6 +20,11 @@ PDF tool does. This guide walks through the interface and every feature.
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
+* **Tabs**: every open document has its own tab above the canvas. Ctrl+Tab
+  and Ctrl+Shift+Tab switch, the × closes (asking to save first), and files
+  dropped on the window open in new tabs.
+* **Rulers** frame the canvas in your preferred units (Preferences). Drag
+  from a ruler onto the page to create a guide.
 * **Navigation** (left): page thumbnails you can multi-select and drag to
   reorder, and a Bookmarks tab for the document outline.
 * **Canvas** (centre): all pages in one scrolling column (or one page at a
@@ -148,6 +153,21 @@ icon, colour and opacity in the Inspector, move notes by dragging, and delete
 with the Delete key. Set your name under Edit › Preferences so new comments
 carry it.
 
+## Snapping, guides and grid
+
+While you move, resize, draw or edit nodes, the editor snaps to the page
+edges and centre, to the edges and centres of other objects, to guides and,
+if enabled, to a grid. A red dashed line shows what you snapped to. Hold
+**Alt** to move freely. View › Snapping lets you switch snapping as a whole,
+snapping to objects, and snapping to the grid.
+
+* **Guides**: drag out of the top ruler for a horizontal guide or out of the
+  left ruler for a vertical one. Drag a guide to move it; drag it off the page
+  to delete it. View › Snapping › Clear Guides removes them all. Guides belong
+  to the page they were created on and are not saved in the PDF.
+* **Grid**: View › Show Grid draws it; Snap to Grid snaps to it. The spacing
+  and the snap distance are set in Preferences.
+
 ## Find
 
 Ctrl+F opens the find bar. Matches are highlighted on the page; Enter and
@@ -194,6 +214,10 @@ Help › Keyboard Shortcuts lists everything. The most used:
 | Ctrl+Shift+D | duplicate selection |
 | Ctrl+E | edit paragraph |
 | Ctrl+Shift+C | toggle continuous scrolling |
+| Ctrl+Tab / Ctrl+Shift+Tab | next / previous document tab |
+| Ctrl+Shift+U | show rulers |
+| Ctrl+' | show grid |
+| Ctrl+Shift+; | snapping on/off (hold Alt to bypass while dragging) |
 | Ctrl+Shift+] / [ | bring to front / send to back |
 | Ctrl+R / Ctrl+Shift+R | rotate page clockwise / counter-clockwise |
 | Esc | cancel editing, or back to the Select tool |

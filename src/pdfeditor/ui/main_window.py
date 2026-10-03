@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QSizePolicy,
     QStackedWidget,
+    QTabBar,
     QTabWidget,
     QToolBar,
     QToolButton,
@@ -68,10 +69,11 @@ from pdfeditor.ui.doc_dialogs import (
     WatermarkDialog,
     _human_size,
 )
-from pdfeditor.ui.findbar import FindBar
+from pdfeditor.ui.docview import DocumentView
 from pdfeditor.ui.help import HelpWindow
 from pdfeditor.ui.outline import OutlinePanel
 from pdfeditor.ui.properties import PropertiesPanel
+from pdfeditor.ui.units import current_unit
 from pdfeditor.ui.render import pixmap_to_qimage
 from pdfeditor.ui.thumbnails import PagesPanel
 from pdfeditor.ui.welcome import WelcomePage
@@ -84,28 +86,28 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.settings = QSettings(APP_ID, APP_ID)
-        self.doc: Document | None = None
         self.setWindowTitle(APP_NAME)
         self.resize(1360, 880)
         self.setAcceptDrops(True)
         self.setDockOptions(QMainWindow.DockOption.AnimatedDocks)
 
-        # central: welcome page <-> editor (find bar + canvas)
-        self.canvas = PageCanvas()
-        self.canvas.author = self.settings.value("user/author", "", type=str)
-        self.canvas.confirm_area = self._confirm_area_tool
-        self.findbar = FindBar()
-        editor = QWidget()
-        el = QVBoxLayout(editor)
-        el.setContentsMargins(0, 0, 0, 0)
-        el.setSpacing(0)
-        el.addWidget(self.findbar)
-        el.addWidget(self.canvas, 1)
+        # central: welcome page <-> document tabs
+        self.tabs = QTabWidget()
+        self.tabs.setDocumentMode(True)
+        self.tabs.setTabsClosable(True)
+        self.tabs.setMovable(True)
+        self.tabs.setElideMode(Qt.TextElideMode.ElideMiddle)
+        self.tabs.tabCloseRequested.connect(self.close_tab)
+        self.tabs.currentChanged.connect(self._on_tab_changed)
+        self.tabs.tabBar().setExpanding(False)
+        self._placeholder_view = DocumentView(Document())  # keeps a canvas available when no tab is open
+        self._placeholder_view.hide()
         self.welcome = WelcomePage()
         self.stack = QStackedWidget()
         self.stack.addWidget(self.welcome)
-        self.stack.addWidget(editor)
+        self.stack.addWidget(self.tabs)
         self.setCentralWidget(self.stack)
+        self._current_view: DocumentView | None = None
 
         self.pages = PagesPanel()
         self.outline = OutlinePanel()
@@ -135,6 +137,26 @@ class MainWindow(QMainWindow):
         self._update_actions()
         self._restore_state()
         self.welcome.set_recent(self._recent())
+
+    # -- current document --------------------------------------------------
+    @property
+    def view(self) -> DocumentView:
+        return self._current_view if self._current_view is not None else self._placeholder_view
+
+    @property
+    def canvas(self) -> PageCanvas:
+        return self.view.canvas
+
+    @property
+    def findbar(self):
+        return self.view.findbar
+
+    @property
+    def doc(self) -> Document | None:
+        return self._current_view.doc if self._current_view is not None else None
+
+    def views(self) -> list[DocumentView]:
+        return [self.tabs.widget(i) for i in range(self.tabs.count())]
 
     # -- construction ------------------------------------------------------
     def _act(self, text: str, icon: str | None = None, shortcut=None, slot=None, checkable: bool = False, tip: str | None = None) -> QAction:
@@ -170,6 +192,8 @@ class MainWindow(QMainWindow):
         self.act_export_text = self._act("Export &Text…", None, None, self.export_text)
         self.act_print = self._act("&Print…", "print", S.StandardKey.Print, self.print_document, tip="Print the document")
         self.act_close = self._act("&Close", None, S.StandardKey.Close, self.close_document)
+        self.act_next_tab = self._act("Next &Tab", None, "Ctrl+Tab", lambda: self._cycle_tab(1))
+        self.act_prev_tab = self._act("Previous Ta&b", None, "Ctrl+Shift+Tab", lambda: self._cycle_tab(-1))
         self.act_quit = self._act("&Quit", None, S.StandardKey.Quit, self.close)
         self.act_insert_file = self._act("&Insert Pages from File…", "insert", "Ctrl+Shift+I", self.insert_from_file)
         self.act_extract = self._act("&Extract Pages…", "extract", "Ctrl+Shift+E", self.extract_pages)
@@ -177,22 +201,22 @@ class MainWindow(QMainWindow):
         # edit
         self.act_undo = self._act("&Undo", "undo", S.StandardKey.Undo, self.undo)
         self.act_redo = self._act("&Redo", "redo", S.StandardKey.Redo, self.redo)
-        self.act_delete = self._act("&Delete", "trash", None, self.canvas.delete_selection, tip="Delete selected objects")
-        self.act_select_all = self._act("Select &All", None, S.StandardKey.SelectAll, self.canvas.select_all)
-        self.act_deselect = self._act("D&eselect", None, "Ctrl+Shift+A", self.canvas.clear_selection)
+        self.act_delete = self._act("&Delete", "trash", None, lambda: self.canvas.delete_selection(), tip="Delete selected objects")
+        self.act_select_all = self._act("Select &All", None, S.StandardKey.SelectAll, lambda: self.canvas.select_all())
+        self.act_deselect = self._act("D&eselect", None, "Ctrl+Shift+A", lambda: self.canvas.clear_selection())
         self.act_copy_text = self._act("&Copy Text", "copy", S.StandardKey.Copy, self.copy_text, tip="Copy the selected text to the clipboard")
-        self.act_duplicate = self._act("D&uplicate", "duplicate", "Ctrl+Shift+D", self.canvas.duplicate_selection, tip="Duplicate the selected objects")
+        self.act_duplicate = self._act("D&uplicate", "duplicate", "Ctrl+Shift+D", lambda: self.canvas.duplicate_selection(), tip="Duplicate the selected objects")
         self.act_edit_text = self._act("Edit &Text Line", "edit", "F2", self.edit_selected_text)
         self.act_edit_para = self._act("Edit &Paragraph", None, "Ctrl+E", self.edit_selected_paragraph, tip="Edit the whole paragraph around the selected text with word wrapping")
         self.act_find = self._act("&Find…", "find", S.StandardKey.Find, self.show_find, tip="Find text in the document")
-        self.act_find_next = self._act("Find &Next", None, S.StandardKey.FindNext, self.findbar.next)
-        self.act_find_prev = self._act("Find &Previous", None, S.StandardKey.FindPrevious, self.findbar.previous)
+        self.act_find_next = self._act("Find &Next", None, S.StandardKey.FindNext, lambda: self.findbar.next())
+        self.act_find_prev = self._act("Find &Previous", None, S.StandardKey.FindPrevious, lambda: self.findbar.previous())
         self.act_prefs = self._act("&Preferences…", "settings", S.StandardKey.Preferences, self.show_preferences)
         self.act_scale_stroke = self._act("Scale Stroke &Width with Objects", None, None, self._toggle_scale_stroke, checkable=True)
         self.act_scale_stroke.setChecked(True)
         # arrange
-        self.act_front = self._act("Bring to &Front", "front", "Ctrl+Shift+]", self.canvas.bring_to_front)
-        self.act_back = self._act("Send to &Back", "back", "Ctrl+Shift+[", self.canvas.send_to_back)
+        self.act_front = self._act("Bring to &Front", "front", "Ctrl+Shift+]", lambda: self.canvas.bring_to_front())
+        self.act_back = self._act("Send to &Back", "back", "Ctrl+Shift+[", lambda: self.canvas.send_to_back())
         self.act_flip_h = self._act("Flip &Horizontal", "flip-h", None, lambda: self.canvas.flip_selection(True))
         self.act_flip_v = self._act("Flip &Vertical", "flip-v", None, lambda: self.canvas.flip_selection(False))
         self.act_rot_sel_cw = self._act("Rotate Selection 90° CW", None, "Ctrl+]", lambda: self.canvas.rotate_selection(90))
@@ -237,11 +261,11 @@ class MainWindow(QMainWindow):
         self.act_tool_select.setChecked(True)
         self.act_insert_image = self._act("Insert &Image…", "image", "Ctrl+Shift+M", self.insert_image, tip="Place an image on the page")
         # view
-        self.act_zoom_in = self._act("Zoom &In", "zoom-in", S.StandardKey.ZoomIn, self.canvas.zoom_in)
-        self.act_zoom_out = self._act("Zoom &Out", "zoom-out", S.StandardKey.ZoomOut, self.canvas.zoom_out)
-        self.act_zoom_fit = self._act("&Fit Page", "zoom-fit", "Ctrl+0", self.canvas.zoom_fit, tip="Fit the whole page")
-        self.act_zoom_width = self._act("Fit &Width", "zoom-width", "Ctrl+2", self.canvas.zoom_width, tip="Fit page width")
-        self.act_zoom_100 = self._act("&Actual Size", None, "Ctrl+1", self.canvas.zoom_actual)
+        self.act_zoom_in = self._act("Zoom &In", "zoom-in", S.StandardKey.ZoomIn, lambda: self.canvas.zoom_in())
+        self.act_zoom_out = self._act("Zoom &Out", "zoom-out", S.StandardKey.ZoomOut, lambda: self.canvas.zoom_out())
+        self.act_zoom_fit = self._act("&Fit Page", "zoom-fit", "Ctrl+0", lambda: self.canvas.zoom_fit(), tip="Fit the whole page")
+        self.act_zoom_width = self._act("Fit &Width", "zoom-width", "Ctrl+2", lambda: self.canvas.zoom_width(), tip="Fit page width")
+        self.act_zoom_100 = self._act("&Actual Size", None, "Ctrl+1", lambda: self.canvas.zoom_actual())
         self.act_prev = self._act("&Previous Page", "chevron-left", "PgUp", lambda: self.go_to_page(self.canvas.page_index - 1))
         self.act_next = self._act("&Next Page", "chevron-right", "PgDown", lambda: self.go_to_page(self.canvas.page_index + 1))
         self.act_first = self._act("&First Page", None, "Ctrl+Home", lambda: self.go_to_page(0))
@@ -249,6 +273,17 @@ class MainWindow(QMainWindow):
         self.act_goto = self._act("&Go to Page…", None, "Ctrl+G", self.focus_page_entry)
         self.act_continuous = self._act("&Continuous Scrolling", None, "Ctrl+Shift+C", self._toggle_continuous, checkable=True, tip="Show all pages in one scrolling column")
         self.act_continuous.setChecked(True)
+        self.act_rulers = self._act("Show &Rulers", None, "Ctrl+Shift+U", lambda on: self._apply_view_option("rulers", on), checkable=True, tip="Rulers in your preferred units; drag from a ruler to add a guide")
+        self.act_guides = self._act("Show &Guides", None, None, lambda on: self._apply_view_option("guides", on), checkable=True)
+        self.act_grid = self._act("Show Gr&id", None, "Ctrl+'", lambda on: self._apply_view_option("grid", on), checkable=True)
+        self.act_snap = self._act("&Snap", None, "Ctrl+Shift+;", lambda on: self._apply_view_option("snap", on), checkable=True, tip="Snap to page edges, guides and other objects while dragging (hold Alt to disable temporarily)")
+        self.act_snap_objects = self._act("Snap to &Objects", None, None, lambda on: self._apply_view_option("snap_objects", on), checkable=True)
+        self.act_snap_grid = self._act("Snap to Gri&d", None, None, lambda on: self._apply_view_option("snap_grid", on), checkable=True)
+        self.act_clear_guides = self._act("Clear Guides on This Page", None, None, lambda: self.canvas.clear_guides(False))
+        self.act_clear_all_guides = self._act("Clear All Guides", None, None, lambda: self.canvas.clear_guides(True))
+        for a, key, default in ((self.act_rulers, "view/rulers", True), (self.act_guides, "view/guides", True), (self.act_grid, "view/grid", False),
+                                (self.act_snap, "view/snap", True), (self.act_snap_objects, "view/snapObjects", True), (self.act_snap_grid, "view/snapGrid", False)):
+            a.setChecked(self.settings.value(key, default, type=bool))
         self.act_dark = self._act("&Dark Mode", "moon", None, self.toggle_dark, checkable=True)
         self.act_dark.setChecked(theme.current().dark)
         self.act_show_pages = self.pages_dock.toggleViewAction()
@@ -341,7 +376,15 @@ class MainWindow(QMainWindow):
         m.addActions([self.act_first, self.act_prev, self.act_next, self.act_last, self.act_goto])
         m.addSeparator()
         m.addAction(self.act_continuous)
+        m.addActions([self.act_rulers, self.act_guides, self.act_grid])
+        sn = m.addMenu("S&napping")
+        sn.addActions([self.act_snap, self.act_snap_objects, self.act_snap_grid])
+        sn.addSeparator()
+        sn.addActions([self.act_clear_guides, self.act_clear_all_guides])
+        m.addSeparator()
         m.addActions([self.act_show_pages, self.act_show_props, self.act_dark])
+        m.addSeparator()
+        m.addActions([self.act_next_tab, self.act_prev_tab])
 
         m = mb.addMenu("&Page")
         m.addActions([self.act_rot_cw, self.act_rot_ccw, self.act_rot_180])
@@ -436,20 +479,34 @@ class MainWindow(QMainWindow):
         self._msg_timer.setSingleShot(True)
         self._msg_timer.timeout.connect(lambda: self.status_msg.setText(""))
 
+    def _connect_view(self, view: DocumentView) -> None:
+        c = view.canvas
+        c.author = self.settings.value("user/author", "", type=str)
+        c.confirm_area = self._confirm_area_tool
+        c.scale_stroke = self.settings.value("edit/scaleStroke", True, type=bool)
+        c.continuous = self.act_continuous.isChecked()
+        c.set_snapping(enabled=self.act_snap.isChecked(), objects=self.act_snap_objects.isChecked(), grid=self.act_snap_grid.isChecked(),
+                       show_grid=self.act_grid.isChecked(), show_guides=self.act_guides.isChecked(),
+                       grid_size=self.settings.value("view/gridSize", 10.0, type=float))
+        c.snap_tolerance_px = self.settings.value("view/snapTolerance", 6.0, type=float)
+        view.set_rulers_visible(self.act_rulers.isChecked())
+        c.zoomChanged.connect(self._on_zoom)
+        c.statusMessage.connect(self.show_message)
+        c.selectionChanged.connect(lambda ids: self._update_actions())
+        c.toolChanged.connect(self._on_tool_changed)
+        c.pageChanged.connect(self._on_canvas_page_changed)
+        view.findbar.hitChanged.connect(self._on_find_hit)
+        view.findbar.highlightsChanged.connect(self._on_find_highlights)
+        view.findbar.closed.connect(lambda: self.canvas.setFocus())
+        view.doc.add_listener(self._on_doc_event)
+        view.doc.undo_stack.listeners.append(self._update_actions)
+
     def _connect(self) -> None:
-        self.canvas.zoomChanged.connect(self._on_zoom)
-        self.canvas.statusMessage.connect(self.show_message)
-        self.canvas.selectionChanged.connect(lambda ids: self._update_actions())
-        self.canvas.toolChanged.connect(self._on_tool_changed)
-        self.canvas.pageChanged.connect(self._on_canvas_page_changed)
         self.pages.pageActivated.connect(self.go_to_page)
         self.pages.movePagesRequested.connect(self._move_pages_to)
         self.pages.contextMenuRequestedAt.connect(self._pages_context_menu)
         self.pages.itemSelectionChanged.connect(self._update_actions)
         self.outline.pageActivated.connect(self.go_to_page)
-        self.findbar.hitChanged.connect(self._on_find_hit)
-        self.findbar.highlightsChanged.connect(self._on_find_highlights)
-        self.findbar.closed.connect(lambda: self.canvas.setFocus())
         self.welcome.openRequested.connect(self.open_dialog)
         self.welcome.newRequested.connect(self.new_document)
         self.welcome.fileRequested.connect(self.open_file)
@@ -462,16 +519,15 @@ class MainWindow(QMainWindow):
         st = self.settings.value("window/state")
         if st:
             self.restoreState(st)
-        self.canvas.scale_stroke = self.settings.value("edit/scaleStroke", True, type=bool)
-        self.act_scale_stroke.setChecked(self.canvas.scale_stroke)
-        cont = self.settings.value("view/continuous", True, type=bool)
-        self.act_continuous.setChecked(cont)
-        self.canvas.continuous = cont
+        self.act_scale_stroke.setChecked(self.settings.value("edit/scaleStroke", True, type=bool))
+        self.act_continuous.setChecked(self.settings.value("view/continuous", True, type=bool))
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        if not self._maybe_save():
-            event.ignore()
-            return
+        for view in self.views():
+            self.tabs.setCurrentWidget(view)
+            if not self._maybe_save():
+                event.ignore()
+                return
         self.settings.setValue("window/geometry", self.saveGeometry())
         self.settings.setValue("window/state", self.saveState())
         event.accept()
@@ -521,8 +577,16 @@ class MainWindow(QMainWindow):
             title = f"{'• ' if self.doc.is_modified else ''}{self.doc.title} — {APP_NAME}"
         self.setWindowTitle(title)
         self.act_save.setEnabled(has and self.doc.is_modified)
+        for i, view in enumerate(self.views()):
+            if self.tabs.tabText(i) != view.title():
+                self.tabs.setTabText(i, view.title())
+                self.tabs.setTabToolTip(i, view.tooltip())
+        self.act_next_tab.setEnabled(self.tabs.count() > 1)
+        self.act_prev_tab.setEnabled(self.tabs.count() > 1)
 
-    def _on_zoom(self, z: float) -> None:
+    def _on_zoom(self, z: float, force: bool = False) -> None:
+        if not force and self.sender() is not None and self.sender() is not self.canvas:
+            return
         self.zoom_combo.setEditText(f"{int(round(z * 100))}%")
 
     def _zoom_from_combo(self) -> None:
@@ -544,7 +608,9 @@ class MainWindow(QMainWindow):
         self.page_entry.setFocus()
         self.page_entry.selectAll()
 
-    def _on_tool_changed(self, tool: str) -> None:
+    def _on_tool_changed(self, tool: str, force: bool = False) -> None:
+        if not force and self.sender() is not None and self.sender() is not self.canvas:
+            return
         for a in self.tool_group.actions():
             if a.property("tool") == tool:
                 a.setChecked(True)
@@ -580,31 +646,86 @@ class MainWindow(QMainWindow):
         self._msg_timer.start(timeout_ms)
 
     # -- document lifecycle -------------------------------------------------
-    def _set_document(self, doc: Document | None) -> None:
-        if self.doc is not None:
-            self.doc.remove_listener(self._on_doc_event)
-            if self._update_actions in self.doc.undo_stack.listeners:
-                self.doc.undo_stack.listeners.remove(self._update_actions)
-            self.doc.close()
-        self.doc = doc
-        self.findbar.hide_bar()
-        self.findbar.set_document(doc)
-        self.canvas.set_document(doc)
-        self.pages.set_document(doc)
-        self.outline.set_document(doc)
-        self.stack.setCurrentIndex(1 if doc is not None else 0)
-        if doc is not None:
-            doc.add_listener(self._on_doc_event)
-            doc.undo_stack.listeners.append(self._update_actions)
-            self.pages.set_current_page(0)
-            mode = self.settings.value("view/fitOnOpen", "page")
-            QTimer.singleShot(0, {"width": self.canvas.zoom_width, "100": self.canvas.zoom_actual}.get(mode, self.canvas.zoom_fit))
-            self.canvas.setFocus()
-        else:
+    def _add_document(self, doc: Document) -> DocumentView:
+        """Open ``doc`` in a new tab and make it current."""
+        view = DocumentView(doc)
+        self._connect_view(view)
+        idx = self.tabs.addTab(view, view.title())
+        self.tabs.setTabToolTip(idx, view.tooltip())
+        self.tabs.setCurrentIndex(idx)
+        self.stack.setCurrentIndex(1)
+        mode = self.settings.value("view/fitOnOpen", "page")
+        c = view.canvas
+        QTimer.singleShot(0, {"width": c.zoom_width, "100": c.zoom_actual}.get(mode, c.zoom_fit))
+        c.setFocus()
+        return view
+
+    def _on_tab_changed(self, index: int) -> None:
+        view = self.tabs.widget(index) if index >= 0 else None
+        self._current_view = view
+        if view is None:
+            self.stack.setCurrentIndex(0)
             self.welcome.set_recent(self._recent())
+            self.pages.set_document(None)
+            self.outline.set_document(None)
+            self.properties.set_canvas(self._placeholder_view.canvas)
+        else:
+            self.stack.setCurrentIndex(1)
+            self.pages.set_document(view.doc)
+            self.outline.set_document(view.doc)
+            self.outline.current_page = view.canvas.page_index
+            self.pages.set_current_page(view.canvas.page_index)
+            self.properties.set_canvas(view.canvas)
+            self._on_zoom(view.canvas.zoom, force=True)
+            view.canvas.setFocus()
+        self._on_tool_changed(self.canvas.tool, force=True)
         self.properties.refresh()
         self._update_actions()
-        self._on_tool_changed(self.canvas.tool)
+
+    def _set_document(self, doc: Document | None) -> None:
+        """Compatibility helper: replace the current tab (or open one) with ``doc``."""
+        if self._current_view is not None:
+            self._remove_view(self._current_view)
+        if doc is not None:
+            self._add_document(doc)
+        else:
+            self._on_tab_changed(self.tabs.currentIndex())
+
+    def _remove_view(self, view: DocumentView) -> None:
+        idx = self.tabs.indexOf(view)
+        try:
+            view.doc.remove_listener(self._on_doc_event)
+            if self._update_actions in view.doc.undo_stack.listeners:
+                view.doc.undo_stack.listeners.remove(self._update_actions)
+        except Exception:
+            pass
+        if idx >= 0:
+            self.tabs.removeTab(idx)
+        view.close_document()
+        view.deleteLater()
+        if self.tabs.count() == 0:
+            self._on_tab_changed(-1)
+
+    def close_tab(self, index: int) -> None:
+        view = self.tabs.widget(index)
+        if view is None:
+            return
+        self.tabs.setCurrentIndex(index)
+        if not self._maybe_save():
+            return
+        self._remove_view(view)
+
+    def _cycle_tab(self, step: int) -> None:
+        n = self.tabs.count()
+        if n > 1:
+            self.tabs.setCurrentIndex((self.tabs.currentIndex() + step) % n)
+
+    def _find_open(self, path: str) -> DocumentView | None:
+        ap = os.path.abspath(path)
+        for v in self.views():
+            if v.doc.path and os.path.abspath(v.doc.path) == ap:
+                return v
+        return None
 
     def _on_doc_event(self, event: str, payload) -> None:
         self._update_actions()
@@ -615,9 +736,7 @@ class MainWindow(QMainWindow):
             self.outline.current_page = self.canvas.page_index
 
     def new_document(self) -> None:
-        if not self._maybe_save():
-            return
-        self._set_document(Document())
+        self._add_document(Document())
         self.show_message("New document with one blank page")
 
     def open_dialog(self) -> None:
@@ -627,7 +746,9 @@ class MainWindow(QMainWindow):
             self.open_file(path)
 
     def open_file(self, path: str) -> None:
-        if not self._maybe_save():
+        existing = self._find_open(path)
+        if existing is not None:
+            self.tabs.setCurrentWidget(existing)
             return
         try:
             doc = Document(path)
@@ -644,15 +765,15 @@ class MainWindow(QMainWindow):
                     doc.security.user_password = dlg.password()
                     break
                 QMessageBox.warning(self, "Wrong password", "The password was not accepted.")
-        self._set_document(doc)
+        self._add_document(doc)
         self.settings.setValue("files/lastDir", os.path.dirname(path))
         self._add_recent(path)
         self.show_message(f"Opened {os.path.basename(path)} · {doc.page_count} page(s)")
 
     def close_document(self) -> None:
-        if not self._maybe_save():
+        if self._current_view is None:
             return
-        self._set_document(None)
+        self.close_tab(self.tabs.currentIndex())
 
     def _maybe_save(self) -> bool:
         if self.doc is None or not self.doc.is_modified:
@@ -826,6 +947,8 @@ class MainWindow(QMainWindow):
         self._update_actions()
 
     def _on_canvas_page_changed(self, index: int) -> None:
+        if self.sender() is not None and self.sender() is not self.canvas:
+            return
         self.pages.set_current_page(index)
         self.outline.current_page = index
         if self.findbar.isVisible():
@@ -835,7 +958,26 @@ class MainWindow(QMainWindow):
 
     def _toggle_continuous(self, on: bool) -> None:
         self.settings.setValue("view/continuous", on)
-        self.canvas.set_continuous(on)
+        for v in self.views():
+            v.canvas.set_continuous(on)
+
+    def _apply_view_option(self, key: str, on: bool) -> None:
+        names = {"rulers": "view/rulers", "guides": "view/guides", "grid": "view/grid", "snap": "view/snap",
+                 "snap_objects": "view/snapObjects", "snap_grid": "view/snapGrid"}
+        self.settings.setValue(names[key], on)
+        for v in self.views():
+            if key == "rulers":
+                v.set_rulers_visible(on)
+            elif key == "guides":
+                v.canvas.set_snapping(show_guides=on)
+            elif key == "grid":
+                v.canvas.set_snapping(show_grid=on)
+            elif key == "snap":
+                v.canvas.set_snapping(enabled=on)
+            elif key == "snap_objects":
+                v.canvas.set_snapping(objects=on)
+            elif key == "snap_grid":
+                v.canvas.set_snapping(grid=on)
 
     def _target_pages(self) -> list[int]:
         sel = self.pages.selected_pages() if self.pages_dock.isVisible() else []
@@ -1143,8 +1285,9 @@ class MainWindow(QMainWindow):
             self.doc.set_page_label_rules(dlg.rules())
 
     def _toggle_scale_stroke(self, on: bool) -> None:
-        self.canvas.scale_stroke = on
         self.settings.setValue("edit/scaleStroke", on)
+        for v in self.views():
+            v.canvas.scale_stroke = on
 
     def show_preferences(self) -> None:
         dlg = PreferencesDialog(self)
@@ -1156,9 +1299,13 @@ class MainWindow(QMainWindow):
         if dark != theme.current().dark:
             self.act_dark.setChecked(dark)
             self.toggle_dark(dark, persist=False)
-        self.canvas.scale_stroke = res["scale_stroke"]
         self.act_scale_stroke.setChecked(res["scale_stroke"])
-        self.canvas.author = self.settings.value("user/author", "", type=str)
+        for v in self.views():
+            v.canvas.scale_stroke = res["scale_stroke"]
+            v.canvas.author = self.settings.value("user/author", "", type=str)
+            v.canvas.set_snapping(grid_size=self.settings.value("view/gridSize", 10.0, type=float))
+            v.canvas.snap_tolerance_px = self.settings.value("view/snapTolerance", 6.0, type=float)
+            v.refresh_rulers()
         self.properties.refresh_units()
 
     def show_shortcuts(self) -> None:
@@ -1180,10 +1327,11 @@ class MainWindow(QMainWindow):
         if persist:
             self.settings.setValue("ui/dark", on)
         self._refresh_icons()
-        self.canvas.apply_theme()
+        for v in self.views():
+            v.apply_theme()
+        self._placeholder_view.apply_theme()
         self.pages.refresh()
         self.properties.refresh()
-        self.findbar.refresh_icons()
         self.welcome.refresh_theme()
         if getattr(self, "help_window", None) is not None:
             self.help_window.reload()
@@ -1206,4 +1354,3 @@ class MainWindow(QMainWindow):
             p = u.toLocalFile()
             if p.lower().endswith(".pdf"):
                 self.open_file(p)
-                break

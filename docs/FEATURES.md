@@ -13,7 +13,7 @@ Checked items are implemented and covered by tests.
 - [x] Light and dark themes, system theme detection
 - [x] Welcome screen when no document is open
 - [x] Continuous (multi-page) scrolling view (single-page mode available)
-- [ ] Tabs for several open documents
+- [x] Tabs for several open documents
 
 ## Content editing (Inkscape-like)
 - [x] Select objects on the rendered page (click, Shift+click, rubber band)
@@ -29,7 +29,7 @@ Checked items are implemented and covered by tests.
 - [x] Multi-line text boxes with wrapping; paragraph editing with re-wrap
 - [x] Curves in the Pen tool (click-drag for handles)
 - [ ] Grouping; editing inside form XObjects
-- [ ] Snapping / guides / rulers
+- [x] Snapping to page, objects, guides and grid; rulers; draggable guides
 
 ## Pages
 - [x] Rotate, delete, duplicate, move, reverse order

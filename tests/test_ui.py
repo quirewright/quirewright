@@ -45,6 +45,7 @@ def window(app, pdf_path):
     win.show()
     win.open_file(pdf_path)
     app.processEvents()
+    win.canvas.snap_enabled = False  # these tests drag by exact amounts
     yield win
     win._set_document(None)
     win.close()

@@ -12,7 +12,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 
-from PySide6.QtCore import QEvent, QPointF, QRectF, Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, QLineF, QPointF, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import (
     QBrush,
     QColor,
@@ -30,6 +30,7 @@ from PySide6.QtGui import (
 from PySide6.QtGui import QGuiApplication, QPixmap
 from PySide6.QtWidgets import (
     QGraphicsItem,
+    QGraphicsLineItem,
     QGraphicsPathItem,
     QGraphicsPixmapItem,
     QGraphicsProxyWidget,
@@ -248,6 +249,41 @@ class AnnotItem(QGraphicsItem):
         painter.setPen(pen)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawRect(self.rect)
+
+
+class GridItem(QGraphicsItem):
+    """Light grid drawn over the active page."""
+
+    def __init__(self, rect: QRectF, step: float):
+        super().__init__()
+        self.rect = QRectF(rect)
+        self.step = step
+        self.setZValue(3)
+
+    def boundingRect(self) -> QRectF:
+        return self.rect
+
+    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget | None = None) -> None:
+        t = theme.current()
+        pen = QPen(QColor(t.accent), 0)
+        pen.setCosmetic(True)
+        c = QColor(t.accent)
+        c.setAlpha(45)
+        pen.setColor(c)
+        painter.setPen(pen)
+        r = self.rect
+        x = r.left()
+        n = 0
+        while x <= r.right() + 1e-6 and n < 5000:
+            painter.drawLine(QLineF(x, r.top(), x, r.bottom()))
+            x += self.step
+            n += 1
+        y = r.top()
+        n = 0
+        while y <= r.bottom() + 1e-6 and n < 5000:
+            painter.drawLine(QLineF(r.left(), y, r.right(), y))
+            y += self.step
+            n += 1
 
 
 class SelectionFrame(QGraphicsItem):
@@ -490,6 +526,8 @@ class PageCanvas(QGraphicsView):
     pageEdited = Signal(int)
     toolChanged = Signal(str)
     pageChanged = Signal(int)  # active page changed by clicking/scrolling
+    cursorMoved = Signal(QPointF)  # scene position of the mouse (for rulers)
+    viewChanged = Signal()  # zoom or scroll changed (for rulers)
 
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
@@ -539,6 +577,21 @@ class PageCanvas(QGraphicsView):
         self.scale_stroke = True
         self.draw_style = DrawStyle()
         self._select_new_after_rebuild = False
+        # snapping & guides
+        self.snap_enabled = True
+        self.snap_objects = True
+        self.snap_grid = False
+        self.show_grid = False
+        self.show_guides = True
+        self.grid_size = 10.0  # points, page-local
+        self.snap_tolerance_px = 6.0
+        self.guides: dict[int, list[tuple[str, float]]] = {}  # page -> [(orientation, page-local coord)]
+        self.guide_items: list[QGraphicsLineItem] = []
+        self.grid_item: QGraphicsItem | None = None
+        self.smart_items: list[QGraphicsLineItem] = []
+        self.guide_preview_item: QGraphicsLineItem | None = None
+        self._guide_drag: tuple[int, str] | None = None  # (index in page guide list, orientation)
+        self._snap_targets: tuple[list[float], list[float]] | None = None
 
         self._render_timer = QTimer(self)
         self._render_timer.setSingleShot(True)
@@ -548,8 +601,8 @@ class PageCanvas(QGraphicsView):
         self._scroll_timer.setSingleShot(True)
         self._scroll_timer.setInterval(60)
         self._scroll_timer.timeout.connect(self._on_scrolled)
-        self.verticalScrollBar().valueChanged.connect(lambda v: self._scroll_timer.start())
-        self.horizontalScrollBar().valueChanged.connect(lambda v: self._scroll_timer.start())
+        self.verticalScrollBar().valueChanged.connect(lambda v: (self._scroll_timer.start(), self.viewChanged.emit()))
+        self.horizontalScrollBar().valueChanged.connect(lambda v: (self._scroll_timer.start(), self.viewChanged.emit()))
 
         self.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         self.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
@@ -831,6 +884,19 @@ class PageCanvas(QGraphicsView):
         if self.node_overlay is not None:
             self._scene.removeItem(self.node_overlay)
             self.node_overlay = None
+        for it in self.guide_items + self.smart_items:
+            try:
+                self._scene.removeItem(it)
+            except RuntimeError:
+                pass
+        self.guide_items = []
+        self.smart_items = []
+        if self.grid_item is not None:
+            try:
+                self._scene.removeItem(self.grid_item)
+            except RuntimeError:
+                pass
+            self.grid_item = None
 
     def _activate_page(self, index: int, old_selection=None, old_widgets=None, old_annots=None) -> None:
         """Make ``index`` the editable page: (re)build its overlay in place."""
@@ -850,6 +916,8 @@ class PageCanvas(QGraphicsView):
         self._build_widgets()
         self._build_annots()
         self._build_highlights()
+        self._build_guides()
+        self._build_grid()
         if self._select_new_after_rebuild and self.items_by_id:
             self._select_new_after_rebuild = False
             self.selection = [max(self.items_by_id)]
@@ -896,6 +964,234 @@ class PageCanvas(QGraphicsView):
             item = AnnotItem(info, self.page_offset)
             self._scene.addItem(item)
             self.annot_items[info.xref] = item
+
+    # -- guides & grid -------------------------------------------------------------
+    def page_guides(self) -> list[tuple[str, float]]:
+        return self.guides.setdefault(self.page_index, [])
+
+    def _guide_pen(self, preview: bool = False) -> QPen:
+        t = theme.current()
+        pen = QPen(QColor("#22c55e" if not preview else t.accent), 0, Qt.PenStyle.DashLine if preview else Qt.PenStyle.SolidLine)
+        pen.setCosmetic(True)
+        return pen
+
+    def _guide_line(self, orientation: str, local: float) -> QLineF:
+        r = self.page_rect
+        if orientation == "h":
+            y = self.page_offset.y() + local
+            return QLineF(r.left(), y, r.right(), y)
+        x = self.page_offset.x() + local
+        return QLineF(x, r.top(), x, r.bottom())
+
+    def _build_guides(self) -> None:
+        for it in self.guide_items:
+            try:
+                self._scene.removeItem(it)
+            except RuntimeError:
+                pass
+        self.guide_items = []
+        if not self.show_guides or self.doc is None:
+            return
+        for orientation, local in self.page_guides():
+            item = QGraphicsLineItem(self._guide_line(orientation, local))
+            item.setPen(self._guide_pen())
+            item.setZValue(4)
+            self._scene.addItem(item)
+            self.guide_items.append(item)
+
+    def _build_grid(self) -> None:
+        if self.grid_item is not None:
+            try:
+                self._scene.removeItem(self.grid_item)
+            except RuntimeError:
+                pass
+            self.grid_item = None
+        if not self.show_grid or self.doc is None or self.grid_size <= 0:
+            return
+        self.grid_item = GridItem(self.page_rect, self.grid_size)
+        self._scene.addItem(self.grid_item)
+
+    def add_guide(self, orientation: str, scene_value: float) -> None:
+        """Add a guide at a scene coordinate (converted to the active page's local space)."""
+        local = scene_value - (self.page_offset.y() if orientation == "h" else self.page_offset.x())
+        limit = self.page_rect.height() if orientation == "h" else self.page_rect.width()
+        if local < -1 or local > limit + 1:
+            return
+        self.page_guides().append((orientation, local))
+        self.show_guides = True
+        self._build_guides()
+        self.statusMessage.emit(f"Guide added at {local:.1f} pt · drag it off the page to remove")
+
+    def clear_guides(self, all_pages: bool = False) -> None:
+        if all_pages:
+            self.guides.clear()
+        else:
+            self.guides.pop(self.page_index, None)
+        self._build_guides()
+
+    def set_guide_preview(self, orientation: str, scene_value) -> None:
+        if self.guide_preview_item is not None:
+            try:
+                self._scene.removeItem(self.guide_preview_item)
+            except RuntimeError:
+                pass
+            self.guide_preview_item = None
+        if scene_value is None:
+            return
+        local = scene_value - (self.page_offset.y() if orientation == "h" else self.page_offset.x())
+        item = QGraphicsLineItem(self._guide_line(orientation, local))
+        item.setPen(self._guide_pen(preview=True))
+        item.setZValue(4000)
+        self._scene.addItem(item)
+        self.guide_preview_item = item
+
+    def _guide_at(self, pos: QPointF) -> int | None:
+        if not self.show_guides:
+            return None
+        tol = self.snap_tolerance_px / max(self.zoom, 1e-6)
+        for i, (orientation, local) in enumerate(self.page_guides()):
+            if orientation == "h" and abs(pos.y() - (self.page_offset.y() + local)) <= tol:
+                return i
+            if orientation == "v" and abs(pos.x() - (self.page_offset.x() + local)) <= tol:
+                return i
+        return None
+
+    def set_snapping(self, *, enabled=None, objects=None, grid=None, show_grid=None, show_guides=None, grid_size=None) -> None:
+        if enabled is not None:
+            self.snap_enabled = enabled
+        if objects is not None:
+            self.snap_objects = objects
+        if grid is not None:
+            self.snap_grid = grid
+        if show_grid is not None:
+            self.show_grid = show_grid
+        if show_guides is not None:
+            self.show_guides = show_guides
+        if grid_size is not None and grid_size > 0:
+            self.grid_size = float(grid_size)
+        self._build_guides()
+        self._build_grid()
+
+    # -- snapping -------------------------------------------------------------------
+    def _compute_snap_targets(self) -> tuple[list[float], list[float]]:
+        xs: list[float] = []
+        ys: list[float] = []
+        r = self.page_rect
+        xs += [r.left(), r.center().x(), r.right()]
+        ys += [r.top(), r.center().y(), r.bottom()]
+        for orientation, local in self.page_guides():
+            if orientation == "h":
+                ys.append(self.page_offset.y() + local)
+            else:
+                xs.append(self.page_offset.x() + local)
+        if self.snap_objects:
+            selected = set(self.selection)
+            wsel = set(self.widget_selection)
+            asel = set(self.annot_selection)
+            for oid, it in self.items_by_id.items():
+                if oid in selected:
+                    continue
+                b = it.sceneTransform().mapRect(it.shape().boundingRect())
+                xs += [b.left(), b.center().x(), b.right()]
+                ys += [b.top(), b.center().y(), b.bottom()]
+            for x, it in self.widget_items.items():
+                if x in wsel:
+                    continue
+                b = it.rect
+                xs += [b.left(), b.center().x(), b.right()]
+                ys += [b.top(), b.center().y(), b.bottom()]
+            for x, it in self.annot_items.items():
+                if x in asel:
+                    continue
+                b = it.rect
+                xs += [b.left(), b.right()]
+                ys += [b.top(), b.bottom()]
+        return sorted(set(xs)), sorted(set(ys))
+
+    def _snap_value(self, value: float, targets: list[float], tol: float) -> float | None:
+        best = None
+        best_d = tol
+        for t in targets:
+            d = abs(t - value)
+            if d <= best_d:
+                best, best_d = t, d
+        return best
+
+    def _snap_grid_value(self, value: float, axis: str) -> float:
+        origin = self.page_offset.x() if axis == "x" else self.page_offset.y()
+        g = self.grid_size
+        return origin + round((value - origin) / g) * g
+
+    def snap_point(self, pos: QPointF, modifiers=Qt.KeyboardModifier.NoModifier, show: bool = True) -> QPointF:
+        """Snap a scene point to targets/grid; draws smart guides when ``show``."""
+        if not self.snap_enabled or (modifiers & Qt.KeyboardModifier.AltModifier):
+            self._clear_smart()
+            return pos
+        if self._snap_targets is None:
+            self._snap_targets = self._compute_snap_targets()
+        xs, ys = self._snap_targets
+        tol = self.snap_tolerance_px / max(self.zoom, 1e-6)
+        sx = self._snap_value(pos.x(), xs, tol)
+        sy = self._snap_value(pos.y(), ys, tol)
+        x = sx if sx is not None else (self._snap_grid_value(pos.x(), "x") if self.snap_grid else pos.x())
+        y = sy if sy is not None else (self._snap_grid_value(pos.y(), "y") if self.snap_grid else pos.y())
+        if show:
+            self._show_smart(x if sx is not None else None, y if sy is not None else None)
+        return QPointF(x, y)
+
+    def snap_rect_delta(self, rect: QRectF, dx: float, dy: float, modifiers=Qt.KeyboardModifier.NoModifier) -> tuple[float, float]:
+        """Adjust a move delta so that the moved rect's edges/centre snap to targets."""
+        if rect.isNull() or not self.snap_enabled or (modifiers & Qt.KeyboardModifier.AltModifier):
+            self._clear_smart()
+            return dx, dy
+        if self._snap_targets is None:
+            self._snap_targets = self._compute_snap_targets()
+        xs, ys = self._snap_targets
+        tol = self.snap_tolerance_px / max(self.zoom, 1e-6)
+        moved = rect.translated(dx, dy)
+        best_x = None
+        for cand in (moved.left(), moved.center().x(), moved.right()):
+            t = self._snap_value(cand, xs, tol)
+            if t is not None and (best_x is None or abs(t - cand) < abs(best_x[0] - best_x[1])):
+                best_x = (t, cand)
+        best_y = None
+        for cand in (moved.top(), moved.center().y(), moved.bottom()):
+            t = self._snap_value(cand, ys, tol)
+            if t is not None and (best_y is None or abs(t - cand) < abs(best_y[0] - best_y[1])):
+                best_y = (t, cand)
+        if best_x is not None:
+            dx += best_x[0] - best_x[1]
+        elif self.snap_grid:
+            dx += self._snap_grid_value(moved.left(), "x") - moved.left()
+        if best_y is not None:
+            dy += best_y[0] - best_y[1]
+        elif self.snap_grid:
+            dy += self._snap_grid_value(moved.top(), "y") - moved.top()
+        self._show_smart(best_x[0] if best_x else None, best_y[0] if best_y else None)
+        return dx, dy
+
+    def _show_smart(self, x: float | None, y: float | None) -> None:
+        self._clear_smart()
+        t = theme.current()
+        pen = QPen(QColor("#f43f5e"), 0, Qt.PenStyle.DashLine)
+        pen.setCosmetic(True)
+        r = self.sceneRect()
+        for line in ((QLineF(x, r.top(), x, r.bottom()) if x is not None else None), (QLineF(r.left(), y, r.right(), y) if y is not None else None)):
+            if line is None:
+                continue
+            item = QGraphicsLineItem(line)
+            item.setPen(pen)
+            item.setZValue(3500)
+            self._scene.addItem(item)
+            self.smart_items.append(item)
+
+    def _clear_smart(self) -> None:
+        for it in self.smart_items:
+            try:
+                self._scene.removeItem(it)
+            except RuntimeError:
+                pass
+        self.smart_items = []
 
     def _build_highlights(self) -> None:
         for it in self.highlight_items:
@@ -1047,6 +1343,7 @@ class PageCanvas(QGraphicsView):
             self.node_overlay.update()
         self._schedule_render()
         self.zoomChanged.emit(zoom)
+        self.viewChanged.emit()
 
     def zoom_in(self) -> None:
         self.set_zoom(self.zoom * 1.25)
@@ -1932,16 +2229,26 @@ class PageCanvas(QGraphicsView):
                 self._activate_page(target)
                 self.selectionChanged.emit([])
                 self.pageChanged.emit(target)
+        self._snap_targets = None
+        if self.tool == TOOL_SELECT and not (event.modifiers() & Qt.KeyboardModifier.ShiftModifier):
+            gi = self._guide_at(pos)
+            if gi is not None and self.frame.handle_at(pos) is None and not isinstance(self._object_at(pos), (ObjectItem,)):
+                self._guide_drag = (gi, self.page_guides()[gi][0])
+                self.drag = DragState("guide", pos, pos)
+                return
         if self.tool == TOOL_PEN:
             if self.pen_points and (pos - self.pen_points[0]).manhattanLength() * self.zoom < 8 and len(self.pen_points) > 2:
                 self._finish_pen(closed=True)
                 return
+            pos = self.snap_point(pos, event.modifiers(), show=False)
             self.pen_points.append(pos)
             self.pen_handles.append(None)
             self.drag = DragState("penhandle", pos, pos)
             self._update_pen_preview(pos)
             return
         if self.tool in (TOOL_RECT, TOOL_ELLIPSE, TOOL_LINE) or self.tool in AREA_TOOLS or self.is_field_tool or self.is_markup_tool:
+            if not self.is_markup_tool:
+                pos = self.snap_point(pos, event.modifiers(), show=False)
             self.drag = DragState("create", pos, pos)
             return
         if self.tool == TOOL_NOTE:
@@ -1975,6 +2282,7 @@ class PageCanvas(QGraphicsView):
                 self.begin_text_edit(item.obj.id)
             elif self.page_rect.contains(pos):
                 self.clear_selection()
+                pos = self.snap_point(pos, event.modifiers(), show=False)
                 self.drag = DragState("textbox", pos, pos)
             return
         if item is None:
@@ -1997,7 +2305,7 @@ class PageCanvas(QGraphicsView):
                 return
             if x not in self.widget_selection:
                 self.select_widgets([x])
-            self.drag = DragState("move", pos, pos)
+            self.drag = DragState("move", pos, pos, frame_rect=self._selection_rect())
             return
         if isinstance(item, AnnotItem):
             x = item.info.xref
@@ -2008,7 +2316,7 @@ class PageCanvas(QGraphicsView):
             if x not in self.annot_selection:
                 self.select_annots([x])
             if item.info.movable:
-                self.drag = DragState("move", pos, pos)
+                self.drag = DragState("move", pos, pos, frame_rect=self._selection_rect())
             return
         oid = item.obj.id
         if shift:
@@ -2019,15 +2327,22 @@ class PageCanvas(QGraphicsView):
             return
         if oid not in self.selection:
             self.select([oid])
-        self.drag = DragState("move", pos, pos)
+        self.drag = DragState("move", pos, pos, frame_rect=self._selection_rect())
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
         pos = self.mapToScene(event.position().toPoint())
+        self.cursorMoved.emit(pos)
         if self.drag is None:
             if self.tool == TOOL_PEN and self.pen_points:
                 self._update_pen_preview(pos)
             elif self.tool in (TOOL_SELECT, TOOL_NODE):
                 handle = self.frame.handle_at(pos)
+                if self.tool == TOOL_SELECT and handle is None and self._guide_at(pos) is not None and not isinstance(self._object_at(pos), ObjectItem):
+                    gi = self._guide_at(pos)
+                    orientation = self.page_guides()[gi][0] if gi is not None else "h"
+                    self.viewport().setCursor(Qt.CursorShape.SplitVCursor if orientation == "h" else Qt.CursorShape.SplitHCursor)
+                    super().mouseMoveEvent(event)
+                    return
                 if self.node_overlay is not None:
                     key = self.node_overlay.point_at(pos)
                     if key != self.node_overlay.hover:
@@ -2048,11 +2363,23 @@ class PageCanvas(QGraphicsView):
             return
         d.last = pos
         shift = bool(event.modifiers() & Qt.KeyboardModifier.ShiftModifier)
+        if d.mode == "guide" and self._guide_drag is not None:
+            d.moved = True
+            gi, orientation = self._guide_drag
+            local = (pos.y() - self.page_offset.y()) if orientation == "h" else (pos.x() - self.page_offset.x())
+            guides = self.page_guides()
+            if gi < len(guides):
+                guides[gi] = (orientation, local)
+                self._build_guides()
+            return
         if d.mode == "rubber" and self.rubber is not None:
             self.rubber.setRect(QRectF(d.start, pos).normalized())
             d.moved = True
         elif d.mode in ("create", "textbox"):
             d.moved = True
+            if not self.is_markup_tool:
+                pos = self.snap_point(pos, event.modifiers())
+                d.last = pos
             self._update_create_preview(d, pos, shift)
         elif d.mode == "move":
             delta = pos - d.start
@@ -2064,12 +2391,15 @@ class PageCanvas(QGraphicsView):
                     delta.setY(0)
                 else:
                     delta.setX(0)
-            self._preview_transform(QTransform.fromTranslate(delta.x(), delta.y()))
+            dx, dy = self.snap_rect_delta(d.frame_rect, delta.x(), delta.y(), event.modifiers())
+            self._preview_transform(QTransform.fromTranslate(dx, dy))
         elif d.mode == "scale":
             d.moved = True
+            pos = self.snap_point(pos, event.modifiers())
             self._preview_transform(self._scale_transform(d, pos, event.modifiers()))
         elif d.mode == "node" and self.node_overlay is not None and d.node_key is not None:
             d.moved = True
+            pos = self.snap_point(pos, event.modifiers())
             self.node_overlay.move_point(d.node_key, pos)
         elif d.mode == "penhandle":
             if (pos - d.start).manhattanLength() * self.zoom >= 4:
@@ -2128,6 +2458,22 @@ class PageCanvas(QGraphicsView):
             return
         pos = self.mapToScene(event.position().toPoint())
         shift = bool(event.modifiers() & Qt.KeyboardModifier.ShiftModifier)
+        self._clear_smart()
+        self._snap_targets = None
+        if d.mode == "guide" and self._guide_drag is not None:
+            gi, orientation = self._guide_drag
+            self._guide_drag = None
+            guides = self.page_guides()
+            if gi < len(guides):
+                local = guides[gi][1]
+                limit = self.page_rect.height() if orientation == "h" else self.page_rect.width()
+                if local < 0 or local > limit:
+                    guides.pop(gi)
+                    self.statusMessage.emit("Guide removed")
+            self._build_guides()
+            return
+        if d.mode in ("create", "textbox") and not self.is_markup_tool:
+            pos = d.last if d.moved else pos
         if d.mode == "penhandle":
             if not d.moved:
                 self.pen_handles[-1] = None

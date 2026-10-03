@@ -690,6 +690,17 @@ class PreferencesDialog(_Base):
         self.fit_on_open.addItem("Actual size", "100")
         self.fit_on_open.setCurrentIndex(max(self.fit_on_open.findData(self.settings.value("view/fitOnOpen", "page")), 0))
         form.addRow("Zoom when opening", self.fit_on_open)
+        self.grid_size = QDoubleSpinBox()
+        self.grid_size.setRange(1, 500)
+        self.grid_size.setDecimals(1)
+        self.grid_size.setSuffix(" pt")
+        self.grid_size.setValue(self.settings.value("view/gridSize", 10.0, type=float))
+        form.addRow("Grid spacing", self.grid_size)
+        self.snap_tol = QSpinBox()
+        self.snap_tol.setRange(1, 30)
+        self.snap_tol.setSuffix(" px")
+        self.snap_tol.setValue(int(self.settings.value("view/snapTolerance", 6.0, type=float)))
+        form.addRow("Snap distance", self.snap_tol)
         self.body.addLayout(form)
         self.add_buttons("Save")
 
@@ -703,6 +714,8 @@ class PreferencesDialog(_Base):
         self.settings.setValue("edit/scaleStroke", self.scale_stroke.isChecked())
         self.settings.setValue("user/author", self.author.text())
         self.settings.setValue("view/fitOnOpen", self.fit_on_open.currentData())
+        self.settings.setValue("view/gridSize", float(self.grid_size.value()))
+        self.settings.setValue("view/snapTolerance", float(self.snap_tol.value()))
         return {"theme": t, "units": self.units.currentData(), "scale_stroke": self.scale_stroke.isChecked()}
 
 

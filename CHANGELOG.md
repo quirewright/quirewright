@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Added
+- Document tabs
+- Rulers, draggable guides, grid, and smart snapping to page edges, objects, guides and grid (Alt bypasses)
 - Continuous multi-page scrolling view (toggle in the View menu)
 - In-app help viewer with contents and search (F1)
 - Paragraph editing with re-wrapping (Ctrl+E) and multi-line text boxes (drag with the Text tool)

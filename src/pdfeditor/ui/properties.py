@@ -130,10 +130,28 @@ class PropertiesPanel(QScrollArea):
         self._build_annot_section()
         self.layout_.addStretch()
 
-        canvas.selectionChanged.connect(lambda ids: self.refresh())
-        canvas.pageEdited.connect(lambda i: self.refresh())
-        canvas.toolChanged.connect(lambda t: self.refresh())
+        self._connected: PageCanvas | None = None
+        self.set_canvas(canvas)
+
+    def set_canvas(self, canvas: PageCanvas) -> None:
+        """Follow a different canvas (document tab)."""
+        if self._connected is not None:
+            for sig in (self._connected.selectionChanged, self._connected.pageEdited, self._connected.toolChanged):
+                try:
+                    sig.disconnect(self._on_canvas_signal)
+                except (RuntimeError, TypeError):
+                    pass
+        self.canvas = canvas
+        self._connected = canvas
+        canvas.selectionChanged.connect(self._on_canvas_signal)
+        canvas.pageEdited.connect(self._on_canvas_signal)
+        canvas.toolChanged.connect(self._on_canvas_signal)
+        self._load_defaults()
         self.refresh()
+
+    def _on_canvas_signal(self, *args) -> None:
+        if self.sender() is self.canvas:
+            self.refresh()
 
     # -- sections -------------------------------------------------------------
     def _build_page_section(self) -> None:
