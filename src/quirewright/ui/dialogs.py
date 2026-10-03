@@ -210,48 +210,48 @@ class AboutDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         from PySide6.QtCore import QSize
-        from PySide6.QtWidgets import QGridLayout, QSizePolicy
+        from PySide6.QtWidgets import QHBoxLayout, QTextBrowser
 
         from quirewright.ui import theme
 
+        t = theme.current()
         self.setWindowTitle(tr("About {app}").format(app=APP_NAME))
-        self.setMinimumSize(560, 420)
+        self.resize(600, 560)
+        self.setMinimumSize(480, 400)
         lay = QVBoxLayout(self)
         lay.setContentsMargins(28, 24, 28, 18)
         lay.setSpacing(14)
-        head = QGridLayout()
-        head.setHorizontalSpacing(18)
+        head = QHBoxLayout()
+        head.setSpacing(18)
         logo = QLabel()
-        logo.setPixmap(theme.app_icon().pixmap(QSize(96, 96)))
-        logo.setAlignment(Qt.AlignmentFlag.AlignTop)
-        head.addWidget(logo, 0, 0, 3, 1)
+        logo.setPixmap(theme.app_icon().pixmap(QSize(80, 80)))
+        head.addWidget(logo, 0, Qt.AlignmentFlag.AlignTop)
+        titles = QVBoxLayout()
+        titles.setSpacing(4)
         title = QLabel(APP_NAME)
         title.setStyleSheet("font-size: 24px; font-weight: 700;")
-        head.addWidget(title, 0, 1)
         ver = QLabel(tr("Version {version}").format(version=__version__))
         ver.setProperty("role", "muted")
-        head.addWidget(ver, 1, 1)
-        tag = QLabel(tr("A free and open-source PDF editor that combines vector object editing with page management, "
-                        "forms, comments and signatures."))
-        tag.setWordWrap(True)
-        tag.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        head.addWidget(tag, 2, 1)
-        head.setColumnStretch(1, 1)
+        titles.addWidget(title)
+        titles.addWidget(ver)
+        titles.addStretch()
+        head.addLayout(titles, 1)
         lay.addLayout(head)
-        meaning = QLabel(tr("A <i>quire</i> is a gathering of folded sheets, the basic unit of a bound book; a <i>wright</i> is a maker."))
-        meaning.setWordWrap(True)
-        meaning.setProperty("role", "muted")
-        lay.addWidget(meaning)
-        comps = QLabel(self._components())
-        comps.setWordWrap(True)
-        comps.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        lay.addWidget(comps)
-        lic = QLabel(tr("Licensed under the GNU Affero General Public License v3.0 or later. "
-                        "Source code: <a href=\"https://github.com/quirewright/quirewright\">github.com/quirewright/quirewright</a>"))
-        lic.setWordWrap(True)
-        lic.setOpenExternalLinks(True)
-        lay.addWidget(lic)
-        lay.addStretch(1)
+        # All prose lives in one scrollable, frameless text view so nothing can be clipped.
+        body = QTextBrowser()
+        body.setOpenExternalLinks(True)
+        body.setFrameShape(QTextBrowser.Shape.NoFrame)
+        body.setStyleSheet(f"QTextBrowser {{ background: transparent; color: {t.text}; border: none; }}")
+        body.document().setDefaultStyleSheet(f"body {{ font-size: 13px; line-height: 1.45; }} a {{ color: {t.accent}; }} .muted {{ color: {t.text_muted}; }}")
+        body.setHtml(
+            "<p>" + tr("A free and open-source PDF editor that combines vector object editing with page management, "
+                       "forms, comments and signatures.") + "</p>"
+            + "<p class='muted'>" + tr("A <i>quire</i> is a gathering of folded sheets, the basic unit of a bound book; a <i>wright</i> is a maker.") + "</p>"
+            + "<p>" + self._components() + "</p>"
+            + "<p>" + tr("Licensed under the GNU Affero General Public License v3.0 or later. "
+                         "Source code: <a href=\"https://github.com/quirewright/quirewright\">github.com/quirewright/quirewright</a>") + "</p>"
+        )
+        lay.addWidget(body, 1)
         btn = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         btn.rejected.connect(self.reject)
         btn.accepted.connect(self.accept)

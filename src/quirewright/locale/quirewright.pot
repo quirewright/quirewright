@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: quirewright\n"
-"POT-Creation-Date: 2026-10-03 08:57-0400\n"
+"POT-Creation-Date: 2026-10-03 09:09-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -198,7 +198,7 @@ msgstr ""
 msgid "(not set)"
 msgstr ""
 
-#: ui/dialogs.py:241
+#: ui/dialogs.py:249
 msgid "A <i>quire</i> is a gathering of folded sheets, the basic unit of a bound book; a <i>wright</i> is a maker."
 msgstr ""
 
@@ -206,7 +206,7 @@ msgstr ""
 msgid "A document must keep at least one page."
 msgstr ""
 
-#: ui/dialogs.py:234
+#: ui/dialogs.py:247
 msgid "A free and open-source PDF editor that combines vector object editing with page management, forms, comments and signatures."
 msgstr ""
 
@@ -218,7 +218,7 @@ msgstr ""
 msgid "AES 256-bit (recommended)"
 msgstr ""
 
-#: ui/dialogs.py:217
+#: ui/dialogs.py:218
 msgid "About {app}"
 msgstr ""
 
@@ -1070,7 +1070,7 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: ui/dialogs.py:249
+#: ui/dialogs.py:251
 msgid "Licensed under the GNU Affero General Public License v3.0 or later. Source code: <a href=\"https://github.com/quirewright/quirewright\">github.com/quirewright/quirewright</a>"
 msgstr ""
 
@@ -1902,7 +1902,7 @@ msgstr ""
 msgid "Value"
 msgstr ""
 
-#: ui/dialogs.py:231
+#: ui/dialogs.py:233
 msgid "Version {version}"
 msgstr ""
 
