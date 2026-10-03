@@ -712,8 +712,7 @@ class PreferencesDialog(_Base):
         self.theme.addItem(tr("Follow system"), "system")
         self.theme.addItem(tr("Light"), "light")
         self.theme.addItem(tr("Dark"), "dark")
-        if self.settings.contains("ui/dark"):
-            self.theme.setCurrentIndex(2 if self.settings.value("ui/dark", False, type=bool) else 1)
+        self.theme.setCurrentIndex(max(self.theme.findData(self.settings.value("ui/theme", "system", type=str)), 0))
         form.addRow(tr("Theme"), self.theme)
         self.units = QComboBox()
         for u in UNITS:
@@ -758,10 +757,7 @@ class PreferencesDialog(_Base):
 
     def apply(self) -> dict:
         t = self.theme.currentData()
-        if t == "system":
-            self.settings.remove("ui/dark")
-        else:
-            self.settings.setValue("ui/dark", t == "dark")
+        self.settings.setValue("ui/theme", t)
         set_current_unit(self.units.currentData())
         self.settings.setValue("edit/scaleStroke", self.scale_stroke.isChecked())
         self.settings.setValue("user/author", self.author.text())

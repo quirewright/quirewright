@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from PySide6.QtCore import QByteArray, QSize, Qt
+from PySide6.QtCore import QByteArray, QObject, QSize, Qt, QTimer, Signal, Slot
 from PySide6.QtGui import QColor, QGuiApplication, QIcon, QImage, QPainter, QPalette, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QApplication
@@ -86,14 +86,115 @@ def current() -> Theme:
     return _current
 
 
-def system_prefers_dark() -> bool:
+def _portal_color_scheme() -> int | None:
+    """0 = no preference, 1 = prefer dark, 2 = prefer light (freedesktop settings portal)."""
     try:
-        hints = QGuiApplication.styleHints()
-        scheme = hints.colorScheme()
-        return scheme == Qt.ColorScheme.Dark
+        from PySide6 import QtDBus
+
+        bus = QtDBus.QDBusConnection.sessionBus()
+        if not bus.isConnected():
+            return None
+        iface = QtDBus.QDBusInterface("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop", "org.freedesktop.portal.Settings", bus)
+        reply = iface.call("ReadOne", "org.freedesktop.appearance", "color-scheme")
+        args = reply.arguments()
+        if not args:
+            return None
+        v = args[0]
+        while hasattr(v, "variant"):
+            v = v.variant()
+        return int(v)
     except Exception:
-        pal = QGuiApplication.palette()
-        return pal.color(QPalette.ColorRole.Window).lightness() < 128
+        return None
+
+
+def _gsettings_color_scheme() -> int | None:
+    try:
+        import subprocess
+
+        out = subprocess.run(["gsettings", "get", "org.gnome.desktop.interface", "color-scheme"], capture_output=True, text=True, timeout=2).stdout
+        if "prefer-dark" in out:
+            return 1
+        if "prefer-light" in out:
+            return 2
+        if "default" in out:
+            return 0
+    except Exception:
+        pass
+    return None
+
+
+def system_prefers_dark() -> bool:
+    """Best-effort detection of the desktop's colour scheme.
+
+    Order: Qt's own hint (works with a platform theme), the freedesktop settings
+    portal (GNOME, KDE, sway...), gsettings, and finally the palette lightness.
+    """
+    try:
+        scheme = QGuiApplication.styleHints().colorScheme()
+        if scheme == Qt.ColorScheme.Dark:
+            return True
+        if scheme == Qt.ColorScheme.Light:
+            return False
+    except Exception:
+        pass
+    for probe in (_portal_color_scheme, _gsettings_color_scheme):
+        v = probe()
+        if v is not None:
+            return v == 1
+    try:
+        return QGuiApplication.palette().color(QPalette.ColorRole.Window).lightness() < 128
+    except Exception:
+        return False
+
+
+class SystemThemeWatcher(QObject):
+    """Emits ``changed(bool dark)`` when the desktop switches between light and dark."""
+
+    changed = Signal(bool)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._last = system_prefers_dark()
+        self._dbus_ok = False
+        try:
+            QGuiApplication.styleHints().colorSchemeChanged.connect(self._recheck)
+        except Exception:
+            pass
+        try:
+            from PySide6 import QtDBus
+
+            bus = QtDBus.QDBusConnection.sessionBus()
+            if bus.isConnected():
+                self._dbus_ok = bus.connect("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop",
+                                            "org.freedesktop.portal.Settings", "SettingChanged", self, "_on_setting_changed(QString,QString,QDBusVariant)")
+        except Exception:
+            self._dbus_ok = False
+        # Fallback for desktops without a portal: poll occasionally.
+        self._timer = QTimer(self)
+        self._timer.setInterval(5000 if not self._dbus_ok else 60000)
+        self._timer.timeout.connect(self._recheck)
+        self._timer.start()
+
+    @Slot(str, str, "QDBusVariant")
+    def _on_setting_changed(self, namespace: str, key: str, value) -> None:
+        if namespace == "org.freedesktop.appearance" and key == "color-scheme":
+            self._recheck()
+
+    @Slot()
+    def _recheck(self) -> None:
+        dark = system_prefers_dark()
+        if dark != self._last:
+            self._last = dark
+            self.changed.emit(dark)
+
+
+def theme_mode_to_dark(mode: str) -> bool:
+    """Resolve a preference ("system" / "light" / "dark") to a concrete choice."""
+    if mode == "dark":
+        return True
+    if mode == "light":
+        return False
+    return system_prefers_dark()
 
 
 def build_stylesheet(t: Theme) -> str:

@@ -1581,3 +1581,12 @@ msgstr "Este campo está firmado. Use Documento › Firmas para verificarlo."
 
 msgid "Unsigned. The caption and colours set how the placeholder looks until it is signed."
 msgstr "Sin firmar. El rótulo y los colores definen el aspecto del marcador hasta que se firme."
+
+msgid "Switch between light and dark (View › Follow System Theme returns to the desktop setting)"
+msgstr "Alternar entre claro y oscuro (Ver › Seguir el tema del sistema vuelve al ajuste del escritorio)"
+
+msgid "Follow &System Theme"
+msgstr "Seguir el tema del &sistema"
+
+msgid "Use the desktop's light/dark setting and follow it when it changes"
+msgstr "Usar el ajuste claro/oscuro del escritorio y seguirlo cuando cambie"

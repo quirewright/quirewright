@@ -1583,3 +1583,12 @@ msgstr "Dieses Feld ist signiert. Prüfen Sie es unter Dokument › Signaturen."
 
 msgid "Unsigned. The caption and colours set how the placeholder looks until it is signed."
 msgstr "Nicht signiert. Beschriftung und Farben bestimmen das Aussehen des Platzhalters bis zur Signatur."
+
+msgid "Switch between light and dark (View › Follow System Theme returns to the desktop setting)"
+msgstr "Zwischen Hell und Dunkel wechseln (Ansicht › Systemdesign folgen kehrt zur Desktop-Einstellung zurück)"
+
+msgid "Follow &System Theme"
+msgstr "&Systemdesign folgen"
+
+msgid "Use the desktop's light/dark setting and follow it when it changes"
+msgstr "Die Hell/Dunkel-Einstellung des Desktops verwenden und Änderungen folgen"

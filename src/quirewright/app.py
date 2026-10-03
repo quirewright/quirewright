@@ -63,14 +63,17 @@ def main(argv: list[str] | None = None) -> int:
         qt_tr = QTranslator(app)
         if qt_tr.load(QLocale(lang), "qtbase", "_", QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)):
             app.installTranslator(qt_tr)
-    dark: bool | None = None
+    # Theme preference: "system" (default, follows the desktop live), "light" or "dark".
+    mode = settings.value("ui/theme", "", type=str)
+    if not mode:
+        # migrate the old boolean setting
+        mode = ("dark" if settings.value("ui/dark", False, type=bool) else "light") if settings.contains("ui/dark") else "system"
+        settings.setValue("ui/theme", mode)
     if args.dark:
-        dark = True
+        mode = "dark"
     elif args.light:
-        dark = False
-    elif settings.contains("ui/dark"):
-        dark = settings.value("ui/dark", False, type=bool)
-    theme.apply_theme(app, dark)
+        mode = "light"
+    theme.apply_theme(app, theme.theme_mode_to_dark(mode))
 
     win = MainWindow()
     win.show()

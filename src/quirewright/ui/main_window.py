@@ -299,8 +299,13 @@ class MainWindow(QMainWindow):
         for a, key, default in ((self.act_rulers, "view/rulers", True), (self.act_guides, "view/guides", True), (self.act_grid, "view/grid", False),
                                 (self.act_snap, "view/snap", True), (self.act_snap_objects, "view/snapObjects", True), (self.act_snap_grid, "view/snapGrid", False)):
             a.setChecked(self.settings.value(key, default, type=bool))
-        self.act_dark = self._act(tr("&Dark Mode"), "moon", None, self.toggle_dark, checkable=True)
+        self.act_dark = self._act(tr("&Dark Mode"), "moon", None, self.toggle_dark, checkable=True, tip=tr("Switch between light and dark (View › Follow System Theme returns to the desktop setting)"))
         self.act_dark.setChecked(theme.current().dark)
+        self.act_follow_system = self._act(tr("Follow &System Theme"), None, None, self._toggle_follow_system, checkable=True,
+                                           tip=tr("Use the desktop's light/dark setting and follow it when it changes"))
+        self.act_follow_system.setChecked(self.settings.value("ui/theme", "system", type=str) == "system")
+        self._theme_watcher = theme.SystemThemeWatcher(self)
+        self._theme_watcher.changed.connect(self._on_system_theme_changed)
         self.act_show_pages = self.pages_dock.toggleViewAction()
         self.act_show_pages.setText(tr("Show &Navigation Panel"))
         self.act_show_pages.setIcon(theme.icon("pages"))
@@ -402,7 +407,7 @@ class MainWindow(QMainWindow):
         sn.addSeparator()
         sn.addActions([self.act_clear_guides, self.act_clear_all_guides])
         m.addSeparator()
-        m.addActions([self.act_show_pages, self.act_show_props, self.act_dark])
+        m.addActions([self.act_show_pages, self.act_show_props, self.act_dark, self.act_follow_system])
         m.addSeparator()
         m.addActions([self.act_next_tab, self.act_prev_tab])
 
@@ -1479,11 +1484,42 @@ class MainWindow(QMainWindow):
             self.help_window.show_section(section)
 
     # -- theme ---------------------------------------------------------------
+    def _toggle_follow_system(self, on: bool) -> None:
+        if on:
+            self.settings.setValue("ui/theme", "system")
+            self.settings.sync()
+            dark = theme.system_prefers_dark()
+            if dark != theme.current().dark:
+                self.act_dark.setChecked(dark)
+                self.toggle_dark(dark, persist=False)
+        else:
+            self.settings.setValue("ui/theme", "dark" if theme.current().dark else "light")
+            self.settings.sync()
+
+    def _on_system_theme_changed(self, dark: bool) -> None:
+        if self.settings.value("ui/theme", "system", type=str) != "system" or dark == theme.current().dark:
+            return
+        self.act_dark.setChecked(dark)
+        self.toggle_dark(dark, persist=False)
+
+    def apply_theme_mode(self, mode: str) -> None:
+        """Apply and store a theme preference: "system", "light" or "dark"."""
+        self.settings.setValue("ui/theme", mode)
+        self.settings.sync()
+        self.act_follow_system.setChecked(mode == "system")
+        dark = theme.theme_mode_to_dark(mode)
+        if dark != theme.current().dark:
+            self.act_dark.setChecked(dark)
+            self.toggle_dark(dark, persist=False)
+
     def toggle_dark(self, on: bool, persist: bool = True) -> None:
         app = QApplication.instance()
         theme.apply_theme(app, on)
         if persist:
-            self.settings.setValue("ui/dark", on)
+            # an explicit choice from the toolbar stops following the system
+            self.settings.setValue("ui/theme", "dark" if on else "light")
+            self.act_follow_system.setChecked(False)
+        self.settings.sync()  # write immediately; a killed process would otherwise lose it
         self._refresh_icons()
         for v in self.views():
             v.apply_theme()
