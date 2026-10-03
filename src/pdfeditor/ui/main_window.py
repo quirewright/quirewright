@@ -265,6 +265,8 @@ class MainWindow(QMainWindow):
         self._last_field_type = 7
         self.act_tool_field = self._act(tr("Form Field"), "form", "F", lambda: self.canvas.set_tool(f"{TOOL_FIELD}:{self._last_field_type}"), True, "Add form fields (F)")
         self.tool_group.addAction(self.act_tool_field)
+        self.act_tool_signature = self._tool_act(tr("Signature Field"), "signature", "G", f"{TOOL_FIELD}:6",
+                                                 tr("Drag or click on the page to add a visible signature field (G)"))
         self.act_tool_highlight = self._tool_act(tr("Highlight"), "highlight", "Ctrl+Alt+H", f"{TOOL_MARKUP}:highlight", tr("Drag over text to highlight it"))
         self.act_tool_underline = self._tool_act(tr("Underline"), "underline", "Ctrl+Alt+U", f"{TOOL_MARKUP}:underline", tr("Drag over text to underline it"))
         self.act_tool_strike = self._tool_act(tr("Strike Out"), "strikeout", "Ctrl+Alt+K", f"{TOOL_MARKUP}:strikeout", tr("Drag over text to strike it out"))
@@ -418,7 +420,7 @@ class MainWindow(QMainWindow):
         m = mb.addMenu(tr("&Document"))
         m.addActions([self.act_properties, self.act_security, self.act_resources, self.act_attach])
         m.addSeparator()
-        m.addActions([self.act_sign, self.act_signatures])
+        m.addActions([self.act_tool_signature, self.act_sign, self.act_signatures])
         m.addSeparator()
         m.addActions([self.act_ocr, self.act_tool_redact, self.act_flatten])
 
@@ -447,6 +449,7 @@ class MainWindow(QMainWindow):
         tb.addWidget(self.field_button)
         self.comment_button = self._menu_button(self.act_tool_highlight, [self.act_tool_highlight, self.act_tool_underline, self.act_tool_strike, self.act_tool_note])
         tb.addWidget(self.comment_button)
+        tb.addAction(self.act_tool_signature)
         tb.addAction(self.act_insert_image)
         tb.addSeparator()
         tb.addActions([self.act_zoom_fit, self.act_zoom_width])
@@ -564,7 +567,7 @@ class MainWindow(QMainWindow):
                   self.act_find_prev, self.act_numbers, self.act_watermark, self.act_properties, self.act_security, self.act_resources,
                   self.act_attach, self.act_flatten, self.act_ocr, self.act_sign, self.act_signatures, self.act_insert_image, self.act_goto, self.act_tool_field, self.act_tool_crop,
                   self.act_tool_redact, self.act_tool_highlight, self.act_tool_underline, self.act_tool_strike, self.act_tool_note,
-                  self.act_tool_rect, self.act_tool_ellipse, self.act_tool_line, self.act_tool_pen, *self.field_actions):
+                  self.act_tool_rect, self.act_tool_ellipse, self.act_tool_line, self.act_tool_pen, self.act_tool_signature, *self.field_actions):
             a.setEnabled(has)
         self.act_undo.setEnabled(has and self.doc.undo_stack.can_undo)
         self.act_redo.setEnabled(has and self.doc.undo_stack.can_redo)
@@ -638,12 +641,12 @@ class MainWindow(QMainWindow):
         for a in self.tool_group.actions():
             if a.property("tool") == tool:
                 a.setChecked(True)
-                if tool.startswith(TOOL_FIELD):
+                if tool.startswith(TOOL_FIELD) and a is not self.act_tool_signature:
                     self.field_button.setDefaultAction(a)
                     self._last_field_type = self.canvas.field_tool_type()
                 elif tool.startswith(TOOL_MARKUP) or tool == TOOL_NOTE:
                     self.comment_button.setDefaultAction(a)
-        self.act_tool_field.setChecked(tool.startswith(TOOL_FIELD))
+        self.act_tool_field.setChecked(tool.startswith(TOOL_FIELD) and tool != f"{TOOL_FIELD}:6")
         hints = {
             TOOL_SELECT: tr("Click to select · drag to move · Shift+click to add · handles resize · double-click text to edit, a shape for nodes, a group to enter it"),
             TOOL_NODE: tr("Drag anchors (squares) and control points (circles) · Esc returns to Select"),
@@ -659,6 +662,8 @@ class MainWindow(QMainWindow):
         }
         if tool.startswith(TOOL_MARKUP):
             hint = tr("Drag over words to mark them up · select a comment to edit it in the Inspector")
+        elif tool == f"{TOOL_FIELD}:6":
+            hint = tr("Drag or click to place a signature field · then Document › Sign Document, or the Inspector's Sign this field…")
         elif tool.startswith(TOOL_FIELD):
             hint = tr("Drag on the page to place the field · select a field to edit it in the Inspector")
         else:
@@ -1313,7 +1318,7 @@ class MainWindow(QMainWindow):
             return []
         return [os.path.join(d, f) for f in sorted(os.listdir(d)) if f.lower().endswith((".pem", ".cer", ".crt", ".der"))]
 
-    def sign_document(self) -> None:
+    def sign_document(self, field_name: str | None = None) -> None:
         if not self.doc:
             return
         from pdfeditor.core import signing
@@ -1323,6 +1328,9 @@ class MainWindow(QMainWindow):
             if r != QMessageBox.StandardButton.Yes or not self.save():
                 return
         fields = [w.field_name for w in self.doc.widgets(self.canvas.page_index) if w.field_type == 6]
+        if field_name and field_name in fields:
+            fields.remove(field_name)
+            fields.insert(0, field_name)
         dlg = SignDialog(self.doc.page_count, self.canvas.page_index, fields, self)
         if dlg.exec() != SignDialog.DialogCode.Accepted:
             return

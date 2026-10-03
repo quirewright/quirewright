@@ -450,6 +450,14 @@ class PropertiesPanel(QScrollArea):
         self.w_format.currentIndexChanged.connect(lambda i: self._sync_script_rows())
         self.w_validate.toggled.connect(lambda on: self._sync_script_rows())
         self.w_script_form = sform
+        self.w_sign_btn = QPushButton(tr("Sign this field…"))
+        self.w_sign_btn.setToolTip(tr("Sign the document with a certificate, placing the signature in this field"))
+        self.w_sign_btn.clicked.connect(self._sign_field)
+        wl.addWidget(self.w_sign_btn)
+        self.w_signed_note = QLabel("")
+        self.w_signed_note.setProperty("role", "muted")
+        self.w_signed_note.setWordWrap(True)
+        wl.addWidget(self.w_signed_note)
         wl.addWidget(_hline())
         btns = QHBoxLayout()
         self.w_apply = QPushButton(tr("Apply"))
@@ -663,13 +671,21 @@ class PropertiesPanel(QScrollArea):
         is_check = ft in (2, 5)
         is_choice = ft in (3, 4)
         is_button = ft == 1
+        is_sig = ft == 6
         self._show_row(self.w_value, is_text)
         self._show_row(self.w_checked, is_check)
         self._show_row(self.w_choice, is_choice)
         self._show_row(self.w_choices, is_choice)
-        self._show_row(self.w_caption, is_button)
-        self._show_row(self.w_font_size, not is_check)
-        self._show_row(self.w_text_color, not is_check)
+        self._show_row(self.w_caption, is_button or is_sig)
+        self._show_row(self.w_font_size, not is_check and not is_sig)
+        self._show_row(self.w_text_color, not is_check and not is_sig)
+        self.w_sign_btn.setVisible(is_sig)
+        self.w_signed_note.setVisible(is_sig)
+        if is_sig:
+            signed = bool(w.value) and str(w.value) not in ("", "None")
+            self.w_signed_note.setText(tr("This field is signed. Use Document › Signatures to verify it.") if signed
+                                       else tr("Unsigned. The caption and colours set how the placeholder looks until it is signed."))
+            self.w_sign_btn.setEnabled(not signed)
         self.w_multiline.setVisible(is_text)
         if is_text:
             self.w_value.setText(str(w.value or ""))
@@ -682,7 +698,7 @@ class PropertiesPanel(QScrollArea):
             val = str(w.value or "")
             idx = self.w_choice.findText(val)
             self.w_choice.setCurrentIndex(max(idx, 0))
-        if is_button:
+        if is_button or is_sig:
             self.w_caption.setText(w.label or "")
         self.w_font_size.setValue(w.font_size)
         self.w_text_color.set_color(_tuple_to_qcolor(w.text_color))
@@ -722,6 +738,12 @@ class PropertiesPanel(QScrollArea):
         row(self.w_js, custom)
         for w in (self.w_min, self.w_max):
             w.setEnabled(self.w_validate.isChecked())
+
+    def _sign_field(self) -> None:
+        widgets = self.canvas.selected_widgets()
+        win = self.window()
+        if widgets and hasattr(win, "sign_document"):
+            win.sign_document(widgets[0].field_name)
 
     def _load_scripts(self, w: WidgetInfo) -> None:
         import re
@@ -824,9 +846,9 @@ class PropertiesPanel(QScrollArea):
             sel = self.w_choice.currentText()
             if sel:
                 props["value"] = sel
-        elif ft == 1:
+        elif ft in (1, 6):
             props["label"] = self.w_caption.text()
-        if ft not in (2, 5):
+        if ft not in (2, 5, 6):
             props["font_size"] = self.w_font_size.value()
             c = self.w_text_color.color()
             if c is not None:

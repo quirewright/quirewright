@@ -191,8 +191,44 @@ class WidgetItem(QGraphicsItem):
             self.selected_flag = on
             self.update()
 
+    @property
+    def is_unsigned_signature(self) -> bool:
+        info = self.info
+        return info.field_type == 6 and (info.value in (None, "", False) or str(info.value) in ("None", "Off"))
+
+    def _paint_signature_placeholder(self, painter: QPainter) -> None:
+        """Draw the 'sign here' placeholder the way the stored appearance stream looks
+        (MuPDF substitutes its own appearance for unsigned signature fields when rendering)."""
+        info = self.info
+        r = self.rect
+        bg = QColor.fromRgbF(*(info.fill_color or (0.95, 0.97, 1.0))[:3])
+        bc = QColor.fromRgbF(*(info.border_color or (0.25, 0.45, 0.85))[:3])
+        painter.fillRect(r, bg)
+        pen = QPen(bc, 1)
+        pen.setCosmetic(True)
+        painter.setPen(pen)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawRect(r.adjusted(0.5, 0.5, -0.5, -0.5))
+        dashed = QPen(bc, 0.8, Qt.PenStyle.DashLine)
+        painter.setPen(dashed)
+        y_line = r.bottom() - r.height() * 0.3
+        painter.drawLine(QPointF(r.left() + 8, y_line), QPointF(r.right() - 8, y_line))
+        big = max(6.0, min(11.0, r.height() * 0.22))
+        small = max(5.0, min(7.5, r.height() * 0.15))
+        font = QFont("Helvetica")
+        font.setPixelSize(int(round(big)))
+        painter.setFont(font)
+        painter.setPen(QPen(bc))
+        painter.drawText(QPointF(r.left() + 8, r.top() + 5 + big), (info.label or "Sign here").strip() or "Sign here")
+        font.setPixelSize(int(round(small)))
+        painter.setFont(font)
+        painter.setPen(QPen(QColor(115, 115, 115)))
+        painter.drawText(QPointF(r.left() + 8, r.bottom() - max(2.0, r.height() * 0.3 - small - 3)), info.field_name)
+
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget | None = None) -> None:
         t = theme.current()
+        if self.is_unsigned_signature:
+            self._paint_signature_placeholder(painter)
         if self.show_tint:
             c = QColor(t.accent)
             c.setAlpha(28)
@@ -2209,6 +2245,8 @@ class PageCanvas(QGraphicsView):
             size = {2: 14.0, 5: 14.0}.get(field_type, 0.0)
             if size:
                 r = QRectF(r.left(), r.top(), size, size)
+            elif field_type == 6:
+                r = QRectF(r.left(), r.top(), 170.0, 56.0)
             else:
                 r = QRectF(r.left(), r.top(), 120.0, 22.0)
         self.doc.add_widget(self.page_index, field_type, self.to_local_rect(r))

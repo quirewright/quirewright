@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Signature Field tool (G) with a visible 'sign here' placeholder, editable caption and colours, and a Sign-this-field shortcut in the Inspector
 - Digital signatures via pyHanko: sign (invisible / visible / existing field), self-signed certificate creation, signature verification with a personal trust store, signature fields in the form tool
 - French and Spanish translations
 - Complete German translation
@@ -33,4 +34,5 @@
 - Desktop launcher and icon
 
 ### Fixed
+- Push-button captions set from the Inspector were not stored (parameter name collision)
 - Crop by margins trimmed the wrong edge (top/bottom swapped)

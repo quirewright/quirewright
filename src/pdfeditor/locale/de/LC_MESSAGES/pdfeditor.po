@@ -1562,3 +1562,24 @@ msgstr "GÜLTIG (Dokument nach der Signatur geändert)"
 
 msgid "VALID (signer not in trust store)"
 msgstr "GÜLTIG (Unterzeichner nicht im Vertrauensspeicher)"
+
+msgid "Signature Field"
+msgstr "Signaturfeld"
+
+msgid "Drag or click on the page to add a visible signature field (G)"
+msgstr "Auf der Seite ziehen oder klicken, um ein sichtbares Signaturfeld hinzuzufügen (G)"
+
+msgid "Drag or click to place a signature field · then Document › Sign Document, or the Inspector's Sign this field…"
+msgstr "Ziehen oder klicken, um ein Signaturfeld zu platzieren · dann Dokument › Dokument signieren oder „Dieses Feld signieren…“ im Inspektor"
+
+msgid "Sign this field…"
+msgstr "Dieses Feld signieren…"
+
+msgid "Sign the document with a certificate, placing the signature in this field"
+msgstr "Dokument mit einem Zertifikat signieren und die Signatur in diesem Feld platzieren"
+
+msgid "This field is signed. Use Document › Signatures to verify it."
+msgstr "Dieses Feld ist signiert. Prüfen Sie es unter Dokument › Signaturen."
+
+msgid "Unsigned. The caption and colours set how the placeholder looks until it is signed."
+msgstr "Nicht signiert. Beschriftung und Farben bestimmen das Aussehen des Platzhalters bis zur Signatur."

@@ -293,7 +293,7 @@ class _DocumentExtras:
                     fill_color=_to_rgb_tuple(w.fill_color),
                     border_color=_to_rgb_tuple(w.border_color),
                     border_width=float(w.border_width or 0),
-                    label=w.field_label or "",
+                    label=(w.field_label or "") if w.field_type == 6 else (w.button_caption or w.field_label or ""),
                     on_state=w.on_state() if w.field_type in (2, 5) else None,
                     script_calc=w.script_calc or "",
                     script_format=w.script_format or "",
@@ -353,9 +353,57 @@ class _DocumentExtras:
                 w.fill_color = props["fill_color"]
             if "flags" in props:
                 w.field_flags = props["flags"]
-            page.add_widget(w)
+            if field_type == 6:
+                w.fill_color = props.get("fill_color", (0.95, 0.97, 1.0))
+                w.border_color = props.get("border_color", (0.25, 0.45, 0.85))
+                w.field_label = props.get("label", "Sign here")
+            annot = page.add_widget(w)
+            if field_type == 6:
+                doc._signature_placeholder(page, annot.xref)
 
         self._structure_op(f"Add {WIDGET_TYPES.get(field_type, 'field').lower()}", action)
+
+    def _signature_placeholder(self, page, xref: int, label: str | None = None) -> None:
+        """Give an unsigned signature field a visible 'sign here' appearance."""
+        from pdfeditor.core.content.writer import fmt, fmt_string
+
+        w = self._find_widget(page, xref)
+        if w is None:
+            return
+        r = w.rect
+        width, height = max(r.width, 1.0), max(r.height, 1.0)
+        bg = _to_rgb_tuple(w.fill_color) or (0.95, 0.97, 1.0)
+        bc = _to_rgb_tuple(w.border_color) or (0.25, 0.45, 0.85)
+        if label is None:
+            kind, tu = self.pdf.xref_get_key(xref, "TU")
+            label = tu if kind == "string" else (w.field_label or "")
+        caption = (label or "Sign here").strip() or "Sign here"
+        helv = page.insert_font(fontname="helv")
+        big = max(6.0, min(11.0, height * 0.22))
+        small = max(5.0, min(7.5, height * 0.15))
+
+        def rgb(c, op):
+            return b" ".join(fmt(v) for v in c) + b" " + op
+
+        ops = [
+            b"q", rgb(bg, b"rg"), b"0 0 " + fmt(width) + b" " + fmt(height) + b" re f", b"Q",
+            b"q", rgb(bc, b"RG"), b"1 w 0.5 0.5 " + fmt(width - 1) + b" " + fmt(height - 1) + b" re S", b"Q",
+            b"q", rgb(bc, b"RG"), b"[3 2] 0 d 0.8 w " + fmt(8) + b" " + fmt(height * 0.3) + b" m " + fmt(width - 8) + b" " + fmt(height * 0.3) + b" l S", b"Q",
+            b"q BT /Helv " + fmt(big) + b" Tf " + rgb(bc, b"rg") + b" " + fmt(8) + b" " + fmt(height - big - 5) + b" Td " + fmt_string(caption.encode("latin-1", "replace")) + b" Tj ET Q",
+            b"q BT /Helv " + fmt(small) + b" Tf 0.45 g " + fmt(8) + b" " + fmt(max(2.0, height * 0.3 - small - 3)) + b" Td " + fmt_string((w.field_name or "").encode("latin-1", "replace")) + b" Tj ET Q",
+        ]
+        ap = self.pdf.get_new_xref()
+        self.pdf.update_object(ap, f"<< /Type /XObject /Subtype /Form /BBox [0 0 {width:.3f} {height:.3f}] /Resources << /Font << /Helv {helv} 0 R >> >> >>")
+        self.pdf.update_stream(ap, b"\n".join(ops))
+        self.pdf.xref_set_key(xref, "AP", f"<< /N {ap} 0 R >>")
+        self.pdf.xref_set_key(xref, "TU", "(" + caption.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)") + ")")
+        # PyMuPDF switches on /NeedAppearances when it creates widgets, which makes
+        # viewers (including MuPDF) regenerate every field's appearance and discard
+        # this placeholder. All widgets created here already carry appearances.
+        try:
+            self.pdf.need_appearances(False)
+        except Exception:
+            pass
 
     def _add_radio(self, page, name: str, rect_scene: Rect, props: dict) -> None:
         """Create a radio button.
@@ -400,7 +448,7 @@ class _DocumentExtras:
                 return w
         return None
 
-    def update_widget(self, index: int, xref: int, label: str = "Edit field", **props) -> None:
+    def update_widget(self, index: int, xref: int, undo_label: str = "Edit field", **props) -> None:
         def action(doc: Document) -> None:
             page = doc.pdf[index]
             w = doc._find_widget(page, xref)
@@ -426,15 +474,24 @@ class _DocumentExtras:
                 w.border_color = props["border_color"]
             if "border_width" in props:
                 w.border_width = float(props["border_width"])
-            if "label" in props:
+            if "label" in props and w.field_type != 6:
                 w.button_caption = props["label"]
             for key, attr in (("script_calc", "script_calc"), ("script_format", "script_format"), ("script_validate", "script_change"),
                               ("script_keystroke", "script_stroke"), ("script_action", "script")):
                 if key in props:
                     setattr(w, attr, props[key] or None)
             w.update()
+            if w.field_type == 6 and not doc._is_signed_field(page, w):
+                doc._signature_placeholder(page, w.xref, props.get("label"))
 
-        self._structure_op(label, action)
+        self._structure_op(undo_label, action)
+
+    def _is_signed_field(self, page, w) -> bool:
+        try:
+            kind, _ = self.pdf.xref_get_key(w.xref, "V")
+            return kind not in ("null", "")
+        except Exception:
+            return False
 
     # -- calculations (evaluated locally so the preview updates; viewers run the JS) ----
     def recalculate(self, index: int) -> int:
@@ -682,6 +739,8 @@ class _DocumentExtras:
                 r = _scene_rect(page, w.rect).transformed(m_scene)
                 w.rect = _unrotated_rect(page, r)
                 w.update()
+                if w.field_type == 6 and not doc._is_signed_field(page, w):
+                    doc._signature_placeholder(page, w.xref)
 
         self._structure_op("Move field(s)", action)
 

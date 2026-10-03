@@ -1,20 +1,20 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: pdfeditor\n"
-"POT-Creation-Date: 2026-10-03 08:16-0400\n"
+"POT-Creation-Date: 2026-10-03 08:28-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ui/main_window.py:281
+#: ui/main_window.py:283
 msgid "&Actual Size"
 msgstr ""
 
-#: ui/main_window.py:372
+#: ui/main_window.py:374
 msgid "&Align"
 msgstr ""
 
-#: ui/main_window.py:327
+#: ui/main_window.py:329
 msgid "&Attach File…"
 msgstr ""
 
@@ -22,11 +22,11 @@ msgstr ""
 msgid "&Close"
 msgstr ""
 
-#: ui/main_window.py:385
+#: ui/main_window.py:387
 msgid "&Comment"
 msgstr ""
 
-#: ui/main_window.py:287
+#: ui/main_window.py:289
 msgid "&Continuous Scrolling"
 msgstr ""
 
@@ -34,7 +34,7 @@ msgstr ""
 msgid "&Copy Text"
 msgstr ""
 
-#: ui/main_window.py:300
+#: ui/main_window.py:302
 msgid "&Dark Mode"
 msgstr ""
 
@@ -42,15 +42,15 @@ msgstr ""
 msgid "&Delete"
 msgstr ""
 
-#: ui/main_window.py:312
+#: ui/main_window.py:314
 msgid "&Delete Page(s)"
 msgstr ""
 
-#: ui/main_window.py:418
+#: ui/main_window.py:420
 msgid "&Document"
 msgstr ""
 
-#: ui/main_window.py:353
+#: ui/main_window.py:355
 msgid "&Edit"
 msgstr ""
 
@@ -58,7 +58,7 @@ msgstr ""
 msgid "&Enter Group"
 msgstr ""
 
-#: ui/main_window.py:345
+#: ui/main_window.py:347
 msgid "&Export"
 msgstr ""
 
@@ -66,7 +66,7 @@ msgstr ""
 msgid "&Extract Pages…"
 msgstr ""
 
-#: ui/main_window.py:339
+#: ui/main_window.py:341
 msgid "&File"
 msgstr ""
 
@@ -74,19 +74,19 @@ msgstr ""
 msgid "&Find…"
 msgstr ""
 
-#: ui/main_window.py:284
+#: ui/main_window.py:286
 msgid "&First Page"
 msgstr ""
 
-#: ui/main_window.py:279
+#: ui/main_window.py:281
 msgid "&Fit Page"
 msgstr ""
 
-#: ui/main_window.py:328
+#: ui/main_window.py:330
 msgid "&Flatten Forms and Comments"
 msgstr ""
 
-#: ui/main_window.py:286
+#: ui/main_window.py:288
 msgid "&Go to Page…"
 msgstr ""
 
@@ -94,11 +94,11 @@ msgstr ""
 msgid "&Group"
 msgstr ""
 
-#: ui/main_window.py:425
+#: ui/main_window.py:427
 msgid "&Help"
 msgstr ""
 
-#: ui/main_window.py:377
+#: ui/main_window.py:379
 msgid "&Insert"
 msgstr ""
 
@@ -106,11 +106,11 @@ msgstr ""
 msgid "&Insert Pages from File…"
 msgstr ""
 
-#: ui/main_window.py:334
+#: ui/main_window.py:336
 msgid "&Keyboard Shortcuts"
 msgstr ""
 
-#: ui/main_window.py:285
+#: ui/main_window.py:287
 msgid "&Last Page"
 msgstr ""
 
@@ -118,11 +118,11 @@ msgstr ""
 msgid "&New"
 msgstr ""
 
-#: ui/main_window.py:283
+#: ui/main_window.py:285
 msgid "&Next Page"
 msgstr ""
 
-#: ui/main_window.py:365
+#: ui/main_window.py:367
 msgid "&Object"
 msgstr ""
 
@@ -130,7 +130,7 @@ msgstr ""
 msgid "&Open…"
 msgstr ""
 
-#: ui/main_window.py:407
+#: ui/main_window.py:409
 msgid "&Page"
 msgstr ""
 
@@ -138,7 +138,7 @@ msgstr ""
 msgid "&Preferences…"
 msgstr ""
 
-#: ui/main_window.py:282
+#: ui/main_window.py:284
 msgid "&Previous Page"
 msgstr ""
 
@@ -146,7 +146,7 @@ msgstr ""
 msgid "&Print…"
 msgstr ""
 
-#: ui/main_window.py:324
+#: ui/main_window.py:326
 msgid "&Properties…"
 msgstr ""
 
@@ -158,11 +158,11 @@ msgstr ""
 msgid "&Redo"
 msgstr ""
 
-#: ui/main_window.py:326
+#: ui/main_window.py:328
 msgid "&Resources (Images, Fonts, Attachments)…"
 msgstr ""
 
-#: ui/main_window.py:317
+#: ui/main_window.py:319
 msgid "&Reverse Page Order"
 msgstr ""
 
@@ -170,11 +170,11 @@ msgstr ""
 msgid "&Save"
 msgstr ""
 
-#: ui/main_window.py:325
+#: ui/main_window.py:327
 msgid "&Security…"
 msgstr ""
 
-#: ui/main_window.py:292
+#: ui/main_window.py:294
 msgid "&Snap"
 msgstr ""
 
@@ -186,11 +186,11 @@ msgstr ""
 msgid "&Ungroup"
 msgstr ""
 
-#: ui/main_window.py:335
+#: ui/main_window.py:337
 msgid "&User Guide"
 msgstr ""
 
-#: ui/main_window.py:389
+#: ui/main_window.py:391
 msgid "&View"
 msgstr ""
 
@@ -198,7 +198,7 @@ msgstr ""
 msgid "(not set)"
 msgstr ""
 
-#: ui/main_window.py:1052
+#: ui/main_window.py:1057
 msgid "A document must keep at least one page."
 msgstr ""
 
@@ -218,11 +218,11 @@ msgstr ""
 msgid "Actual size"
 msgstr ""
 
-#: ui/main_window.py:322
+#: ui/main_window.py:324
 msgid "Add &Watermark…"
 msgstr ""
 
-#: ui/main_window.py:320
+#: ui/main_window.py:322
 msgid "Add Page &Numbers…"
 msgstr ""
 
@@ -238,7 +238,7 @@ msgstr ""
 msgid "Add a child bookmark under the selected one"
 msgstr ""
 
-#: ui/main_window.py:330
+#: ui/main_window.py:332
 msgid "Add a digital signature with a certificate"
 msgstr ""
 
@@ -282,7 +282,7 @@ msgstr ""
 msgid "Appearance"
 msgstr ""
 
-#: ui/properties.py:455 ui/properties.py:504
+#: ui/properties.py:463 ui/properties.py:512
 msgid "Apply"
 msgstr ""
 
@@ -298,7 +298,7 @@ msgstr ""
 msgid "At the end"
 msgstr ""
 
-#: ui/doc_dialogs.py:425 ui/main_window.py:1262
+#: ui/doc_dialogs.py:425 ui/main_window.py:1267
 msgid "Attach files"
 msgstr ""
 
@@ -310,7 +310,7 @@ msgstr ""
 msgid "Attachments"
 msgstr ""
 
-#: ui/properties.py:482
+#: ui/properties.py:490
 msgid "Author"
 msgstr ""
 
@@ -338,7 +338,7 @@ msgstr ""
 msgid "Bring to &Front"
 msgstr ""
 
-#: ui/main_window.py:326
+#: ui/main_window.py:328
 msgid "Browse and extract images, fonts and attachments"
 msgstr ""
 
@@ -354,7 +354,7 @@ msgstr ""
 msgid "Calculation & format"
 msgstr ""
 
-#: ui/main_window.py:1052
+#: ui/main_window.py:1057
 msgid "Cannot delete"
 msgstr ""
 
@@ -370,7 +370,7 @@ msgstr ""
 msgid "Certificate"
 msgstr ""
 
-#: ui/main_window.py:1382
+#: ui/main_window.py:1390
 msgid "Certificate added to the trust store. Reopen the Signatures dialog to re-check."
 msgstr ""
 
@@ -402,7 +402,7 @@ msgstr ""
 msgid "Choose certificate"
 msgstr ""
 
-#: ui/main_window.py:1374
+#: ui/main_window.py:1382
 msgid "Choose certificate to trust"
 msgstr ""
 
@@ -418,19 +418,19 @@ msgstr ""
 msgid "Choose folder for images"
 msgstr ""
 
-#: ui/main_window.py:904
+#: ui/main_window.py:909
 msgid "Choose folder for page images"
 msgstr ""
 
-#: ui/main_window.py:1210
+#: ui/main_window.py:1215
 msgid "Choose output folder"
 msgstr ""
 
-#: ui/main_window.py:296
+#: ui/main_window.py:298
 msgid "Clear All Guides"
 msgstr ""
 
-#: ui/main_window.py:295
+#: ui/main_window.py:297
 msgid "Clear Guides on This Page"
 msgstr ""
 
@@ -438,23 +438,23 @@ msgstr ""
 msgid "Click an object to inspect and edit it. Drag to move, use the handles to resize, double-click text to edit a line, double-click a shape to edit its nodes. Use the drawing tools to add shapes, text and form fields."
 msgstr ""
 
-#: ui/main_window.py:655
+#: ui/main_window.py:658
 msgid "Click for corners, click-and-drag for curves · double-click or Enter finishes · click the first point to close · Esc cancels"
 msgstr ""
 
-#: ui/main_window.py:656
+#: ui/main_window.py:659
 msgid "Click on the page to add a sticky note, then type its text in the Inspector"
 msgstr ""
 
-#: ui/main_window.py:650
+#: ui/main_window.py:653
 msgid "Click text to edit the line · Ctrl+E edits the paragraph · click or drag on empty space for new text · Enter applies · Esc cancels"
 msgstr ""
 
-#: ui/main_window.py:271
+#: ui/main_window.py:273
 msgid "Click to add a comment"
 msgstr ""
 
-#: ui/main_window.py:648
+#: ui/main_window.py:651
 msgid "Click to select · drag to move · Shift+click to add · handles resize · double-click text to edit, a shape for nodes, a group to enter it"
 msgstr ""
 
@@ -462,7 +462,7 @@ msgstr ""
 msgid "Close (Esc)"
 msgstr ""
 
-#: ui/properties.py:316 ui/properties.py:491 ui/doc_dialogs.py:558
+#: ui/properties.py:316 ui/properties.py:499 ui/doc_dialogs.py:558
 msgid "Colour"
 msgstr ""
 
@@ -478,11 +478,11 @@ msgstr ""
 msgid "Command"
 msgstr ""
 
-#: ui/properties.py:472
+#: ui/properties.py:480
 msgid "Comment"
 msgstr ""
 
-#: ui/properties.py:484
+#: ui/properties.py:492
 msgid "Comment text"
 msgstr ""
 
@@ -490,7 +490,7 @@ msgstr ""
 msgid "Contact"
 msgstr ""
 
-#: ui/main_window.py:1272
+#: ui/main_window.py:1277
 msgid "Convert all form fields and comments into fixed page content? They can no longer be edited afterwards (undo is available)."
 msgstr ""
 
@@ -530,15 +530,15 @@ msgstr ""
 msgid "Creates a self-signed certificate for signing documents. Readers will see your name and that the document has not been changed since signing, but a self-signed certificate is not vouched for by a certificate authority. For legally recognised signatures use a certificate issued by a trusted provider."
 msgstr ""
 
-#: ui/main_window.py:272
+#: ui/main_window.py:274
 msgid "Crop Tool"
 msgstr ""
 
-#: ui/main_window.py:318
+#: ui/main_window.py:320
 msgid "Crop by &Margins…"
 msgstr ""
 
-#: ui/main_window.py:318
+#: ui/main_window.py:320
 msgid "Crop page margins"
 msgstr ""
 
@@ -566,7 +566,7 @@ msgstr ""
 msgid "D&uplicate"
 msgstr ""
 
-#: ui/main_window.py:313
+#: ui/main_window.py:315
 msgid "D&uplicate Page(s)"
 msgstr ""
 
@@ -586,7 +586,7 @@ msgstr ""
 msgid "Decimals"
 msgstr ""
 
-#: ui/properties.py:337 ui/properties.py:457 ui/properties.py:506 ui/outline.py:167
+#: ui/properties.py:337 ui/properties.py:465 ui/properties.py:514 ui/outline.py:167
 msgid "Delete"
 msgstr ""
 
@@ -598,7 +598,7 @@ msgstr ""
 msgid "Delete the selected bookmark"
 msgstr ""
 
-#: ui/main_window.py:312
+#: ui/main_window.py:314
 msgid "Delete the selected page(s)"
 msgstr ""
 
@@ -622,7 +622,7 @@ msgstr ""
 msgid "Distribute Hori&zontally"
 msgstr ""
 
-#: ui/main_window.py:818
+#: ui/main_window.py:823
 msgid "Do you want to save them?"
 msgstr ""
 
@@ -646,23 +646,23 @@ msgstr ""
 msgid "Document security"
 msgstr ""
 
-#: ui/main_window.py:272
+#: ui/main_window.py:274
 msgid "Drag a rectangle to crop the page to it (C)"
 msgstr ""
 
-#: ui/main_window.py:657
+#: ui/main_window.py:660
 msgid "Drag a rectangle to crop the page to that area (content outside is hidden, not deleted)"
 msgstr ""
 
-#: ui/main_window.py:658
+#: ui/main_window.py:661
 msgid "Drag a rectangle to permanently remove everything inside it"
 msgstr ""
 
-#: ui/main_window.py:273
+#: ui/main_window.py:275
 msgid "Drag a rectangle to permanently remove its content"
 msgstr ""
 
-#: ui/main_window.py:649
+#: ui/main_window.py:652
 msgid "Drag anchors (squares) and control points (circles) · Esc returns to Select"
 msgstr ""
 
@@ -670,7 +670,7 @@ msgstr ""
 msgid "Drag on the page to add a {field}"
 msgstr ""
 
-#: ui/main_window.py:663
+#: ui/main_window.py:668
 msgid "Drag on the page to place the field · select a field to edit it in the Inspector"
 msgstr ""
 
@@ -678,35 +678,43 @@ msgstr ""
 msgid "Drag onto the page to create a guide"
 msgstr ""
 
-#: ui/main_window.py:268
-msgid "Drag over text to highlight it"
+#: ui/main_window.py:269
+msgid "Drag or click on the page to add a visible signature field (G)"
+msgstr ""
+
+#: ui/main_window.py:666
+msgid "Drag or click to place a signature field · then Document › Sign Document, or the Inspector's Sign this field…"
 msgstr ""
 
 #: ui/main_window.py:270
+msgid "Drag over text to highlight it"
+msgstr ""
+
+#: ui/main_window.py:272
 msgid "Drag over text to strike it out"
 msgstr ""
 
-#: ui/main_window.py:269
+#: ui/main_window.py:271
 msgid "Drag over text to underline it"
 msgstr ""
 
-#: ui/main_window.py:661
+#: ui/main_window.py:664
 msgid "Drag over words to mark them up · select a comment to edit it in the Inspector"
 msgstr ""
 
-#: ui/main_window.py:654
+#: ui/main_window.py:657
 msgid "Drag to draw a line · Shift snaps to 45°"
 msgstr ""
 
-#: ui/main_window.py:652
+#: ui/main_window.py:655
 msgid "Drag to draw a rectangle · Shift for a square"
 msgstr ""
 
-#: ui/main_window.py:653
+#: ui/main_window.py:656
 msgid "Drag to draw an ellipse · Shift for a circle"
 msgstr ""
 
-#: ui/main_window.py:651
+#: ui/main_window.py:654
 msgid "Drag to pan · Ctrl+wheel zooms"
 msgstr ""
 
@@ -730,7 +738,7 @@ msgstr ""
 msgid "Duplicate the selected objects"
 msgstr ""
 
-#: ui/main_window.py:313
+#: ui/main_window.py:315
 msgid "Duplicate the selected page(s)"
 msgstr ""
 
@@ -778,7 +786,7 @@ msgstr ""
 msgid "Edit the whole paragraph around the selected text with word wrapping"
 msgstr ""
 
-#: ui/canvas.py:2072
+#: ui/canvas.py:2108
 msgid "Editing paragraph: Ctrl+Enter applies, Esc cancels"
 msgstr ""
 
@@ -790,7 +798,7 @@ msgstr ""
 msgid "Encryption"
 msgstr ""
 
-#: ui/main_window.py:1252
+#: ui/main_window.py:1257
 msgid "Encryption will be applied when you save. Keep the password somewhere safe."
 msgstr ""
 
@@ -802,7 +810,7 @@ msgstr ""
 msgid "Export Page as &Image…"
 msgstr ""
 
-#: ui/main_window.py:894
+#: ui/main_window.py:899
 msgid "Export page"
 msgstr ""
 
@@ -810,7 +818,7 @@ msgstr ""
 msgid "Export page as image"
 msgstr ""
 
-#: ui/main_window.py:915
+#: ui/main_window.py:920
 msgid "Export text"
 msgstr ""
 
@@ -830,11 +838,11 @@ msgstr ""
 msgid "Extract images"
 msgstr ""
 
-#: ui/dialogs.py:116 ui/main_window.py:1190
+#: ui/dialogs.py:116 ui/main_window.py:1195
 msgid "Extract pages"
 msgstr ""
 
-#: ui/main_window.py:1194
+#: ui/main_window.py:1199
 msgid "Extract pages to"
 msgstr ""
 
@@ -878,7 +886,7 @@ msgstr ""
 msgid "Find text in the document"
 msgstr ""
 
-#: ui/main_window.py:280
+#: ui/main_window.py:282
 msgid "Fit &Width"
 msgstr ""
 
@@ -886,11 +894,11 @@ msgstr ""
 msgid "Fit page"
 msgstr ""
 
-#: ui/main_window.py:280
+#: ui/main_window.py:282
 msgid "Fit page width"
 msgstr ""
 
-#: ui/main_window.py:279
+#: ui/main_window.py:281
 msgid "Fit the whole page"
 msgstr ""
 
@@ -898,7 +906,7 @@ msgstr ""
 msgid "Fit width"
 msgstr ""
 
-#: ui/main_window.py:1272
+#: ui/main_window.py:1277
 msgid "Flatten"
 msgstr ""
 
@@ -926,7 +934,7 @@ msgstr ""
 msgid "Fonts"
 msgstr ""
 
-#: ui/main_window.py:382
+#: ui/main_window.py:384
 msgid "Form &Field"
 msgstr ""
 
@@ -962,19 +970,19 @@ msgstr ""
 msgid "Grid spacing"
 msgstr ""
 
-#: ui/canvas.py:2584
+#: ui/canvas.py:2622
 msgid "Guide removed"
 msgstr ""
 
-#: ui/main_window.py:268
+#: ui/main_window.py:270
 msgid "Highlight"
 msgstr ""
 
-#: ui/main_window.py:321
+#: ui/main_window.py:323
 msgid "How pages are numbered in viewers (i, ii, 1, 2, A-1 …)"
 msgstr ""
 
-#: ui/properties.py:489
+#: ui/properties.py:497
 msgid "Icon"
 msgstr ""
 
@@ -990,15 +998,15 @@ msgstr ""
 msgid "Insert"
 msgstr ""
 
-#: ui/main_window.py:314
+#: ui/main_window.py:316
 msgid "Insert &Blank Page…"
 msgstr ""
 
-#: ui/main_window.py:275
+#: ui/main_window.py:277
 msgid "Insert &Image…"
 msgstr ""
 
-#: ui/main_window.py:314
+#: ui/main_window.py:316
 msgid "Insert a blank page"
 msgstr ""
 
@@ -1006,11 +1014,11 @@ msgstr ""
 msgid "Insert blank page"
 msgstr ""
 
-#: ui/main_window.py:1411
+#: ui/main_window.py:1419
 msgid "Insert image"
 msgstr ""
 
-#: ui/main_window.py:1154 ui/main_window.py:1167
+#: ui/main_window.py:1159 ui/main_window.py:1172
 msgid "Insert pages"
 msgstr ""
 
@@ -1042,7 +1050,7 @@ msgstr ""
 msgid "Keyboard shortcuts"
 msgstr ""
 
-#: ui/doc_dialogs.py:660 ui/doc_dialogs.py:738 ui/main_window.py:1446
+#: ui/doc_dialogs.py:660 ui/doc_dialogs.py:738 ui/main_window.py:1454
 msgid "Language"
 msgstr ""
 
@@ -1058,11 +1066,11 @@ msgstr ""
 msgid "Location"
 msgstr ""
 
-#: ui/main_window.py:432
+#: ui/main_window.py:434
 msgid "Main"
 msgstr ""
 
-#: ui/main_window.py:329
+#: ui/main_window.py:331
 msgid "Make scanned pages searchable and selectable"
 msgstr ""
 
@@ -1078,11 +1086,11 @@ msgstr ""
 msgid "Modified"
 msgstr ""
 
-#: ui/main_window.py:315
+#: ui/main_window.py:317
 msgid "Move Page &Up"
 msgstr ""
 
-#: ui/main_window.py:316
+#: ui/main_window.py:318
 msgid "Move Page Do&wn"
 msgstr ""
 
@@ -1106,7 +1114,7 @@ msgstr ""
 msgid "New blank document"
 msgstr ""
 
-#: ui/main_window.py:764
+#: ui/main_window.py:769
 msgid "New document with one blank page"
 msgstr ""
 
@@ -1114,7 +1122,7 @@ msgstr ""
 msgid "New object style"
 msgstr ""
 
-#: ui/canvas.py:2159
+#: ui/canvas.py:2195
 msgid "New objects need a fill or a stroke colour (see the Inspector)."
 msgstr ""
 
@@ -1134,7 +1142,7 @@ msgstr ""
 msgid "No colour / unknown colour space"
 msgstr ""
 
-#: ui/properties.py:574
+#: ui/properties.py:582
 msgid "No document"
 msgstr ""
 
@@ -1142,7 +1150,7 @@ msgstr ""
 msgid "No matches"
 msgstr ""
 
-#: ui/main_window.py:1167 ui/main_window.py:1190
+#: ui/main_window.py:1172 ui/main_window.py:1195
 msgid "No pages matched the given range."
 msgstr ""
 
@@ -1150,11 +1158,11 @@ msgstr ""
 msgid "No password or restrictions"
 msgstr ""
 
-#: ui/main_window.py:972
+#: ui/main_window.py:977
 msgid "No recent files"
 msgstr ""
 
-#: ui/canvas.py:2668
+#: ui/canvas.py:2706
 msgid "No text in that area."
 msgstr ""
 
@@ -1170,19 +1178,19 @@ msgstr ""
 msgid "Only embedded fonts can be extracted. Font files are usually subsets and remain subject to the font's licence."
 msgstr ""
 
-#: ui/canvas.py:1659
+#: ui/canvas.py:1695
 msgid "Only page content can be duplicated."
 msgstr ""
 
-#: ui/properties.py:494 ui/doc_dialogs.py:554
+#: ui/properties.py:502 ui/doc_dialogs.py:554
 msgid "Opacity"
 msgstr ""
 
-#: ui/main_window.py:341
+#: ui/main_window.py:343
 msgid "Open &Recent"
 msgstr ""
 
-#: ui/main_window.py:768
+#: ui/main_window.py:773
 msgid "Open PDF"
 msgstr ""
 
@@ -1194,7 +1202,7 @@ msgstr ""
 msgid "Open a PDF"
 msgstr ""
 
-#: ui/properties.py:575
+#: ui/properties.py:583
 msgid "Open a PDF to get started."
 msgstr ""
 
@@ -1230,7 +1238,7 @@ msgstr ""
 msgid "Page"
 msgstr ""
 
-#: ui/main_window.py:321
+#: ui/main_window.py:323
 msgid "Page &Labels…"
 msgstr ""
 
@@ -1238,7 +1246,7 @@ msgstr ""
 msgid "Page labels"
 msgstr ""
 
-#: ui/main_window.py:468
+#: ui/main_window.py:471
 msgid "Page number (Ctrl+G)"
 msgstr ""
 
@@ -1270,7 +1278,7 @@ msgstr ""
 msgid "Passwords"
 msgstr ""
 
-#: ui/main_window.py:325
+#: ui/main_window.py:327
 msgid "Passwords and permissions"
 msgstr ""
 
@@ -1278,15 +1286,15 @@ msgstr ""
 msgid "Pen"
 msgstr ""
 
-#: ui/main_window.py:1387
+#: ui/main_window.py:1395
 msgid "Permanently remove all text and images inside the rectangle and paint it black?"
 msgstr ""
 
-#: ui/main_window.py:275
+#: ui/main_window.py:277
 msgid "Place an image on the page"
 msgstr ""
 
-#: ui/main_window.py:1154
+#: ui/main_window.py:1159
 msgid "Please choose an existing PDF file."
 msgstr ""
 
@@ -1338,7 +1346,7 @@ msgstr ""
 msgid "Reason"
 msgstr ""
 
-#: ui/main_window.py:329
+#: ui/main_window.py:331
 msgid "Recognize &Text (OCR)…"
 msgstr ""
 
@@ -1350,11 +1358,11 @@ msgstr ""
 msgid "Rectangle"
 msgstr ""
 
-#: ui/main_window.py:1387
+#: ui/main_window.py:1395
 msgid "Redact"
 msgstr ""
 
-#: ui/main_window.py:273
+#: ui/main_window.py:275
 msgid "Redact Area"
 msgstr ""
 
@@ -1402,7 +1410,7 @@ msgstr ""
 msgid "Required to open the document (optional)"
 msgstr ""
 
-#: ui/main_window.py:319
+#: ui/main_window.py:321
 msgid "Reset Cr&op"
 msgstr ""
 
@@ -1414,15 +1422,15 @@ msgstr ""
 msgid "Rotate"
 msgstr ""
 
-#: ui/main_window.py:311
+#: ui/main_window.py:313
 msgid "Rotate &180°"
 msgstr ""
 
-#: ui/main_window.py:309
+#: ui/main_window.py:311
 msgid "Rotate &Clockwise"
 msgstr ""
 
-#: ui/main_window.py:310
+#: ui/main_window.py:312
 msgid "Rotate Counter-cloc&kwise"
 msgstr ""
 
@@ -1434,11 +1442,11 @@ msgstr ""
 msgid "Rotate Selection 90° CW"
 msgstr ""
 
-#: ui/main_window.py:309
+#: ui/main_window.py:311
 msgid "Rotate page(s) 90° clockwise"
 msgstr ""
 
-#: ui/main_window.py:310
+#: ui/main_window.py:312
 msgid "Rotate page(s) 90° counter-clockwise"
 msgstr ""
 
@@ -1446,11 +1454,11 @@ msgstr ""
 msgid "Rotation"
 msgstr ""
 
-#: ui/main_window.py:289
+#: ui/main_window.py:291
 msgid "Rulers in your preferred units; drag from a ruler to add a guide"
 msgstr ""
 
-#: ui/main_window.py:398
+#: ui/main_window.py:400
 msgid "S&napping"
 msgstr ""
 
@@ -1466,7 +1474,7 @@ msgstr ""
 msgid "Save &Reduced Size Copy…"
 msgstr ""
 
-#: ui/main_window.py:850
+#: ui/main_window.py:855
 msgid "Save PDF as"
 msgstr ""
 
@@ -1490,7 +1498,7 @@ msgstr ""
 msgid "Save image"
 msgstr ""
 
-#: ui/main_window.py:870
+#: ui/main_window.py:875
 msgid "Save reduced size copy"
 msgstr ""
 
@@ -1498,7 +1506,7 @@ msgstr ""
 msgid "Save selected…"
 msgstr ""
 
-#: ui/main_window.py:1332
+#: ui/main_window.py:1340
 msgid "Save signed document as"
 msgstr ""
 
@@ -1530,7 +1538,7 @@ msgstr ""
 msgid "Search the guide…  (Enter: next, Shift+Enter: previous)"
 msgstr ""
 
-#: ui/main_window.py:1250
+#: ui/main_window.py:1255
 msgid "Security will be removed when you save."
 msgstr ""
 
@@ -1542,7 +1550,7 @@ msgstr ""
 msgid "Select &All"
 msgstr ""
 
-#: ui/canvas.py:1615
+#: ui/canvas.py:1651
 msgid "Select a group (form XObject) to ungroup."
 msgstr ""
 
@@ -1574,7 +1582,7 @@ msgstr ""
 msgid "Send to &Back"
 msgstr ""
 
-#: ui/main_window.py:948
+#: ui/main_window.py:953
 msgid "Sent to printer"
 msgstr ""
 
@@ -1586,31 +1594,31 @@ msgstr ""
 msgid "Shortcut"
 msgstr ""
 
-#: ui/main_window.py:290
+#: ui/main_window.py:292
 msgid "Show &Guides"
 msgstr ""
 
-#: ui/main_window.py:306
+#: ui/main_window.py:308
 msgid "Show &Inspector"
 msgstr ""
 
-#: ui/main_window.py:303
+#: ui/main_window.py:305
 msgid "Show &Navigation Panel"
 msgstr ""
 
-#: ui/main_window.py:289
+#: ui/main_window.py:291
 msgid "Show &Rulers"
 msgstr ""
 
-#: ui/main_window.py:291
+#: ui/main_window.py:293
 msgid "Show Gr&id"
 msgstr ""
 
-#: ui/main_window.py:287
+#: ui/main_window.py:289
 msgid "Show all pages in one scrolling column"
 msgstr ""
 
-#: ui/main_window.py:331
+#: ui/main_window.py:333
 msgid "Show and verify the document's signatures"
 msgstr ""
 
@@ -1618,11 +1626,11 @@ msgstr ""
 msgid "Show passwords"
 msgstr ""
 
-#: ui/main_window.py:330
+#: ui/main_window.py:332
 msgid "Si&gn Document…"
 msgstr ""
 
-#: ui/main_window.py:331
+#: ui/main_window.py:333
 msgid "Si&gnatures…"
 msgstr ""
 
@@ -1634,8 +1642,20 @@ msgstr ""
 msgid "Sign and save as…"
 msgstr ""
 
-#: ui/sign_dialogs.py:98 ui/main_window.py:1322 ui/main_window.py:1357
+#: ui/sign_dialogs.py:98 ui/main_window.py:1327 ui/main_window.py:1365
 msgid "Sign document"
+msgstr ""
+
+#: ui/properties.py:454
+msgid "Sign the document with a certificate, placing the signature in this field"
+msgstr ""
+
+#: ui/properties.py:453
+msgid "Sign this field…"
+msgstr ""
+
+#: ui/main_window.py:268
+msgid "Signature Field"
 msgstr ""
 
 #: ui/sign_dialogs.py:222
@@ -1646,15 +1666,15 @@ msgstr ""
 msgid "Signed by"
 msgstr ""
 
-#: ui/main_window.py:830
+#: ui/main_window.py:835
 msgid "Signed document"
 msgstr ""
 
-#: ui/main_window.py:1360
+#: ui/main_window.py:1368
 msgid "Signed document saved as {name}"
 msgstr ""
 
-#: ui/main_window.py:1357
+#: ui/main_window.py:1365
 msgid "Signing failed:\n\n{error}"
 msgstr ""
 
@@ -1670,23 +1690,23 @@ msgstr ""
 msgid "Snap distance"
 msgstr ""
 
-#: ui/main_window.py:293
+#: ui/main_window.py:295
 msgid "Snap to &Objects"
 msgstr ""
 
-#: ui/main_window.py:294
+#: ui/main_window.py:296
 msgid "Snap to Gri&d"
 msgstr ""
 
-#: ui/main_window.py:292
+#: ui/main_window.py:294
 msgid "Snap to page edges, guides and other objects while dragging (hold Alt to disable temporarily)"
 msgstr ""
 
-#: ui/canvas.py:2008 ui/canvas.py:2201
+#: ui/canvas.py:2044 ui/canvas.py:2237
 msgid "Some characters are not available in the chosen font."
 msgstr ""
 
-#: ui/canvas.py:1973
+#: ui/canvas.py:2009
 msgid "Some characters are not in the original font; a built-in font was substituted."
 msgstr ""
 
@@ -1706,11 +1726,11 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: ui/main_window.py:271
+#: ui/main_window.py:273
 msgid "Sticky Note"
 msgstr ""
 
-#: ui/main_window.py:270
+#: ui/main_window.py:272
 msgid "Strike Out"
 msgstr ""
 
@@ -1726,7 +1746,7 @@ msgstr ""
 msgid "System language"
 msgstr ""
 
-#: ui/properties.py:486 ui/properties.py:303 ui/doc_dialogs.py:540 ui/main_window.py:250
+#: ui/properties.py:494 ui/properties.py:303 ui/doc_dialogs.py:540 ui/main_window.py:250
 msgid "Text"
 msgstr ""
 
@@ -1734,15 +1754,15 @@ msgstr ""
 msgid "Text colour"
 msgstr ""
 
-#: ui/properties.py:305 ui/properties.py:634
+#: ui/properties.py:305 ui/properties.py:642
 msgid "Text content (Enter applies)"
 msgstr ""
 
-#: ui/canvas.py:1809 ui/canvas.py:1983
+#: ui/canvas.py:1845 ui/canvas.py:2019
 msgid "Text could not be encoded."
 msgstr ""
 
-#: ui/canvas.py:1517
+#: ui/canvas.py:1553
 msgid "Text markup annotations follow the text and cannot be moved."
 msgstr ""
 
@@ -1750,15 +1770,15 @@ msgstr ""
 msgid "Text size"
 msgstr ""
 
-#: ui/main_window.py:1322
+#: ui/main_window.py:1327
 msgid "The document has unsaved changes. Save it first?"
 msgstr ""
 
-#: ui/main_window.py:1446
+#: ui/main_window.py:1454
 msgid "The new language is used after you restart the application."
 msgstr ""
 
-#: ui/main_window.py:791
+#: ui/main_window.py:796
 msgid "The password was not accepted."
 msgstr ""
 
@@ -1778,19 +1798,23 @@ msgstr ""
 msgid "This document has no digital signatures."
 msgstr ""
 
-#: ui/main_window.py:802
+#: ui/main_window.py:807
 msgid "This document is digitally signed. Saving any edit will invalidate the signature (Document › Signatures to verify)."
 msgstr ""
 
-#: ui/main_window.py:830
+#: ui/main_window.py:835
 msgid "This document is digitally signed. Saving your changes will invalidate the signature. Save anyway?"
+msgstr ""
+
+#: ui/properties.py:686
+msgid "This field is signed. Use Document › Signatures to verify it."
 msgstr ""
 
 #: ui/properties.py:418
 msgid "Thousands separator"
 msgstr ""
 
-#: ui/main_window.py:324
+#: ui/main_window.py:326
 msgid "Title, author, keywords and file details"
 msgstr ""
 
@@ -1810,15 +1834,15 @@ msgstr ""
 msgid "Trusted"
 msgstr ""
 
-#: ui/canvas.py:2055
+#: ui/canvas.py:2091
 msgid "Type text…"
 msgstr ""
 
-#: ui/canvas.py:2046
+#: ui/canvas.py:2082
 msgid "Type text… (Ctrl+Enter applies, Esc cancels)"
 msgstr ""
 
-#: ui/main_window.py:269
+#: ui/main_window.py:271
 msgid "Underline"
 msgstr ""
 
@@ -1826,8 +1850,12 @@ msgstr ""
 msgid "Units"
 msgstr ""
 
-#: ui/main_window.py:816
+#: ui/main_window.py:821
 msgid "Unsaved changes"
+msgstr ""
+
+#: ui/properties.py:687
+msgid "Unsigned. The caption and colours set how the placeholder looks until it is signed."
 msgstr ""
 
 #: ui/properties.py:201
@@ -1858,7 +1886,7 @@ msgstr ""
 msgid "Write the document as several files, each with the given number of pages."
 msgstr ""
 
-#: ui/main_window.py:791
+#: ui/main_window.py:796
 msgid "Wrong password"
 msgstr ""
 
@@ -1870,11 +1898,11 @@ msgstr ""
 msgid "Your name"
 msgstr ""
 
-#: ui/main_window.py:277
+#: ui/main_window.py:279
 msgid "Zoom &In"
 msgstr ""
 
-#: ui/main_window.py:278
+#: ui/main_window.py:280
 msgid "Zoom &Out"
 msgstr ""
 
@@ -1934,11 +1962,11 @@ msgstr ""
 msgid "{n} = number, {total} = count of numbered pages, {page} = physical page number"
 msgstr ""
 
-#: ui/properties.py:520
+#: ui/properties.py:528
 msgid "{n} comments"
 msgstr ""
 
-#: ui/properties.py:658
+#: ui/properties.py:666
 msgid "{n} form fields"
 msgstr ""
 

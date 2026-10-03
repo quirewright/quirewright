@@ -213,7 +213,14 @@ that the file is unchanged since signing, but a self-signed certificate is not
 vouched for by a certificate authority, so use one from a trusted provider
 when legal weight matters). Choose a reason and location, and either an
 invisible signature, a visible stamp placed in a corner of the current page,
-or an existing signature field (add those with the form-field tool). Signing
+or an existing signature field.
+
+**Signature fields.** The Signature Field tool (G, on the toolbar next to the
+comment tools) places a visible "Sign here" box: drag it out or click for a
+default size. The Inspector sets its caption and colours, and *Sign this
+field…* signs the document into it; other viewers show the same placeholder
+and let their users sign there too. Once signed, the box shows the signature
+stamp instead. Signing
 writes a new file and opens it. Signing is always the last step: saving any
 later edit rewrites the file and invalidates the signature, and the editor
 warns you before that happens.
@@ -266,7 +273,7 @@ Help › Keyboard Shortcuts lists everything. The most used:
 | Ctrl+Z / Ctrl+Shift+Z | undo / redo |
 | S, N, T, H | Select, Node, Text, Hand tools |
 | R, E, L, P | Rectangle, Ellipse, Line, Pen tools |
-| F, C | Form field, Crop tools |
+| F, C, G | Form field, Crop, Signature field tools |
 | Ctrl+F | find |
 | PgUp / PgDn | previous / next page |
 | Ctrl+0 / Ctrl+1 / Ctrl+2 | fit page / actual size / fit width |

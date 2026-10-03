@@ -286,6 +286,7 @@ _ICON_PATHS: dict[str, str] = {
     "page-number": '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M10 16h4M12 13v4"/>',
     "watermark": '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 14l8-6"/>',
     "copy": '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+    "signature": '<path d="M3 17c3-6 5-8 6-6s-1 6 1 6 3-5 5-5 1 4 3 4 2-2 3-2"/><path d="M3 21h18"/>',
     "logo": '<rect x="4" y="2" width="16" height="20" rx="2.5"/><path d="M8 7h8M8 11h8M8 15h5"/><path d="M15 19l5-5" stroke-width="2.4"/>',
 }
 

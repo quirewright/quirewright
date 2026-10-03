@@ -1560,3 +1560,24 @@ msgstr "VÁLIDA (documento modificado tras la firma)"
 
 msgid "VALID (signer not in trust store)"
 msgstr "VÁLIDA (firmante no está en el almacén de confianza)"
+
+msgid "Signature Field"
+msgstr "Campo de firma"
+
+msgid "Drag or click on the page to add a visible signature field (G)"
+msgstr "Arrastre o haga clic en la página para añadir un campo de firma visible (G)"
+
+msgid "Drag or click to place a signature field · then Document › Sign Document, or the Inspector's Sign this field…"
+msgstr "Arrastre o haga clic para colocar un campo de firma · luego Documento › Firmar documento, o «Firmar este campo…» en el inspector"
+
+msgid "Sign this field…"
+msgstr "Firmar este campo…"
+
+msgid "Sign the document with a certificate, placing the signature in this field"
+msgstr "Firmar el documento con un certificado colocando la firma en este campo"
+
+msgid "This field is signed. Use Document › Signatures to verify it."
+msgstr "Este campo está firmado. Use Documento › Firmas para verificarlo."
+
+msgid "Unsigned. The caption and colours set how the placeholder looks until it is signed."
+msgstr "Sin firmar. El rótulo y los colores definen el aspecto del marcador hasta que se firme."
