@@ -90,6 +90,8 @@ def build(out: str) -> None:
     os.makedirs(out)
     shutil.copytree(os.path.join(SITE, "static"), os.path.join(out, "static"))
     shutil.copy(os.path.join(SITE, "style.css"), os.path.join(out, "style.css"))
+    # The icon comes from the package so the site can never show a stale copy.
+    shutil.copy(os.path.join(ROOT, "src", "quirewright", "assets", "quirewright.svg"), os.path.join(out, "static", "img", "quirewright.svg"))
     open(os.path.join(out, ".nojekyll"), "w").close()
 
     index = render(read(os.path.join(SITE, "templates", "index.html")), **common)
