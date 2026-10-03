@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: quirewright\n"
-"POT-Creation-Date: 2026-10-03 09:09-0400\n"
+"POT-Creation-Date: 2026-10-03 12:54-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -328,6 +328,10 @@ msgstr ""
 
 #: ui/properties.py:375
 msgid "Background"
+msgstr ""
+
+#: ui/dialogs.py:315
+msgid "Before you start"
 msgstr ""
 
 #: ui/main_window.py:128
@@ -998,6 +1002,10 @@ msgstr ""
 msgid "How pages are numbered in viewers (i, ii, 1, 2, A-1 …)"
 msgstr ""
 
+#: ui/dialogs.py:348
+msgid "I understand"
+msgstr ""
+
 #: ui/properties.py:497
 msgid "Icon"
 msgstr ""
@@ -1320,6 +1328,10 @@ msgstr ""
 
 #: ui/sign_dialogs.py:82
 msgid "Please enter your name."
+msgstr ""
+
+#: ui/dialogs.py:326
+msgid "Please read before using {app}"
 msgstr ""
 
 #: ui/doc_dialogs.py:517 ui/sign_dialogs.py:150
@@ -1832,6 +1844,10 @@ msgstr ""
 
 #: ui/properties.py:686
 msgid "This field is signed. Use Document › Signatures to verify it."
+msgstr ""
+
+#: ui/dialogs.py:343
+msgid "This notice is shown once. The same text is in the README."
 msgstr ""
 
 #: ui/properties.py:418

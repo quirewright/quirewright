@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
 )
 
 from quirewright import APP_NAME, __version__
-from quirewright.i18n import tr
+from quirewright.i18n import N_, tr
 
 
 def parse_page_ranges(text: str, page_count: int) -> list[int]:
@@ -288,3 +288,75 @@ class AboutDialog(QDialog):
         except Exception:
             pass
         return "<b>" + tr("Built with") + "</b><br>" + "<br>".join(f"{k}: {v}" for k, v in rows)
+
+
+NOTICE_TEXT = N_(
+    "This software was fully developed by AI. Its human testing and human code review has been "
+    "extremely limited. This software comes with no guarantees and no warranties and should not be "
+    "relied upon for any critical applications. It is released to the public in hopes that it can be "
+    "useful for others. Download and use is covered under the terms of the GNU AGPL License (see "
+    "LICENSE for more info). We welcome bug reports and contributions. See CONTRIBUTING for more "
+    "information."
+)
+NOTICE_SETTING = "ui/noticeAcknowledged"
+
+
+class FirstRunDialog(QDialog):
+    """Shown once, on the first start, until the user acknowledges the notice."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        from PySide6.QtCore import QSize
+        from PySide6.QtWidgets import QHBoxLayout, QTextBrowser
+
+        from quirewright.ui import theme
+
+        t = theme.current()
+        self.setWindowTitle(tr("Before you start"))
+        self.setModal(True)
+        self.resize(600, 470)
+        self.setMinimumSize(480, 380)
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(28, 24, 28, 18)
+        lay.setSpacing(14)
+        head = QHBoxLayout()
+        head.setSpacing(16)
+        logo = QLabel()
+        logo.setPixmap(theme.app_icon().pixmap(QSize(56, 56)))
+        head.addWidget(logo, 0, Qt.AlignmentFlag.AlignTop)
+        title = QLabel(tr("Please read before using {app}").format(app=APP_NAME))
+        title.setStyleSheet("font-size: 17px; font-weight: 700;")
+        title.setWordWrap(True)
+        head.addWidget(title, 1, Qt.AlignmentFlag.AlignVCenter)
+        lay.addLayout(head)
+        body = QTextBrowser()
+        body.setOpenExternalLinks(False)
+        body.setFrameShape(QTextBrowser.Shape.NoFrame)
+        body.setStyleSheet(
+            "QTextBrowser { background: #fdecec; color: #5a1414; border: 1px solid #e05a5a; "
+            "border-left: 5px solid #c62828; border-radius: 8px; padding: 10px; font-size: 14px; }"
+            if not t.dark
+            else "QTextBrowser { background: #3a1a1a; color: #f6d9d9; border: 1px solid #b84a4a; "
+            "border-left: 5px solid #e05a5a; border-radius: 8px; padding: 10px; font-size: 14px; }"
+        )
+        body.setHtml(f"<p style='line-height: 1.5'>{tr(NOTICE_TEXT)}</p>")
+        lay.addWidget(body, 1)
+        hint = QLabel(tr("This notice is shown once. The same text is in the README."))
+        hint.setStyleSheet(f"color: {t.text_muted};")
+        hint.setWordWrap(True)
+        lay.addWidget(hint)
+        btn = QDialogButtonBox()
+        ok = btn.addButton(tr("I understand"), QDialogButtonBox.ButtonRole.AcceptRole)
+        ok.setDefault(True)
+        btn.accepted.connect(self.accept)
+        lay.addWidget(btn)
+
+
+def show_first_run_notice(parent, settings) -> bool:
+    """Show the notice unless it was acknowledged before; return True when it was shown."""
+    if settings.value(NOTICE_SETTING, "", type=str) == "1":
+        return False
+    FirstRunDialog(parent).exec()
+    settings.setValue(NOTICE_SETTING, "1")
+    settings.sync()
+    return True

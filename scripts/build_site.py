@@ -37,8 +37,8 @@ WARNING = (
     "for more information."
 )
 DESCRIPTION = (
-    "Quirewright is a free and open-source PDF editor for Linux: Inkscape-style vector editing "
-    "of page content, page management, forms, signatures, encryption and OCR."
+    "Quirewright is a free and open-source PDF editor for Linux that edits page content as vector "
+    "objects and manages pages, forms and comments."
 )
 
 

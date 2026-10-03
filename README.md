@@ -5,16 +5,16 @@
 
 <img src="src/quirewright/assets/quirewright.svg" width="96" align="right" alt="Quirewright icon">
 
-A free and open-source PDF editor that combines **vector-level editing of page
-content** (in the spirit of Inkscape) with **page management** (rotate, reorder,
-delete, insert, extract, split, crop). Linux native, built on cross-platform
-libraries so Windows and macOS ports are straightforward.
+A free and open-source PDF editor that combines vector-level editing of page
+content (in the spirit of Inkscape) with page management (rotate, reorder,
+delete, insert, extract, split, crop). It runs on Linux. The libraries it uses
+are cross-platform, but Windows and macOS have not been tested.
 
 > **Quirewright**: a *quire* is a gathering of folded sheets, the basic unit of
 > a bound book; a *wright* is a maker. A craftsman who assembles gathered
 > pages, which is what this tool does.
 
-## Features (first pass)
+## Features
 
 **Object editing** – every path, text run, image and form XObject on a page is
 selectable directly on the rendered page:
@@ -32,8 +32,8 @@ selectable directly on the rendered page:
 - full undo/redo
 
 Edits are written back into the page's content stream, so the rest of the
-page is untouched byte-for-byte and the result renders identically in every
-viewer.
+page is untouched byte-for-byte and the result should render the same in other
+viewers.
 
 **Page management** – thumbnails panel with drag-to-reorder, multi-select and a
 context menu:
@@ -47,14 +47,10 @@ context menu:
 **Comments** – highlight, underline and strike out text, add sticky notes;
 edit author, text, colour and opacity in the Inspector; flatten when done.
 
-**Signatures** – sign with a PKCS#12 certificate (or create a self-signed
-one), invisible or as a visible stamp or in a signature field; verify
-signatures and manage a personal trust store.
-
 **Document** – edit metadata (title, author, keywords, dates); set or remove
 passwords and permissions (AES-256); browse and extract images, fonts and
 attachments; attach files; find text across pages; bookmarks panel; page
-numbers, watermarks, redaction; export pages as PNG/JPEG/SVG or text; print;
+numbers, watermarks; export pages as PNG/JPEG/SVG or text; print;
 save a reduced-size copy.
 
 **Forms** – create AcroForm fields (text, checkbox, radio, dropdown, list box,
@@ -152,10 +148,10 @@ a built-in Helvetica resource added to the page, and the status bar says so.
 
 ## Porting to Windows / macOS
 
-Nothing in the code is Linux-specific: PySide6 and PyMuPDF both ship wheels for
-all three platforms. Packaging with PyInstaller/briefcase is the expected route;
-file dialogs, shortcuts (`QKeySequence.StandardKey`) and settings (`QSettings`)
-already follow platform conventions.
+The code has no Linux-specific dependencies: PySide6 and PyMuPDF ship wheels
+for all three platforms, and file dialogs, shortcuts (`QKeySequence.StandardKey`)
+and settings (`QSettings`) use Qt's platform conventions. Neither platform has
+been tested; packaging would go through PyInstaller or briefcase.
 
 ## Translating
 
@@ -203,10 +199,10 @@ installs a launcher and icon for the current user.
 Windows and macOS for Python 3.11 and 3.12, then builds the AppImage and the
 Flatpak. Tagging `vX.Y.Z` attaches the AppImage to a GitHub release.
 
-## Roadmap
+## Feature checklist
 
-See [docs/FEATURES.md](docs/FEATURES.md) for the full checklist. Everything on
-it is implemented, including digital signatures (via pyHanko).
+See [docs/FEATURES.md](docs/FEATURES.md) for the full list of what is
+implemented and what is not.
 
 ## Project site
 

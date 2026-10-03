@@ -7,6 +7,7 @@
 - New icon (a quire of folded sheets with an awl; oxblood, parchment and brass) and an oxblood UI accent.
 
 ### Added
+- First-run notice stating the project's AI origin and licence terms; SECURITY.md and CONTRIBUTING.md
 - Signature Field tool (G) with a visible 'sign here' placeholder, editable caption and colours, and a Sign-this-field shortcut in the Inspector
 - Digital signatures via pyHanko: sign (invisible / visible / existing field), self-signed certificate creation, signature verification with a personal trust store, signature fields in the form tool
 - French and Spanish translations

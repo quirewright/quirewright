@@ -6,8 +6,9 @@ the GNU Affero General Public License, version 3 or later (AGPL-3.0-or-later),
 and every contribution is accepted under that same licence.
 
 Please note the warning at the top of the README: this project was developed
-almost entirely by AI with very limited human review. Careful bug reports and
-critical code review are therefore among the most valuable contributions.
+almost entirely by AI with very limited human review. Bug reports and code
+review are therefore among the most useful contributions. Security problems
+should be reported as described in [SECURITY.md](SECURITY.md).
 
 ## Reporting bugs
 
@@ -90,15 +91,15 @@ By opening a pull request you certify the
 [Developer Certificate of Origin](https://developercertificate.org/): that you
 wrote the change or otherwise have the right to submit it under
 AGPL-3.0-or-later. Please add a `Signed-off-by:` line to each commit
-(`git commit -s`). If you used an AI tool to produce part of a change, say so in
-the pull request and review that part with particular care; you remain
-responsible for what you submit.
+(`git commit -s`). You remain responsible for what you submit, whatever tools
+you used to produce it.
 
-### Code produced with AI assistance
+### Contributions made with AI assistance
 
-AI-assisted contributions are accepted on the same terms as any other. They
-must be tested, understood by the submitter, and reviewed by a human before
-submission.
+Contributions produced with the help of AI tools are welcome. They are subject
+to the same review as every other contribution: tested, understood by the
+person submitting them, and accompanied by a pull request that explains the
+change.
 
 ## Project structure
 

@@ -82,4 +82,9 @@ def main(argv: list[str] | None = None) -> int:
     win.show()
     if args.file:
         win.open_file(os.path.abspath(args.file))
+    from PySide6.QtCore import QTimer
+
+    from quirewright.ui.dialogs import show_first_run_notice
+
+    QTimer.singleShot(0, lambda: show_first_run_notice(win, settings))
     return app.exec()
