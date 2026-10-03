@@ -179,6 +179,8 @@ Help › Keyboard Shortcuts lists everything. The most used:
 | Ctrl+G | go to page; PgUp / PgDn previous / next page |
 | Ctrl+0 / Ctrl+1 / Ctrl+2 | fit page / actual size / fit width |
 | Ctrl+I | document properties |
+| Ctrl+Shift+O | resources (images, fonts, attachments) |
+| Ctrl+/ | keyboard shortcut reference |
 | Ctrl+Shift+D | duplicate selection |
 | Ctrl+Shift+] / [ | bring to front / send to back |
 | Ctrl+R / Ctrl+Shift+R | rotate page clockwise / counter-clockwise |
